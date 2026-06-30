@@ -1,0 +1,66 @@
+@use '../../styles/helpers' as *;
+.service-materials {
+  padding-block: 80px;
+  background-color: var(--color-brown);
+
+  &__title {
+    margin-bottom: 40px;
+    font-family: 'Russo One', sans-serif;
+    line-height: 1.2;
+  }
+
+  &__list {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  @include tablet {
+    &__list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @include mobile {
+    padding-block: 60px;
+
+    &__title {
+      margin-bottom: 40px;
+    }
+
+    &__list {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+.service-materials-card {
+  position: relative;
+  overflow: hidden;
+  min-height: 190px;
+  padding: fluid(40, 20);
+  background-image:
+    linear-gradient(
+      90deg,
+      rgba(33, 27, 23, 0.3) 0%,
+      rgba(33, 27, 23, 0) 100%
+    ),
+    var(--material-image);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  border-radius: var(--border-radius-20);
+
+  &__title {
+    font-family: 'Arial Black', sans-serif;
+    line-height: 1.3;
+  }
+
+  @include mobile {
+    min-height: 66px;
+
+    &__title {
+      font-size: 20px;
+    }
+  }
+}

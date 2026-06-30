@@ -1,0 +1,243 @@
+@use '../../styles/helpers' as *;
+.questions {
+  padding-block: fluid(80, 60) fluid(90, 80);
+  background-color: var(--color-brown-900);
+
+  &__inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(420px, 0.98fr);
+    column-gap: fluid(36, 20);
+    padding: fluid(40, 40);
+    background-color: var(--color-brown);
+    border-radius: var(--border-radius-20);
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  &__header {
+    max-width: 720px;
+    margin-bottom: fluid(56, 30);
+  }
+
+  &__title {
+    margin-bottom: fluid(22, 20);
+    font-family: 'Russo One', sans-serif;
+    line-height: 1.2;
+  }
+
+  &__description {
+    font-size: fluid(48, 40);
+    line-height: 1.2;
+    color: var(--color-gray);
+  }
+
+  &__socials {
+    display: flex;
+    align-items: center;
+    gap: fluid(18, 12);
+    margin-bottom: auto;
+  }
+
+  &__social-link {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: fluid(64, 54);
+    height: fluid(64, 54);
+    color: var(--color-brown-dark);
+    background-color: var(--color-white);
+    border-radius: 50%;
+
+    @include hover {
+      color: var(--color-accent);
+    }
+  }
+
+  &__social-icon {
+    --iconSize: #{fluid(42, 34)};
+  }
+
+  &__manager {
+    display: flex;
+    align-items: center;
+    column-gap: 20px;
+    margin-top: fluid(86, 56);
+    padding-top: 22px;
+    border-top: var(--border-width-1) solid rgba(255, 255, 255, 0.2);
+  }
+
+  &__manager-photo {
+    flex-shrink: 0;
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: var(--border-radius-5);
+  }
+
+  &__manager-name,
+  &__manager-position {
+    font-size: fluid(24, 20);
+    line-height: 1.2;
+  }
+
+  &__manager-position {
+    color: var(--color-gray);
+  }
+
+  &__form {
+    display: grid;
+    align-content: end;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  &__control,
+  &__button {
+    width: 100%;
+    min-height: 40px;
+    font-size: fluid(24, 20);
+    line-height: 1.3;
+    border-radius: var(--border-radius-5);
+  }
+
+  &__control {
+    min-width: 0;
+    padding: 4px 12px;
+    color: var(--color-white);
+    background-color: rgba(255, 255, 255, 0.3);
+    border: var(--border-width-1) solid rgba(255, 255, 255, 0.1);
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+  }
+
+  &__control--textarea {
+    min-height: fluid(160, 234);
+    padding-block: 10px;
+    resize: vertical;
+  }
+
+  &__button {
+    justify-content: center;
+    white-space: nowrap;
+    transition:
+      color var(--transition-duration),
+      background-color var(--transition-duration),
+      border-color var(--transition-duration),
+      box-shadow var(--transition-duration),
+      transform var(--transition-duration);
+
+    @include hover {
+      color: var(--color-white);
+      background-color: #d69513;
+      border-color: #ffc45c;
+      box-shadow: 0 0 18px rgba(181, 121, 0, 0.45);
+      transform: translateY(-1px);
+    }
+  }
+
+  &__privacy {
+    margin-top: 8px;
+    font-size: fluid(16, 20);
+    font-weight: 700;
+    line-height: 1.25;
+    color: var(--color-gray);
+  }
+
+  @include tablet {
+    &__inner {
+      grid-template-columns: 1fr;
+      row-gap: 40px;
+      width: 100%;
+    }
+
+    &__form {
+      width: 100%;
+    }
+
+    &__socials {
+      margin-bottom: 0;
+    }
+
+    &__manager {
+      display: none;
+    }
+  }
+
+  @include mobile {
+    padding-block: 60px;
+
+    &__inner {
+      row-gap: 20px;
+      padding: clamp(20px, 5.13vw, 40px);
+      border-radius: var(--border-radius-20);
+    }
+
+    &__header {
+      margin-bottom: 20px;
+    }
+
+    &__title {
+      margin-bottom: 10px;
+      font-size: clamp(28px, 7.18vw, 40px);
+    }
+
+    &__description {
+      font-size: clamp(20px, 5.13vw, 28px);
+    }
+
+    &__socials {
+      gap: clamp(6px, 1.54vw, 12px);
+    }
+
+    &__social-link {
+      width: clamp(40px, 10.26vw, 54px);
+      height: clamp(40px, 10.26vw, 54px);
+    }
+
+    &__social-icon {
+      --iconSize: clamp(24px, 6.15vw, 34px);
+    }
+
+    &__form {
+      gap: 10px;
+    }
+
+    &__control,
+    &__button {
+      min-height: clamp(40px, 10.26vw, 64px);
+      font-size: clamp(20px, 5.13vw, 28px);
+    }
+
+    &__control {
+      padding: 8px 12px;
+    }
+
+    &__control--textarea {
+      min-height: clamp(117px, 30vw, 180px);
+      padding-block: 8px;
+    }
+
+    &__button {
+      min-height: clamp(40px, 10.26vw, 64px);
+      white-space: normal;
+    }
+
+    &__privacy {
+      margin-top: 2px;
+      font-size: clamp(14px, 3.59vw, 20px);
+      line-height: 1.15;
+    }
+  }
+
+  @include mobile-s {
+    &__inner {
+      padding-inline: 20px;
+    }
+  }
+}

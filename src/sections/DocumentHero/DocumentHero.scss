@@ -1,0 +1,20 @@
+@use '../../styles/helpers' as *;
+.document-hero {
+  min-height: 500px;
+  padding-block: 129px 80px;
+  background-color: var(--color-brown-900);
+
+  &__subtitle {
+    margin-bottom: 14px;
+    font-family: 'Arial Black', sans-serif;
+    font-size: 32px;
+    line-height: 1.3;
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  &__title {
+    max-width: 1534px;
+    font-family: 'Russo One', sans-serif;
+    line-height: 1;
+  }
+}

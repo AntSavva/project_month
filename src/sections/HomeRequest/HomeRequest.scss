@@ -1,0 +1,179 @@
+@use '../../styles/helpers' as *;
+
+.home-request {
+  padding-block: fluid(40, 32);
+  background-color: var(--color-brown-900);
+
+  &__inner {
+    position: relative;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(460px, 0.95fr);
+    gap: fluid(48, 24);
+    min-height: fluid(300, 250);
+    padding: fluid(32, 20) fluid(40, 20);
+    background:
+      linear-gradient(90deg, rgba(23, 15, 11, 0.9) 0%, rgba(23, 15, 11, 0.36) 56%, rgba(23, 15, 11, 0.82) 100%),
+      url('../../assets/images/Products/form-bg.png') center bottom / cover no-repeat,
+      var(--color-brown);
+    border-radius: var(--border-radius-10);
+  }
+
+  &__content,
+  &__form {
+    position: relative;
+    z-index: 1;
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-width: 0;
+  }
+
+  &__title {
+    max-width: 720px;
+    margin-bottom: 16px;
+    font-family: 'Russo One', sans-serif;
+    line-height: 1.18;
+  }
+
+  &__description {
+    font-size: fluid(22, 16);
+    line-height: 1.3;
+    color: rgba(255, 255, 255, 0.72);
+  }
+
+  &__socials {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  &__social-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: fluid(36, 32);
+    height: fluid(36, 32);
+    color: var(--color-brown-900);
+    background-color: var(--color-white);
+    border-radius: 50%;
+
+    @include hover {
+      color: var(--color-white);
+      background-color: var(--color-accent);
+    }
+  }
+
+  &__social-icon {
+    --iconSize: #{fluid(22, 18)};
+  }
+
+  &__form {
+    align-self: center;
+    display: grid;
+    gap: 8px;
+    width: 100%;
+    min-width: 0;
+    padding: fluid(20, 12);
+    background-color: rgba(255, 255, 255, 0.16);
+    border: var(--border-width-1) solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--border-radius-5);
+    backdrop-filter: blur(12px);
+  }
+
+  &__control,
+  &__button {
+    width: 100%;
+    min-height: fluid(40, 36);
+    font-size: fluid(18, 16);
+    line-height: 1.3;
+    border-radius: var(--border-radius-5);
+  }
+
+  &__control {
+    min-width: 0;
+    padding: 6px 12px;
+    color: var(--color-white);
+    background-color: rgba(255, 255, 255, 0.36);
+    border: var(--border-width-1) solid rgba(255, 255, 255, 0.12);
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.68);
+    }
+  }
+
+  &__control--textarea {
+    min-height: fluid(86, 96);
+    padding-block: 8px;
+    resize: vertical;
+  }
+
+  &__button {
+    justify-content: center;
+  }
+
+  &__privacy {
+    font-size: fluid(12, 10);
+    font-weight: 700;
+    line-height: 1.3;
+    color: rgba(255, 255, 255, 0.52);
+  }
+
+  @include tablet {
+    &__inner {
+      grid-template-columns: 1fr;
+      width: 100%;
+      gap: 28px;
+    }
+
+    &__content {
+      gap: 32px;
+    }
+
+    &__form {
+      align-self: stretch;
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 767px) {
+    padding-block: 32px;
+
+    &__inner {
+      display: flex;
+      flex-direction: column;
+      row-gap: 20px;
+      min-height: auto;
+      padding: 20px;
+      background:
+        linear-gradient(180deg, rgba(23, 15, 11, 0.88) 0%, rgba(23, 15, 11, 0.46) 50%, rgba(23, 15, 11, 0.9) 100%),
+        url('../../assets/images/Products/form-bg.png') center bottom / auto 100% no-repeat,
+        var(--color-brown);
+      border-radius: var(--border-radius-20);
+    }
+
+    &__title {
+      margin-bottom: 10px;
+    }
+
+    &__content {
+      gap: 24px;
+    }
+
+    &__socials {
+      order: 2;
+    }
+
+    &__form {
+      align-self: stretch;
+      padding: 12px;
+    }
+
+    &__control--textarea {
+      min-height: 112px;
+    }
+  }
+}

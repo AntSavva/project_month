@@ -1,0 +1,104 @@
+@use '../../styles/helpers' as *;
+.route {
+  padding-block: fluid(80, 60) 80px;
+  background-color: var(--color-brown-900);
+
+  &__header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(420px, 0.98fr);
+    align-items: start;
+    column-gap: fluid(36, 20);
+    margin-bottom: fluid(37, 40);
+  }
+
+  &__title {
+    font-family: 'Russo One', sans-serif;
+    line-height: 1.2;
+  }
+
+  &__info {
+    display: grid;
+    row-gap: 12px;
+    padding-top: 11px;
+  }
+
+  &__address,
+  &__link {
+    font-size: fluid(24, 20);
+    line-height: 1.3;
+  }
+
+  &__address {
+    font-style: normal;
+    color: var(--color-gray);
+  }
+
+  &__link {
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    column-gap: 12px;
+    color: var(--color-gray);
+    transition: color var(--transition-duration);
+
+    @include hover {
+      color: var(--color-white);
+    }
+  }
+
+  &__link-icon {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 28px;
+    height: 28px;
+    color: var(--color-accent);
+    background-color: rgba(181, 121, 0, 0.2);
+    border-radius: 50%;
+
+    .icon {
+      --iconSize: 17px;
+    }
+  }
+
+  &__map {
+    overflow: hidden;
+    display: block;
+    border-radius: var(--border-radius-20);
+  }
+
+  &__map-iframe {
+    display: block;
+    width: 100%;
+    height: fluid(380, 350);
+    border: 0;
+  }
+
+  @include tablet {
+    &__header {
+      grid-template-columns: 1fr;
+      row-gap: 10px;
+    }
+
+    &__info {
+      padding-top: 0;
+    }
+  }
+
+  @include mobile {
+    padding-block: 60px;
+
+    &__header {
+      row-gap: 10px;
+      margin-bottom: 40px;
+    }
+
+    &__info {
+      row-gap: 20px;
+    }
+
+    &__map-iframe {
+      height: 350px;
+    }
+  }
+}

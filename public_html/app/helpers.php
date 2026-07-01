@@ -422,6 +422,139 @@ function render_route(array $settings): string
     return '<section class="route container" aria-labelledby="route-title"><div class="route__header"><h2 class="route__title h2" id="route-title">Как к нам добраться?</h2><div class="route__info"><address class="route__address">' . h($settings['address'] ?? '') . '<br>' . h($settings['workingHours'] ?? '') . '</address><a class="route__link" href="https://yandex.ru/maps/-/CPcFYA8G" target="_blank" rel="noreferrer"><span>Построить маршрут</span><span class="route__link-icon" aria-hidden="true">' . icon_html('location-minus') . '</span></a></div></div><div class="route__map"><iframe class="route__map-iframe" src="https://yandex.ru/map-widget/v1/?um=constructor%3A0ac116e0529e203ff85ff75480538831d74af8ef092c310fd14db9f30abf4248&amp;source=constructor" width="649" height="495" frameborder="0" title="Карта проезда"></iframe></div></section>';
 }
 
+function card_icon_url(?string $icon, string $fallback): string
+{
+    $map = [
+        'rulerAndPen' => 'ruler_and_pen',
+        'personWithStar' => 'person_with_star',
+        'shieldPlain' => 'shield_1',
+    ];
+    $name = $icon ? ($map[$icon] ?? $icon) : $fallback;
+
+    return asset_url('images/CardIcons/' . $name . '.png');
+}
+
+function material_image_url(?string $image, string $fallback): string
+{
+    return $image ?: asset_url('images/ServiceMaterials/' . $fallback . '.png');
+}
+
+function render_service_hero(array $page, array $contentData, array $settings): string
+{
+    $hero = $contentData['hero'] ?? [];
+    $cover = $page['cover'] ?: asset_url('images/ServiceHero/hero-image.png');
+    $html = '<section class="service-hero" aria-labelledby="service-hero-title"><div class="service-hero__inner container"><div class="service-hero__content">';
+    $html .= '<p class="service-hero__subtitle">' . h($hero['subtitle'] ?? 'Столярные изделия') . '</p>';
+    $html .= '<h1 class="service-hero__title h1" id="service-hero-title">' . h($hero['title'] ?? $page['title'] ?? '') . '<span> ' . h($hero['accent'] ?? '') . '</span></h1>';
+    $html .= '<form class="service-hero__form" action="/lead" method="post"><input type="hidden" name="source" value="' . h($page['slug'] ?? 'service') . '"><div class="service-hero__fields">';
+    $html .= '<input class="service-hero__control" name="name" placeholder="Григорий" aria-label="Ваше имя" required>';
+    $html .= '<input class="service-hero__control" name="phone" placeholder="' . h($settings['phone'] ?? '') . '" aria-label="Телефон" inputmode="tel" required>';
+    $html .= '<textarea class="service-hero__control service-hero__control--textarea" name="comment" placeholder="Комментарий" aria-label="Комментарий"></textarea>';
+    $html .= '<button class="button service-hero__button" type="submit">Записаться на замер</button></div><p class="service-hero__privacy">Нажимая на кнопку, вы соглашаетесь с политикой конфиденциальности.</p></form></div>';
+
+    return $html . '<img class="service-hero__image" src="' . h($cover) . '" alt="" width="730" height="730" loading="eager"></div></section>';
+}
+
+function render_service_includes(?array $data): string
+{
+    if (!$data) {
+        return '';
+    }
+
+    $fallbackIcons = ['roulette', 'machine', 'car', 'level'];
+    $items = content_items($data);
+    $html = '<section class="service-includes container" aria-labelledby="service-includes-title"><header class="service-includes__header">';
+    $html .= '<h2 class="service-includes__title h2" id="service-includes-title">' . h($data['title'] ?? 'Что входит в услугу') . '</h2>';
+    if (!empty($data['description'])) {
+        $html .= '<p class="service-includes__description">' . h($data['description']) . '</p>';
+    }
+    $html .= '</header><ul class="service-includes__list">';
+    foreach ($items as $index => $item) {
+        $icon = card_icon_url($item['icon'] ?? null, $fallbackIcons[$index % count($fallbackIcons)]);
+        $html .= '<li class="service-includes__item"><article class="service-includes-card"><div class="service-includes-card__content">';
+        $html .= '<h3 class="service-includes-card__title h3">' . h($item['title'] ?? '') . '</h3><p class="service-includes-card__description">' . h($item['description'] ?? '') . '</p></div>';
+        $html .= '<picture class="service-includes-card__picture"><img class="service-includes-card__image" src="' . h($icon) . '" alt="" width="454" height="454" loading="lazy"></picture></article></li>';
+    }
+
+    return $html . '</ul></section>';
+}
+
+function render_service_materials(?array $data): string
+{
+    if (!$data) {
+        return '';
+    }
+
+    $fallback = ['oak', 'ash', 'larch', 'pine', 'walnut', 'beech'];
+    $items = content_items($data);
+    $html = '<section class="service-materials container" aria-labelledby="service-materials-title"><h2 class="service-materials__title h2" id="service-materials-title">' . h($data['title'] ?? 'Материалы') . '</h2><ul class="service-materials__list">';
+    foreach ($items as $index => $item) {
+        $title = is_string($item) ? $item : ($item['title'] ?? '');
+        $image = is_array($item) ? ($item['image'] ?? '') : '';
+        $html .= '<li class="service-materials__item"><article class="service-materials-card" style="--material-image: url(' . h(material_image_url($image, $fallback[$index % count($fallback)])) . ')"><h3 class="service-materials-card__title h3">' . h($title) . '</h3></article></li>';
+    }
+
+    return $html . '</ul></section>';
+}
+
+function render_service_icon_cards(?array $data, string $section, array $fallbackIcons, string $fallbackTitle = ''): string
+{
+    if (!$data) {
+        return '';
+    }
+
+    $items = content_items($data);
+    $html = '<section class="' . h($section) . ($section === 'service-benefits' ? '' : ' container') . '" aria-labelledby="' . h($section) . '-title">';
+    if ($section === 'service-benefits') {
+        $html .= '<div class="service-benefits__inner container">';
+    }
+    $html .= '<div class="' . h($section) . '__header"><h2 class="' . h($section) . '__title h2" id="' . h($section) . '-title">' . h($data['title'] ?? $fallbackTitle) . '</h2>';
+    if (!empty($data['description'])) {
+        $html .= '<p class="' . h($section) . '__description">' . h($data['description']) . '</p>';
+    }
+    $html .= '</div><' . ($section === 'service-benefits' ? 'ul' : 'div') . ' class="' . h($section) . ($section === 'service-benefits' ? '__list' : '__grid') . '">';
+    foreach ($items as $index => $item) {
+        $icon = card_icon_url($item['icon'] ?? null, $fallbackIcons[$index % count($fallbackIcons)]);
+        if ($section === 'service-benefits') {
+            $cardItems = !empty($item['items']) && is_array($item['items']) ? $item['items'] : array_values(array_filter([$item['description'] ?? '']));
+            $html .= '<li class="service-benefits-card"><img class="service-benefits-card__decor" src="' . h($icon) . '" alt="" width="150" height="150" loading="lazy"><div class="service-benefits-card__content"><h3 class="service-benefits-card__title h3">' . h($item['title'] ?? '') . '</h3><ul class="service-benefits-card__items">';
+            foreach ($cardItems as $line) {
+                $html .= '<li class="service-benefits-card__item">' . h($line) . '</li>';
+            }
+            $html .= '</ul></div><a class="service-benefits-card__link" href="/"><span>Подробнее</span>' . icon_html('arrow-top-right', 'icon service-benefits-card__icon') . '</a></li>';
+        } else {
+            $html .= '<article class="service-colors-card"><div class="service-colors-card__content"><h3 class="service-colors-card__title h3">' . h($item['title'] ?? '') . '</h3><p class="service-colors-card__description">' . h($item['description'] ?? '') . '</p></div><img class="service-colors-card__decor" src="' . h($icon) . '" alt="" width="189" height="189" loading="lazy"></article>';
+        }
+    }
+    $html .= '</' . ($section === 'service-benefits' ? 'ul' : 'div') . '>';
+    if ($section === 'service-benefits') {
+        $html .= '</div>';
+    }
+
+    return $html . '</section>';
+}
+
+function render_service_plans(?array $data): string
+{
+    if (!$data) {
+        return '';
+    }
+
+    $fallbackIcons = ['box', 'star', 'medal'];
+    $items = content_items($data);
+    $html = '<section class="service-plans" aria-labelledby="service-plans-title"><div class="service-plans__inner container"><h2 class="service-plans__title h2" id="service-plans-title">' . h($data['title'] ?? 'Варианты сотрудничества') . '</h2><ul class="service-plans__list">';
+    foreach ($items as $index => $item) {
+        $icon = card_icon_url($item['icon'] ?? null, $fallbackIcons[$index % count($fallbackIcons)]);
+        $html .= '<li class="service-plans-card"><div class="service-plans-card__body"><div class="service-plans-card__content"><img class="service-plans-card__icon" src="' . h($icon) . '" alt="" width="100" height="100" loading="lazy"><h3 class="service-plans-card__title h3">' . h($item['title'] ?? '') . '</h3><ul class="service-plans-card__items">';
+        foreach (($item['items'] ?? []) as $line) {
+            $html .= '<li class="service-plans-card__item">' . h($line) . '</li>';
+        }
+        $html .= '</ul></div><a class="button service-plans-card__button" href="#request">Записаться на замер</a></div></li>';
+    }
+
+    return $html . '</ul></div></section>';
+}
+
 function render_items(array $items): string
 {
     if (!$items) {
@@ -472,6 +605,82 @@ function render_request_form(string $source = 'site'): string
     return '<section class="service-request container"><div class="service-request__inner"><div class="service-request__content"><div class="service-request__offer"><h2 class="service-request__title h2">Оставить заявку</h2><p class="service-request__description">Расскажите о задаче, и мы свяжемся с вами.</p></div></div>' . render_lead_form('service-request', '', $source) . '</div></section>';
 }
 
+function render_service_request(array $settings, string $source): string
+{
+    $html = '<section class="service-request container" id="request" aria-labelledby="service-request-title"><div class="service-request__inner"><div class="service-request__content"><div class="service-request__offer">';
+    $html .= '<h2 class="service-request__title h2" id="service-request-title">Наличники на весь дом внутренние и наружные</h2><ul class="service-request__benefits"><li>Оперативный выезд на замер</li><li>Скидка 10%</li></ul></div>';
+    $html .= '<div class="service-request__contacts"><p class="service-request__description">Оставьте заявку или свяжитесь с нами удобным способом</p><ul class="service-request__socials" aria-label="Способы связи">';
+    foreach (social_links($settings) as $social) {
+        $html .= '<li class="service-request__social-item"><a class="service-request__social-link" href="' . h($social['href']) . '" aria-label="' . h($social['label']) . '">' . icon_html($social['name'], 'icon service-request__social-icon', true) . '</a></li>';
+    }
+    $html .= '</ul></div></div>' . render_lead_form('service-request', $settings['phone'] ?? '', $source) . '</div></section>';
+
+    return $html;
+}
+
+function render_service_options(): string
+{
+    $items = [
+        ['title' => 'Интеграция с интерьером и экстерьером', 'description' => 'Подберем профиль под ваши двери и окна'],
+        ['title' => 'Уникальные технологии и материалы', 'description' => 'Лазерная резка и обработка от влаги'],
+    ];
+    $html = '<section class="service-options" aria-labelledby="service-options-title"><div class="service-options__inner container"><h2 class="service-options__title h2" id="service-options-title">Дополнительные опции и возможности</h2><ul class="service-options__list">';
+    foreach ($items as $item) {
+        $html .= '<li class="service-options-card" style="--card-bg: url(' . h(asset_url('images/ServiceOptions/card-bg.png')) . ')"><div class="service-options-card__content"><h3 class="service-options-card__title h3">' . h($item['title']) . '</h3><p class="service-options-card__description">' . h($item['description']) . '</p></div><a class="service-options-card__link" href="/"><span>Подробнее</span>' . icon_html('arrow-top-right', 'icon service-options-card__icon') . '</a></li>';
+    }
+
+    return $html . '</ul></div></section>';
+}
+
+function render_service_cases(): string
+{
+    $html = '<section class="service-cases" aria-labelledby="service-cases-title"><div class="service-cases__inner container"><div class="service-cases__header"><h2 class="service-cases__title h2" id="service-cases-title">Уже реализованные проекты</h2></div><div class="service-cases__list">';
+    for ($i = 0; $i < 4; $i++) {
+        $html .= '<article class="service-cases-card"><div class="service-cases-card__content"><div class="service-cases-card__text"><h3 class="service-cases-card__title h3">Название</h3><p class="service-cases-card__description">Описание</p></div></div><img class="service-cases-card__image" src="' . h(asset_url('images/Cases/case-preview.png')) . '" alt="" width="910" height="380" loading="lazy"></article>';
+    }
+
+    return $html . '</div></div></section>';
+}
+
+function render_service_process(): string
+{
+    $steps = [
+        ['title' => 'Профессиональная консультация', 'description' => 'Поможем выбрать материал и конструкцию, предложим проверенные решения и назовем примерную стоимость'],
+        ['title' => 'Оперативный замер на объекте', 'description' => 'Точные замеры рабочих габаритов предотвращают проблемы с монтажом'],
+        ['title' => 'Разработка 3D-модели', 'description' => 'Разработаем модель изделия с размерами, схемой сборки и точным расчетом стоимости'],
+        ['title' => 'Изготовление на производстве', 'description' => 'Детали создаются на высокоточных станках с последующей шлифовкой и полировкой'],
+        ['title' => 'Предварительная сборка', 'description' => 'На производстве собираем и подгоняем детали, чтобы исключить задержки установки'],
+        ['title' => 'Сборка на объекте', 'description' => 'Доставка и установка на объекте без лишнего мусора и грязи'],
+    ];
+    $html = '<section class="service-process" aria-labelledby="service-process-title"><div class="service-process__inner container"><h2 class="service-process__title h2" id="service-process-title">Процесс работы</h2><ol class="service-process__list">';
+    foreach ($steps as $index => $step) {
+        $html .= '<li class="service-process__item"><span class="service-process__number" aria-hidden="true">' . ($index + 1) . '</span><div class="service-process__content"><h3 class="service-process__item-title h3">' . h($step['title']) . '</h3><p class="service-process__description">' . h($step['description']) . '</p></div></li>';
+    }
+
+    return $html . '</ol></div></section>';
+}
+
+function render_service_faq(array $items): string
+{
+    if (!$items) {
+        $items = [
+            ['question' => 'Сколько времени занимает изготовление?', 'answer' => 'Срок зависит от материала, объема и сложности профиля. После замера мы фиксируем этапы работ и называем понятный срок производства.'],
+            ['question' => 'Можно ли подобрать цвет под интерьер?', 'answer' => 'Да, подберем оттенок по образцу, каталогу или фотографии.'],
+            ['question' => 'Вы выезжаете на замер?', 'answer' => 'Да, специалист выезжает на объект и учитывает особенности монтажа.'],
+        ];
+    }
+
+    $html = '<section class="service-faq container" aria-labelledby="service-faq-title"><div class="service-faq__header"><h2 class="service-faq__title h2" id="service-faq-title">Частые вопросы</h2></div><div class="service-faq__list">';
+    foreach ($items as $item) {
+        if (empty($item['question']) && empty($item['answer'])) {
+            continue;
+        }
+        $html .= '<details class="service-faq__item"><summary class="service-faq__summary"><span class="service-faq__question">' . h($item['question'] ?? '') . '</span><span class="service-faq__icon" aria-hidden="true"></span></summary><div class="service-faq__content"><p class="service-faq__answer">' . h($item['answer'] ?? '') . '</p></div></details>';
+    }
+
+    return $html . '</div></section>';
+}
+
 function render_page(array $site, array $page): void
 {
     $type = $page['type'] ?? 'product';
@@ -480,6 +689,28 @@ function render_page(array $site, array $page): void
     if ($type === 'document') {
         $body = '<section class="document-content container"><h1 class="document-content__title h1">' . h($contentData['h1'] ?? $page['title'] ?? '') . '</h1>';
         $body .= '<div class="document-content__body">' . nl2br(h($contentData['text'] ?? '')) . '</div></section>';
+        render_layout($site, $page['seoTitle'] ?? $page['title'] ?? SITE_NAME, $body);
+        return;
+    }
+
+    if ($type === 'product') {
+        $settings = $site['settings'] ?? [];
+        $body = render_service_hero($page, $contentData, $settings);
+        $body .= render_service_includes($contentData['includes'] ?? null);
+        $body .= render_service_materials($contentData['materials'] ?? null);
+        $body .= render_service_icon_cards($contentData['colors'] ?? null, 'service-colors', ['tree', 'target', 'lines', 'color', 'shield', 'woods'], 'Цветовые решения');
+        $body .= render_service_request($settings, $page['slug'] ?? 'service');
+        $body .= render_service_icon_cards($contentData['benefits'] ?? null, 'service-benefits', ['shield_1', 'star', 'medal', 'person'], 'Преимущества');
+        $body .= render_service_plans($contentData['plans'] ?? null);
+        $body .= render_home_request($settings);
+        $body .= render_service_options();
+        $body .= render_service_cases();
+        $body .= render_service_process();
+        $body .= render_reviews_section($site['reviews'] ?? []);
+        $body .= render_service_faq($contentData['faq']['items'] ?? []);
+        $body .= render_questions($settings);
+        $body .= render_route($settings);
+
         render_layout($site, $page['seoTitle'] ?? $page['title'] ?? SITE_NAME, $body);
         return;
     }

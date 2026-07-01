@@ -179,6 +179,12 @@
   background-color: rgba(255, 255, 255, 0.1);
 }
 
+.admin-page .admin-tabs__button.is-active {
+  color: var(--color-white);
+  background-color: rgba(209, 146, 38, 0.18);
+  box-shadow: inset 0.1875rem 0 0 var(--color-accent);
+}
+
 .admin-page .admin-section {
   width: calc(100% - 3rem);
   max-width: none;

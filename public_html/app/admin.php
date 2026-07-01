@@ -147,15 +147,29 @@ if (!admin_is_authenticated()) {
 
 $settings = $site['settings'] ?? [];
 $leads = array_reverse(leads_read());
+$adminSections = [
+    'leads' => 'Заявки',
+    'reviews' => 'Отзывы',
+    'settings' => 'Контакты и реквизиты',
+    'create-page' => 'Создать страницу',
+    'pages' => 'Страницы',
+];
+$currentSection = $_GET['section'] ?? 'leads';
+
+if (!isset($adminSections[$currentSection])) {
+    $currentSection = 'leads';
+}
+
 $content = '<main class="admin-page"><header class="admin-header"><div><p class="admin-header__eyebrow">Кубэра</p><h1 class="admin-header__title">Админ-панель сайта</h1></div>'
     . '<form method="post"><input type="hidden" name="action" value="logout"><button class="admin-button admin-button--ghost" type="submit">Выйти</button></form></header>'
-    . '<nav class="admin-tabs" aria-label="Разделы админки">'
-    . '<a class="admin-tabs__button" href="#leads">Заявки</a>'
-    . '<a class="admin-tabs__button" href="#reviews">Отзывы</a>'
-    . '<a class="admin-tabs__button" href="#settings">Контакты и реквизиты</a>'
-    . '<a class="admin-tabs__button" href="#create-page">Создать страницу</a>'
-    . '<a class="admin-tabs__button" href="#pages">Страницы</a>'
-    . '</nav>';
+    . '<nav class="admin-tabs" aria-label="Разделы админки">';
+
+foreach ($adminSections as $sectionKey => $sectionTitle) {
+    $activeClass = $sectionKey === $currentSection ? ' is-active' : '';
+    $content .= '<a class="admin-tabs__button' . $activeClass . '" href="/admin?section=' . h($sectionKey) . '">' . h($sectionTitle) . '</a>';
+}
+
+$content .= '</nav>';
 
 if ($message) {
     $content .= '<p class="admin-message admin-message--floating">' . h($message) . '</p>';
@@ -164,7 +178,8 @@ if ($error) {
     $content .= '<p class="admin-message admin-message--floating">' . h($error) . '</p>';
 }
 
-$content .= '<section id="settings" class="panel admin-section"><h2 class="admin-section__title">Настройки сайта</h2><form method="post" class="admin-grid">'
+if ($currentSection === 'settings') {
+    $content .= '<section id="settings" class="panel admin-section"><h2 class="admin-section__title">Настройки сайта</h2><form method="post" class="admin-grid">'
     . '<input type="hidden" name="action" value="save_settings">'
     . '<label>Телефон<input name="phone" value="' . h($settings['phone'] ?? '') . '"></label>'
     . '<label>Email<input name="email" value="' . h($settings['email'] ?? '') . '"></label>'
@@ -176,8 +191,10 @@ $content .= '<section id="settings" class="panel admin-section"><h2 class="admin
     . '<label>Max<input name="max" value="' . h($settings['socials']['max'] ?? '') . '"></label>'
     . '<label class="wide">Юридическая информация<textarea name="legalInfo" rows="4">' . h($settings['legalInfo'] ?? '') . '</textarea></label>'
     . '<button type="submit">Сохранить настройки</button></form></section>';
+}
 
-$content .= '<section id="create-page" class="panel admin-section"><h2 class="admin-section__title">Создать страницу</h2><form method="post" enctype="multipart/form-data" class="admin-grid">'
+if ($currentSection === 'create-page') {
+    $content .= '<section id="create-page" class="panel admin-section"><h2 class="admin-section__title">Создать страницу</h2><form method="post" enctype="multipart/form-data" class="admin-grid">'
     . '<input type="hidden" name="action" value="create_page">'
     . '<label>Тип<select name="type"><option value="product">Продукция</option><option value="interior">Интерьер</option><option value="document">Документ</option></select></label>'
     . '<label>Название<input name="title" required></label>'
@@ -188,44 +205,53 @@ $content .= '<section id="create-page" class="panel admin-section"><h2 class="ad
     . '<label class="wide">SEO description<textarea name="seoDescription" rows="3"></textarea></label>'
     . '<label>Обложка<input type="file" name="cover" accept="image/*"></label>'
     . '<button type="submit">Создать</button></form></section>';
-
-$content .= '<section id="pages" class="panel admin-section"><h2 class="admin-section__title">Страницы</h2><div class="admin-pages">';
-foreach ($site['pages'] ?? [] as $page) {
-    $contentJson = json_encode($page['content'] ?? [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-    $content .= '<details class="admin-edit-page"><summary><strong>' . h($page['title'] ?? '') . '</strong> <span>' . h($page['type'] ?? '') . ' / ' . h($page['slug'] ?? '') . ' / ' . h($page['status'] ?? '') . '</span></summary>';
-    $content .= '<form method="post" enctype="multipart/form-data" class="admin-grid">'
-        . '<input type="hidden" name="action" value="save_page">'
-        . '<input type="hidden" name="id" value="' . h($page['id'] ?? '') . '">'
-        . '<label>Название<input name="title" value="' . h($page['title'] ?? '') . '"></label>'
-        . '<label>Slug<input name="slug" value="' . h($page['slug'] ?? '') . '"></label>'
-        . '<label>Статус<select name="status"><option value="draft"' . (($page['status'] ?? '') === 'draft' ? ' selected' : '') . '>Черновик</option><option value="published"' . (($page['status'] ?? '') === 'published' ? ' selected' : '') . '>Опубликовано</option></select></label>'
-        . '<label>Описание<input name="menuDescription" value="' . h($page['menuDescription'] ?? '') . '"></label>'
-        . '<label>SEO title<input name="seoTitle" value="' . h($page['seoTitle'] ?? '') . '"></label>'
-        . '<label>Новая обложка<input type="file" name="cover" accept="image/*"></label>'
-        . '<label class="wide">SEO description<textarea name="seoDescription" rows="3">' . h($page['seoDescription'] ?? '') . '</textarea></label>'
-        . '<label class="wide">Контент JSON<textarea name="content" rows="16" class="code">' . h($contentJson) . '</textarea></label>'
-        . '<button type="submit">Сохранить страницу</button></form>';
-    $content .= '<form method="post" onsubmit="return confirm(\'Удалить страницу?\')" class="delete-form">'
-        . '<input type="hidden" name="action" value="delete_page"><input type="hidden" name="id" value="' . h($page['id'] ?? '') . '">'
-        . '<button type="submit" class="danger">Удалить</button></form></details>';
 }
-$content .= '</div></section>';
 
-$content .= '<section id="reviews" class="panel admin-section"><h2 class="admin-section__title">Отзывы</h2><form method="post">'
+if ($currentSection === 'pages') {
+    $content .= '<section id="pages" class="panel admin-section"><h2 class="admin-section__title">Страницы</h2><div class="admin-pages">';
+    foreach ($site['pages'] ?? [] as $page) {
+        $contentJson = json_encode($page['content'] ?? [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        $content .= '<details class="admin-edit-page"><summary><strong>' . h($page['title'] ?? '') . '</strong> <span>' . h($page['type'] ?? '') . ' / ' . h($page['slug'] ?? '') . ' / ' . h($page['status'] ?? '') . '</span></summary>';
+        $content .= '<form method="post" enctype="multipart/form-data" class="admin-grid">'
+            . '<input type="hidden" name="action" value="save_page">'
+            . '<input type="hidden" name="id" value="' . h($page['id'] ?? '') . '">'
+            . '<label>Название<input name="title" value="' . h($page['title'] ?? '') . '"></label>'
+            . '<label>Slug<input name="slug" value="' . h($page['slug'] ?? '') . '"></label>'
+            . '<label>Статус<select name="status"><option value="draft"' . (($page['status'] ?? '') === 'draft' ? ' selected' : '') . '>Черновик</option><option value="published"' . (($page['status'] ?? '') === 'published' ? ' selected' : '') . '>Опубликовано</option></select></label>'
+            . '<label>Описание<input name="menuDescription" value="' . h($page['menuDescription'] ?? '') . '"></label>'
+            . '<label>SEO title<input name="seoTitle" value="' . h($page['seoTitle'] ?? '') . '"></label>'
+            . '<label>Новая обложка<input type="file" name="cover" accept="image/*"></label>'
+            . '<label class="wide">SEO description<textarea name="seoDescription" rows="3">' . h($page['seoDescription'] ?? '') . '</textarea></label>'
+            . '<label class="wide">Контент JSON<textarea name="content" rows="16" class="code">' . h($contentJson) . '</textarea></label>'
+            . '<button type="submit">Сохранить страницу</button></form>';
+        $content .= '<form method="post" onsubmit="return confirm(\'Удалить страницу?\')" class="delete-form">'
+            . '<input type="hidden" name="action" value="delete_page"><input type="hidden" name="id" value="' . h($page['id'] ?? '') . '">'
+            . '<button type="submit" class="danger">Удалить</button></form></details>';
+    }
+    $content .= '</div></section>';
+}
+
+if ($currentSection === 'reviews') {
+    $content .= '<section id="reviews" class="panel admin-section"><h2 class="admin-section__title">Отзывы</h2><form method="post">'
     . '<input type="hidden" name="action" value="save_reviews">'
     . '<textarea name="reviews" rows="18" class="code">' . h(json_encode($site['reviews'] ?? [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)) . '</textarea>'
     . '<button type="submit">Сохранить отзывы</button></form></section>';
+}
 
-$content .= '<section id="leads" class="panel admin-section"><h2 class="admin-section__title">Заявки</h2><div class="lead-list">';
-if (!$leads) {
-    $content .= '<p>Заявок пока нет.</p>';
+if ($currentSection === 'leads') {
+    $content .= '<section id="leads" class="panel admin-section"><h2 class="admin-section__title">Заявки</h2><div class="lead-list">';
+    if (!$leads) {
+        $content .= '<p>Заявок пока нет.</p>';
+    }
+    foreach ($leads as $lead) {
+        $content .= '<article class="lead"><div><strong>' . h($lead['name'] ?? 'Без имени') . '</strong><p>' . h($lead['phone'] ?? '') . '</p><p>' . h($lead['comment'] ?? '') . '</p><small>' . h($lead['createdAt'] ?? '') . '</small></div>'
+            . '<form method="post"><input type="hidden" name="action" value="save_lead_status"><input type="hidden" name="id" value="' . h($lead['id'] ?? '') . '">'
+            . '<select name="status"><option value="new"' . (($lead['status'] ?? '') === 'new' ? ' selected' : '') . '>Новая</option><option value="done"' . (($lead['status'] ?? '') === 'done' ? ' selected' : '') . '>Обработана</option></select>'
+            . '<button type="submit">OK</button></form></article>';
+    }
+    $content .= '</div></section>';
 }
-foreach ($leads as $lead) {
-    $content .= '<article class="lead"><div><strong>' . h($lead['name'] ?? 'Без имени') . '</strong><p>' . h($lead['phone'] ?? '') . '</p><p>' . h($lead['comment'] ?? '') . '</p><small>' . h($lead['createdAt'] ?? '') . '</small></div>'
-        . '<form method="post"><input type="hidden" name="action" value="save_lead_status"><input type="hidden" name="id" value="' . h($lead['id'] ?? '') . '">'
-        . '<select name="status"><option value="new"' . (($lead['status'] ?? '') === 'new' ? ' selected' : '') . '>Новая</option><option value="done"' . (($lead['status'] ?? '') === 'done' ? ' selected' : '') . '>Обработана</option></select>'
-        . '<button type="submit">OK</button></form></article>';
-}
-$content .= '</div></section></main>';
+
+$content .= '</main>';
 
 render_admin_layout('Админ-панель', $content);

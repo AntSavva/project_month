@@ -147,6 +147,98 @@
   gap: 0.5rem;
 }
 
+.admin-section__head {
+  display: grid;
+  gap: 0.35rem;
+  margin-bottom: 1.25rem;
+}
+
+.admin-section__head p {
+  max-width: 52rem;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 1rem;
+}
+
+.admin-reviews-form {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.admin-review-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.admin-review-card {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+  color: var(--color-white);
+  background-color: rgba(0, 0, 0, 0.16);
+  border: 0.0625rem solid rgba(255, 255, 255, 0.14);
+  border-radius: var(--border-radius-8);
+}
+
+.admin-review-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.admin-review-card__header h3 {
+  color: var(--color-white);
+  font-size: clamp(1.25rem, 1.8vw, 1.75rem);
+  line-height: 1.1;
+}
+
+.admin-review-card__delete {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: rgba(255, 255, 255, 0.82);
+  white-space: nowrap;
+}
+
+.admin-review-card__delete input {
+  width: 1rem;
+  min-height: 1rem;
+  accent-color: var(--color-accent);
+}
+
+.admin-review-card__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.admin-review-card__grid label {
+  display: grid;
+  gap: 0.5rem;
+  color: rgba(255, 255, 255, 0.86);
+  font-weight: 600;
+}
+
+.admin-review-card__grid .wide {
+  grid-column: 1 / -1;
+}
+
+.admin-review-card__avatar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 0.875rem;
+}
+
+.admin-review-card__avatar img {
+  width: 3.5rem;
+  height: 3.5rem;
+  object-fit: cover;
+  background-color: rgba(255, 255, 255, 0.14);
+  border-radius: 50%;
+}
+
 .admin-page {
   width: 100%;
   min-height: 100dvh;
@@ -452,8 +544,15 @@
   }
 
   .admin-page .admin-grid,
+  .admin-review-card__grid,
   .lead {
     grid-template-columns: 1fr;
+  }
+
+  .admin-review-card__header,
+  .admin-review-card__avatar {
+    align-items: flex-start;
+    flex-direction: column;
   }
 
   .reviews {

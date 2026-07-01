@@ -107,11 +107,52 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             site_write($site);
             $message = 'Страница удалена.';
         } elseif ($action === 'save_reviews') {
-            $reviews = json_decode($_POST['reviews'] ?? '[]', true);
+            $reviews = [];
+            $postedReviews = $_POST['reviews'] ?? [];
 
-            if (!is_array($reviews)) {
-                throw new RuntimeException('Отзывы должны быть корректным JSON.');
+            if (!is_array($postedReviews)) {
+                throw new RuntimeException('Отзывы должны быть переданы корректной формой.');
             }
+
+            foreach ($postedReviews as $index => $postedReview) {
+                if (!is_array($postedReview) || !empty($postedReview['delete'])) {
+                    continue;
+                }
+
+                $author = trim($postedReview['author'] ?? '');
+                $text = trim($postedReview['text'] ?? '');
+
+                if ($author === '' && $text === '') {
+                    continue;
+                }
+
+                $avatar = trim($postedReview['avatar'] ?? '');
+
+                if (!empty($_FILES['reviews']['name'][$index]['avatar'] ?? '') && ($_FILES['reviews']['error'][$index]['avatar'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+                    $avatar = upload_image([
+                        'name' => $_FILES['reviews']['name'][$index]['avatar'] ?? '',
+                        'type' => $_FILES['reviews']['type'][$index]['avatar'] ?? '',
+                        'tmp_name' => $_FILES['reviews']['tmp_name'][$index]['avatar'] ?? '',
+                        'error' => $_FILES['reviews']['error'][$index]['avatar'] ?? UPLOAD_ERR_NO_FILE,
+                        'size' => $_FILES['reviews']['size'][$index]['avatar'] ?? 0,
+                    ]);
+                }
+
+                $reviews[] = [
+                    'id' => trim($postedReview['id'] ?? '') ?: create_id('review'),
+                    'author' => $author,
+                    'date' => trim($postedReview['date'] ?? ''),
+                    'text' => $text,
+                    'avatar' => $avatar,
+                    'category' => trim($postedReview['category'] ?? 'general') ?: 'general',
+                    'status' => ($postedReview['status'] ?? 'published') === 'draft' ? 'draft' : 'published',
+                    'order' => (int) ($postedReview['order'] ?? count($reviews)),
+                ];
+            }
+
+            usort($reviews, function ($firstReview, $secondReview) {
+                return ($firstReview['order'] ?? 0) <=> ($secondReview['order'] ?? 0);
+            });
 
             $site['reviews'] = $reviews;
             site_write($site);
@@ -232,10 +273,50 @@ if ($currentSection === 'pages') {
 }
 
 if ($currentSection === 'reviews') {
-    $content .= '<section id="reviews" class="panel admin-section"><h2 class="admin-section__title">Отзывы</h2><form method="post">'
-    . '<input type="hidden" name="action" value="save_reviews">'
-    . '<textarea name="reviews" rows="18" class="code">' . h(json_encode($site['reviews'] ?? [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)) . '</textarea>'
-    . '<button type="submit">Сохранить отзывы</button></form></section>';
+    $reviewItems = array_values($site['reviews'] ?? []);
+    $reviewItems[] = [
+        'id' => '',
+        'author' => '',
+        'date' => '',
+        'text' => '',
+        'avatar' => '',
+        'category' => 'general',
+        'status' => 'published',
+        'order' => count($reviewItems) + 1,
+    ];
+    $content .= '<section id="reviews" class="panel admin-section"><div class="admin-section__head"><h2 class="admin-section__title">Отзывы</h2><p>Редактируйте карточки отзывов. Последняя пустая карточка нужна для добавления нового отзыва.</p></div><form method="post" enctype="multipart/form-data" class="admin-reviews-form">'
+        . '<input type="hidden" name="action" value="save_reviews">'
+        . '<div class="admin-review-list">';
+    foreach ($reviewItems as $index => $review) {
+        $isNewReview = empty($review['id']) && empty($review['author']) && empty($review['text']);
+        $cardTitle = $isNewReview ? 'Новый отзыв' : ($review['author'] ?? 'Отзыв');
+        $content .= '<article class="admin-review-card">'
+            . '<header class="admin-review-card__header"><h3>' . h($cardTitle) . '</h3>'
+            . (!$isNewReview ? '<label class="admin-review-card__delete"><input type="checkbox" name="reviews[' . $index . '][delete]" value="1"> Удалить</label>' : '')
+            . '</header>'
+            . '<input type="hidden" name="reviews[' . $index . '][id]" value="' . h($review['id'] ?? '') . '">'
+            . '<input type="hidden" name="reviews[' . $index . '][avatar]" value="' . h($review['avatar'] ?? '') . '">'
+            . '<div class="admin-review-card__grid">'
+            . '<label>Имя<input name="reviews[' . $index . '][author]" value="' . h($review['author'] ?? '') . '"></label>'
+            . '<label>Дата<input name="reviews[' . $index . '][date]" value="' . h($review['date'] ?? '') . '" placeholder="10 апреля 2023"></label>'
+            . '<label>Категория<select name="reviews[' . $index . '][category]">'
+            . '<option value="general"' . (($review['category'] ?? 'general') === 'general' ? ' selected' : '') . '>Общий</option>'
+            . '<option value="trim"' . (($review['category'] ?? '') === 'trim' ? ' selected' : '') . '>Наличники</option>'
+            . '<option value="frames"' . (($review['category'] ?? '') === 'frames' ? ' selected' : '') . '>Обсады</option>'
+            . '<option value="sills"' . (($review['category'] ?? '') === 'sills' ? ' selected' : '') . '>Подоконники</option>'
+            . '<option value="stairs"' . (($review['category'] ?? '') === 'stairs' ? ' selected' : '') . '>Лестницы</option>'
+            . '</select></label>'
+            . '<label>Статус<select name="reviews[' . $index . '][status]"><option value="published"' . (($review['status'] ?? 'published') === 'published' ? ' selected' : '') . '>Опубликован</option><option value="draft"' . (($review['status'] ?? '') === 'draft' ? ' selected' : '') . '>Черновик</option></select></label>'
+            . '<label>Порядок<input type="number" name="reviews[' . $index . '][order]" value="' . h((string) ($review['order'] ?? $index + 1)) . '"></label>'
+            . '<label>Аватарка<input type="file" name="reviews[' . $index . '][avatar]" accept="image/*"></label>'
+            . '<label class="wide">Текст отзыва<textarea name="reviews[' . $index . '][text]" rows="6">' . h($review['text'] ?? '') . '</textarea></label>'
+            . '</div>';
+        if (!empty($review['avatar'])) {
+            $content .= '<div class="admin-review-card__avatar"><img src="' . h($review['avatar']) . '" alt=""><span>' . h($review['avatar']) . '</span></div>';
+        }
+        $content .= '</article>';
+    }
+    $content .= '</div><button type="submit">Сохранить отзывы</button></form></section>';
 }
 
 if ($currentSection === 'leads') {

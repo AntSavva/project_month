@@ -556,6 +556,54 @@ function render_reviews_page(array $site): void
     render_layout($site, 'Отзывы', $body);
 }
 
+function render_contacts_hero(array $settings): string
+{
+    $phone = $settings['phone'] ?? '';
+    $email = $settings['email'] ?? '';
+    $socials = $settings['socials'] ?? [];
+    $cards = [
+        ['icon' => 'phone', 'title' => 'Телефон отдела продаж', 'value' => $phone, 'href' => phone_href($phone)],
+        ['icon' => 'mail', 'title' => 'E-mail', 'value' => $email, 'href' => email_href($email)],
+        ['icon' => 'telegram', 'title' => 'Telegram для связи', 'value' => 'Ссылка', 'href' => $socials['telegram'] ?? '/'],
+        ['icon' => 'max', 'title' => 'Мессенджер MAX', 'value' => 'Ссылка', 'href' => $socials['max'] ?? '/'],
+    ];
+
+    $html = '<section class="contacts-hero" aria-labelledby="contacts-hero-title"><div class="contacts-hero__inner container">';
+    $html .= '<div class="contacts-hero__content"><p class="contacts-hero__subtitle">Контакты</p><h1 class="contacts-hero__title h1" id="contacts-hero-title">Всегда остаемся на связи</h1></div>';
+    $html .= '<ul class="contacts-hero__list">';
+    foreach ($cards as $card) {
+        $html .= '<li class="contacts-hero__item"><a class="contacts-hero-card" href="' . h($card['href']) . '">';
+        $html .= '<span class="contacts-hero-card__icon" aria-hidden="true">' . icon_html($card['icon'], 'icon', true) . '</span>';
+        $html .= '<span class="contacts-hero-card__content"><span class="contacts-hero-card__title">' . h($card['title']) . '</span><span class="contacts-hero-card__value">' . h($card['value']) . '</span></span>';
+        $html .= '</a></li>';
+    }
+
+    return $html . '</ul></div></section>';
+}
+
+function render_contacts_schedule(): string
+{
+    return '<section class="contacts-schedule" aria-labelledby="contacts-schedule-title"><div class="contacts-schedule__inner container">'
+        . '<h2 class="contacts-schedule__title h2" id="contacts-schedule-title">Режим работы</h2>'
+        . '<div class="contacts-schedule__grid"><article class="contacts-schedule__card contacts-schedule__card--worktime">'
+        . '<span class="contacts-schedule__icon" aria-hidden="true"><img class="contacts-schedule__icon-image" src="' . h(asset_url('images/ContactsSchedule/clock.svg')) . '" alt="" width="28" height="28" loading="lazy"></span>'
+        . '<p class="contacts-schedule__worktime">Понедельник-пятница: с 9:00 до 19:00<br>Суббота-воскресенье: выходные дни</p>'
+        . '</article><article class="contacts-schedule__card contacts-schedule__card--notice">'
+        . '<p class="contacts-schedule__notice"><strong>Внимание!</strong> В нерабочее время мы принимаем заказы только через наш сайт, по электронной почте или в Telegram. Если вы напишете нам в выходные - мы ответим в течение ближайшего рабочего часа.</p>'
+        . '</article></div></div></section>';
+}
+
+function render_contacts_page(array $site): void
+{
+    $settings = $site['settings'] ?? [];
+    $body = render_contacts_hero($settings);
+    $body .= render_contacts_schedule();
+    $body .= render_questions($settings);
+    $body .= render_route($settings);
+
+    render_layout($site, 'Контакты', $body);
+}
+
 function render_work_features(): string
 {
     $items = [

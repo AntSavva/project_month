@@ -34,6 +34,11 @@ if ($path === 'reviews') {
     exit;
 }
 
+if ($path === 'contacts') {
+    render_contacts_page($site);
+    exit;
+}
+
 $page = site_find_page($site, $path);
 
 if ($page) {

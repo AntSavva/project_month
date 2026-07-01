@@ -324,6 +324,105 @@ function render_production_showcase(): string
     return $html . '</div><img class="production-showcase__image" src="' . h(asset_url('images/AboutProduction/production-photo.png')) . '" alt="" width="910" height="662" loading="lazy"></div></div></section>';
 }
 
+function render_about_hero(): string
+{
+    return '<section class="about-hero container" aria-labelledby="about-hero-title">'
+        . '<p class="about-hero__subtitle">О компании</p>'
+        . '<h1 class="about-hero__title h1" id="about-hero-title">Миссия КУБЭРЫ - создавать красивые и долговечные изделия из ценных пород дерева для уюта и стиля вашего дома</h1>'
+        . '<p class="about-hero__description">Мы вкладываем в каждый проект душу и профессионализм, чтобы наши клиенты получали не просто изделие, а семейную ценность, которая будет радовать их десятилетиями</p>'
+        . '</section>';
+}
+
+function render_about_values(): string
+{
+    $items = [
+        ['title' => 'Долговечность', 'description' => 'Изделия служат не один десяток лет', 'icon' => 'shield'],
+        ['title' => 'Эстетика', 'description' => 'Создание красивых, стильных изделий, которые радуют глаз', 'icon' => 'star'],
+        ['title' => 'Честный подход', 'description' => 'Отказ от компромиссов в качестве, вкладываем душу и сердце', 'icon' => 'medal'],
+        ['title' => 'Клиентоориентированность', 'description' => 'Создание ценности для клиента, которая дорого стоит', 'icon' => 'person'],
+    ];
+
+    $html = '<section class="about-values" aria-label="Ценности компании"><div class="about-values__inner container"><div class="about-values__grid">';
+    foreach ($items as $item) {
+        $html .= '<article class="about-values-card"><img class="about-values-card__icon" src="' . h(asset_url('images/CardIcons/' . $item['icon'] . '.png')) . '" alt="" width="64" height="64" loading="lazy"><div class="about-values-card__content">';
+        $html .= '<h3 class="about-values-card__title">' . h($item['title']) . '</h3><p class="about-values-card__description">' . h($item['description']) . '</p></div></article>';
+    }
+
+    return $html . '</div></div></section>';
+}
+
+function render_about_production(): string
+{
+    $steps = [
+        [
+            'title' => 'Консультация и замер',
+            'subtitle' => 'Это первый контакт с клиентом, на котором закладывается основа будущего изделия',
+            'details' => [
+                'Консультация: специалисты помогают клиенту определиться с выбором породы дерева (дуб, бук, ясень), типом покрытия (например, масло Biofa) и дизайном. Предлагается несколько вариантов исполнения.',
+                'Профессиональный замер: на объект выезжает замерщик, который снимает точные размеры с учетом всех особенностей проема или пространства. Это критически важный этап, так как от точности замеров зависит идеальная геометрия и легкость монтажа готового изделия.',
+            ],
+        ],
+        [
+            'title' => 'Проектирование и подготовка материала',
+            'subtitle' => 'После согласования всех деталей начинается работа в цеху',
+            'details' => [
+                'Разработка проекта: на основе замеров создается точная модель будущего изделия.',
+                'Строгий отбор материала: компания подчеркивает, что использует только качественные заготовки. Древесина предварительно проходит сушку в камере для достижения оптимальной влажности, что предотвращает ее растрескивание и деформацию в будущем.',
+                'Склейка щита (если необходимо): для изготовления широких деталей, таких как подоконники или ступени, деревянные ламели склеиваются в щит. Это обеспечивает большую стабильность и прочность изделия по сравнению с цельной доской.',
+            ],
+        ],
+        [
+            'title' => 'Изготовление изделия',
+            'subtitle' => 'Это основной производственный этап, где заготовка превращается в готовое изделие',
+            'details' => [
+                'Строгание и калибровка: материал доводится до точных размеров.',
+                'Фрезеровка: на станках с ЧПУ или вручную изделию придается нужная форма, профиль и рельеф (например, создается четверть для чистовой обсады или сложный узор для наличников).',
+                'Шлифовка: многоэтапная шлифовка поверхности для достижения идеальной гладкости перед нанесением покрытия.',
+            ],
+        ],
+        [
+            'title' => 'Финишная отделка',
+            'subtitle' => 'От качества этого этапа зависит внешний вид и долговечность изделия',
+            'details' => [
+                'Покрытие лакокрасочными материалами (ЛКМ): изделия покрываются профессиональным маслом Biofa. Масло не создает пленки, а пропитывает древесину, защищая ее изнутри, сохраняя тактильную теплоту и подчеркивая натуральную текстуру дерева.',
+                'Сушка покрытия: изделия выдерживаются до полного высыхания и полимеризации покрытия.',
+            ],
+        ],
+        [
+            'title' => 'Монтаж «под ключ»',
+            'subtitle' => 'Завершающий этап, который так же важен, как и само изготовление',
+            'details' => [
+                'Доставка: готовое изделие упаковывается и бережно доставляется на объект.',
+                'Профессиональная установка: монтажники компании устанавливают изделие. Благодаря тому, что они же выполняли и замер, монтаж проходит быстро и точно. Клиенты в отзывах часто отмечают аккуратность и высокую квалификацию монтажной бригады.',
+            ],
+        ],
+    ];
+
+    $html = '<section class="about-production" aria-labelledby="about-production-title"><div class="about-production__inner container"><h2 class="about-production__title h2" id="about-production-title">Производство</h2><div class="about-production__list">';
+    foreach ($steps as $index => $step) {
+        $html .= '<article class="about-production-step"><div class="about-production-step__number" aria-hidden="true">' . ($index + 1) . '</div><div class="about-production-step__header">';
+        $html .= '<h3 class="about-production-step__title">' . h($step['title']) . '</h3><p class="about-production-step__subtitle">' . h($step['subtitle']) . '</p></div><div class="about-production-step__details">';
+        foreach ($step['details'] as $detail) {
+            $html .= '<p>' . h($detail) . '</p>';
+        }
+        $html .= '</div></article>';
+    }
+
+    return $html . '</div></div></section>';
+}
+
+function render_about(array $site): void
+{
+    $settings = $site['settings'] ?? [];
+    $body = render_about_hero();
+    $body .= render_about_values();
+    $body .= render_about_production();
+    $body .= render_standards(false);
+    $body .= render_route($settings);
+
+    render_layout($site, 'О компании', $body);
+}
+
 function render_reviews_section(array $reviews): string
 {
     $reviews = array_values(array_filter($reviews, function ($review) {
@@ -391,7 +490,7 @@ function render_work_features(): string
     return $html . '</div></section>';
 }
 
-function render_standards(): string
+function render_standards(bool $isOpen = true): string
 {
     $items = [
         ['title' => 'Продукция мебельного производства. Термины и определения', 'code' => 'ГОСТ 20400-80'],
@@ -399,7 +498,8 @@ function render_standards(): string
         ['title' => 'Мебель для сидения и лежания. Общие технические условия', 'code' => 'ГОСТ 19917-2014'],
         ['title' => 'Межкомнатные двери. Общие технические условия', 'code' => 'ГОСТ 30211-94'],
     ];
-    $html = '<section class="standards container" aria-labelledby="standards-title"><details class="standards__details" open><summary class="standards__header"><h2 class="standards__title h2" id="standards-title">Основные нормативные документы</h2><span class="standards__summary"><span>Подробнее</span><span class="standards__summary-icon" aria-hidden="true"></span></span></summary><div class="standards__list">';
+    $openAttribute = $isOpen ? ' open' : '';
+    $html = '<section class="standards container" aria-labelledby="standards-title"><details class="standards__details"' . $openAttribute . '><summary class="standards__header"><h2 class="standards__title h2" id="standards-title">Основные нормативные документы</h2><span class="standards__summary"><span>Подробнее</span><span class="standards__summary-icon" aria-hidden="true"></span></span></summary><div class="standards__list">';
     foreach ($items as $item) {
         $html .= '<article class="standards__item"><h3 class="standards__item-title">' . h($item['title']) . '</h3><p class="standards__item-code">' . h($item['code']) . '</p><a class="standards__link" href="/"><span>Посмотреть</span><span class="standards__link-icon" aria-hidden="true">' . icon_html('folder') . '</span></a></article>';
     }

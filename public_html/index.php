@@ -24,6 +24,11 @@ if ($path === '') {
     exit;
 }
 
+if ($path === 'about') {
+    render_about($site);
+    exit;
+}
+
 $page = site_find_page($site, $path);
 
 if ($page) {

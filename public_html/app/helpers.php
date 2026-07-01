@@ -681,6 +681,129 @@ function render_service_faq(array $items): string
     return $html . '</div></section>';
 }
 
+function render_interior_hero(array $page, array $contentData, array $settings): string
+{
+    $hero = $contentData['hero'] ?? [];
+    $image = $hero['image'] ?? ($page['cover'] ?: asset_url('images/ServiceHero/hero-image.png'));
+    $html = '<section class="interior-hero" aria-labelledby="interior-hero-title"><div class="interior-hero__inner container"><div class="interior-hero__content">';
+    $html .= '<p class="interior-hero__eyebrow">' . h($hero['subtitle'] ?? 'Внутренняя отделка') . '</p>';
+    $html .= '<h1 class="interior-hero__title h1" id="interior-hero-title"><span>' . h($hero['title'] ?? $page['title'] ?? '') . '</span><span class="interior-hero__title-accent">' . h($hero['accent'] ?? '') . '</span></h1>';
+    $html .= '<form class="interior-hero__form" action="/lead" method="post"><input type="hidden" name="source" value="' . h($page['slug'] ?? 'interior') . '"><div class="interior-hero__fields">';
+    $html .= '<input class="interior-hero__control" name="name" placeholder="Григорий" aria-label="Ваше имя" required>';
+    $html .= '<input class="interior-hero__control" name="phone" placeholder="' . h($settings['phone'] ?? '') . '" aria-label="Телефон" inputmode="tel" required>';
+    $html .= '<button class="button interior-hero__button" type="submit">Записаться на замер</button></div><p class="interior-hero__privacy">Нажимая на кнопку, вы соглашаетесь с политикой конфиденциальности.</p></form></div>';
+
+    return $html . '<img class="interior-hero__image" src="' . h($image) . '" alt="" width="730" height="730" loading="eager"></div></section>';
+}
+
+function render_interior_includes(?array $data): string
+{
+    if (!$data) {
+        return '';
+    }
+
+    $items = content_items($data);
+    $html = '<section class="interior-includes container" aria-labelledby="interior-includes-title"><h2 class="interior-includes__title h2" id="interior-includes-title">' . h($data['title'] ?? 'Что входит в услугу') . '</h2><div class="interior-includes__grid">';
+    foreach ($items as $item) {
+        $html .= '<article class="interior-includes-card"><div class="interior-includes-card__content"><h3 class="interior-includes-card__title h3">' . h($item['title'] ?? '') . '</h3><p class="interior-includes-card__description">' . h($item['description'] ?? '') . '</p></div>';
+        $html .= '<img class="interior-includes-card__decor" src="' . h(asset_url('images/Advantages/advantage-decor.png')) . '" alt="" width="454" height="454" loading="lazy"></article>';
+    }
+
+    return $html . '</div></section>';
+}
+
+function render_interior_room_solutions(?array $data): string
+{
+    if (!$data) {
+        return '';
+    }
+
+    $items = content_items($data);
+    $html = '<section class="interior-room-solutions container" aria-labelledby="interior-room-solutions-title"><h2 class="interior-room-solutions__title h2" id="interior-room-solutions-title">' . h($data['title'] ?? 'Специальные решения для вашего типа помещения') . '</h2><div class="interior-room-solutions__grid">';
+    foreach ($items as $item) {
+        $html .= '<article class="interior-room-solutions-card" style="--card-bg: url(' . h(asset_url('images/ServiceOptions/card-bg.png')) . ')"><h3 class="interior-room-solutions-card__title h3">' . h($item['title'] ?? '') . '</h3><ul class="interior-room-solutions-card__list">';
+        foreach (($item['items'] ?? []) as $line) {
+            $html .= '<li class="interior-room-solutions-card__item">' . h($line) . '</li>';
+        }
+        $html .= '</ul></article>';
+    }
+
+    return $html . '</div></section>';
+}
+
+function render_interior_proposal_request(array $settings, string $source): string
+{
+    $html = '<section class="interior-proposal-request container" id="request" aria-labelledby="interior-proposal-request-title"><div class="interior-proposal-request__inner"><div class="interior-proposal-request__content"><div class="interior-proposal-request__offer">';
+    $html .= '<h2 class="interior-proposal-request__title h2" id="interior-proposal-request-title">Подготовим детальное коммерческое предложение</h2><p class="interior-proposal-request__description">Оперативный выезд на замер и скидка 10%</p></div>';
+    $html .= '<div class="interior-proposal-request__contacts"><p class="interior-proposal-request__contacts-text">Оставьте заявку или свяжитесь с нами удобным способом</p><ul class="interior-proposal-request__socials" aria-label="Способы связи">';
+    foreach (social_links($settings, true) as $social) {
+        $html .= '<li class="interior-proposal-request__social-item"><a class="interior-proposal-request__social-link" href="' . h($social['href']) . '" aria-label="' . h($social['label']) . '">' . icon_html($social['name'], 'icon interior-proposal-request__social-icon', true) . '</a></li>';
+    }
+    $html .= '</ul></div></div>';
+    $html .= '<form class="interior-proposal-request__form" action="/lead" method="post"><input type="hidden" name="source" value="' . h($source) . '">';
+    $html .= '<input class="interior-proposal-request__control" name="name" placeholder="Григорий" aria-label="Ваше имя" required>';
+    $html .= '<input class="interior-proposal-request__control" name="phone" placeholder="' . h($settings['phone'] ?? '') . '" aria-label="Телефон" inputmode="tel" required>';
+    $html .= '<textarea class="interior-proposal-request__control interior-proposal-request__control--textarea" name="comment" placeholder="Комментарий" aria-label="Комментарий"></textarea>';
+    $html .= '<button class="button interior-proposal-request__button" type="submit">Записаться на замер</button><p class="interior-proposal-request__privacy">Нажимая на кнопку, вы соглашаетесь с политикой конфиденциальности.</p></form></div></section>';
+
+    return $html;
+}
+
+function render_interior_advantages(?array $data): string
+{
+    if (!$data) {
+        return '';
+    }
+
+    $items = content_items($data);
+    $html = '<section class="interior-advantages container" aria-labelledby="interior-advantages-title"><header class="interior-advantages__header"><h2 class="interior-advantages__title h2" id="interior-advantages-title">' . h($data['title'] ?? 'Преимущества') . '</h2>';
+    if (!empty($data['description'])) {
+        $html .= '<p class="interior-advantages__description">' . h($data['description']) . '</p>';
+    }
+    $html .= '</header><div class="interior-advantages__grid">';
+    foreach ($items as $item) {
+        $html .= '<article class="interior-advantages-card" style="--card-bg: url(' . h(asset_url('images/ServiceOptions/card-bg.png')) . ')"><div class="interior-advantages-card__content"><h3 class="interior-advantages-card__title h3">' . h($item['title'] ?? '') . '</h3><p class="interior-advantages-card__description">' . h($item['description'] ?? '') . '</p></div>';
+        $html .= '<a class="interior-advantages-card__link" href="/"><span>Подробнее</span>' . icon_html('arrow-top-right', 'icon interior-advantages-card__icon') . '</a></article>';
+    }
+
+    return $html . '</div></section>';
+}
+
+function render_interior_plans(?array $data): string
+{
+    if (!$data) {
+        return '';
+    }
+
+    $fallbackIcons = ['box', 'star', 'medal'];
+    $items = content_items($data);
+    $html = '<section class="interior-plans container" aria-labelledby="interior-plans-title"><h2 class="interior-plans__title h2" id="interior-plans-title">' . h($data['title'] ?? 'Варианты сотрудничества') . '</h2><div class="interior-plans__grid">';
+    foreach ($items as $index => $item) {
+        $featured = !empty($item['isFeatured']) ? ' interior-plans-card--featured' : '';
+        $icon = card_icon_url($item['icon'] ?? null, $fallbackIcons[$index % count($fallbackIcons)]);
+        $html .= '<article class="interior-plans-card' . h($featured) . '"><div class="interior-plans-card__body"><div class="interior-plans-card__content"><img class="interior-plans-card__icon" src="' . h($icon) . '" alt="" width="100" height="100" loading="lazy">';
+        $html .= '<h3 class="interior-plans-card__title h3">' . h($item['title'] ?? '') . '</h3><ul class="interior-plans-card__items">';
+        foreach (($item['items'] ?? []) as $line) {
+            $html .= '<li class="interior-plans-card__item">' . h($line) . '</li>';
+        }
+        $html .= '</ul></div><a class="button interior-plans-card__button" href="#request">Записаться</a></div></article>';
+    }
+
+    return $html . '</div></section>';
+}
+
+function render_interior_questions(array $settings): string
+{
+    $html = '<section class="interior-questions container" aria-labelledby="interior-questions-title"><div class="interior-questions__inner"><div class="interior-questions__content"><div class="interior-questions__header"><h2 class="interior-questions__title h2" id="interior-questions-title">Остались вопросы?</h2><p class="interior-questions__description">Оставьте заявку или свяжитесь с нами удобным способом</p></div><ul class="interior-questions__socials" aria-label="Способы связи">';
+    foreach (social_links($settings, true) as $social) {
+        $html .= '<li class="interior-questions__social-item"><a class="interior-questions__social-link" href="' . h($social['href']) . '" aria-label="' . h($social['label']) . '">' . icon_html($social['name'], 'icon interior-questions__social-icon', true) . '</a></li>';
+    }
+    $html .= '</ul><div class="interior-questions__manager"><img class="interior-questions__manager-photo" src="' . h(asset_url('images/Questions/manager-photo.png')) . '" alt="" width="80" height="80" loading="lazy"><div class="interior-questions__manager-info"><p class="interior-questions__manager-name">Григорий Карпинский</p><p class="interior-questions__manager-position">Менеджер продаж</p></div></div></div>';
+    $html .= render_lead_form('interior-questions', $settings['phone'] ?? '', 'interior-questions');
+
+    return $html . '</div></section>';
+}
+
 function render_page(array $site, array $page): void
 {
     $type = $page['type'] ?? 'product';
@@ -709,6 +832,26 @@ function render_page(array $site, array $page): void
         $body .= render_reviews_section($site['reviews'] ?? []);
         $body .= render_service_faq($contentData['faq']['items'] ?? []);
         $body .= render_questions($settings);
+        $body .= render_route($settings);
+
+        render_layout($site, $page['seoTitle'] ?? $page['title'] ?? SITE_NAME, $body);
+        return;
+    }
+
+    if ($type === 'interior') {
+        $settings = $site['settings'] ?? [];
+        $body = render_interior_hero($page, $contentData, $settings);
+        $body .= render_interior_includes($contentData['includes'] ?? null);
+        $body .= render_interior_room_solutions($contentData['roomSolutions'] ?? null);
+        $body .= render_service_materials($contentData['materials'] ?? null);
+        $body .= render_interior_proposal_request($settings, $page['slug'] ?? 'interior');
+        $body .= render_interior_advantages($contentData['advantages'] ?? null);
+        $body .= render_interior_plans($contentData['plans'] ?? null);
+        $body .= render_home_request($settings);
+        $body .= render_cases();
+        $body .= render_reviews_section($site['reviews'] ?? []);
+        $body .= render_service_faq($contentData['faq']['items'] ?? []);
+        $body .= render_interior_questions($settings);
         $body .= render_route($settings);
 
         render_layout($site, $page['seoTitle'] ?? $page['title'] ?? SITE_NAME, $body);

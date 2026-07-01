@@ -804,14 +804,39 @@ function render_interior_questions(array $settings): string
     return $html . '</div></section>';
 }
 
+function render_document_page(array $page, array $contentData): string
+{
+    $title = trim((string)($contentData['h1'] ?? ''));
+    if ($title === '') {
+        $title = (string)($page['title'] ?? 'Документ');
+    }
+
+    $text = (string)($contentData['text'] ?? '');
+    $lines = preg_split("/\r\n|\r|\n/", $text);
+    if ($lines === false || count($lines) === 0) {
+        $lines = [''];
+    }
+
+    $html = '<section class="document-hero container" aria-labelledby="document-hero-title">';
+    $html .= '<p class="document-hero__subtitle">Документ</p>';
+    $html .= '<h1 class="document-hero__title h1" id="document-hero-title">' . h($title) . '</h1>';
+    $html .= '</section>';
+    $html .= '<section class="document-content" aria-label="Содержание документа"><div class="document-content__inner container"><article class="document-content__section"><div class="document-content__text">';
+
+    foreach ($lines as $line) {
+        $html .= '<p>' . ($line === '' ? '&nbsp;' : h($line)) . '</p>';
+    }
+
+    return $html . '</div></article></div></section>';
+}
+
 function render_page(array $site, array $page): void
 {
     $type = $page['type'] ?? 'product';
     $contentData = $page['content'] ?? [];
 
     if ($type === 'document') {
-        $body = '<section class="document-content container"><h1 class="document-content__title h1">' . h($contentData['h1'] ?? $page['title'] ?? '') . '</h1>';
-        $body .= '<div class="document-content__body">' . nl2br(h($contentData['text'] ?? '')) . '</div></section>';
+        $body = render_document_page($page, $contentData);
         render_layout($site, $page['seoTitle'] ?? $page['title'] ?? SITE_NAME, $body);
         return;
     }

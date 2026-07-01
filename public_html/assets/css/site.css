@@ -147,6 +147,92 @@
   gap: 0.5rem;
 }
 
+.admin-page {
+  width: 100%;
+  min-height: 100dvh;
+  color: var(--color-white);
+  background-color: var(--color-brown-900);
+}
+
+.admin-page .admin-header {
+  color: var(--color-white);
+  background-color: var(--color-brown-dark);
+  border-bottom: 0.0625rem solid rgba(255, 255, 255, 0.12);
+}
+
+.admin-page .admin-header__eyebrow,
+.admin-page .admin-header__title {
+  color: var(--color-white);
+}
+
+.admin-page .admin-tabs {
+  background-color: #100f1a;
+}
+
+.admin-page .admin-tabs__button {
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.admin-page .admin-tabs__button:hover,
+.admin-page .admin-tabs__button:focus-visible {
+  color: var(--color-white);
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.admin-page .admin-section {
+  width: calc(100% - 3rem);
+  max-width: none;
+  margin: 1.5rem auto;
+  color: var(--color-white);
+  background-color: var(--color-brown);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+.admin-page .admin-section__title,
+.admin-page .admin-subtitle {
+  color: var(--color-white);
+}
+
+.admin-page .admin-grid label,
+.admin-page .panel > form > label {
+  color: rgba(255, 255, 255, 0.86);
+}
+
+.admin-page input,
+.admin-page select,
+.admin-page textarea {
+  color: var(--color-white);
+  background-color: var(--color-brown-900);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.admin-page input::placeholder,
+.admin-page textarea::placeholder {
+  color: rgba(255, 255, 255, 0.46);
+}
+
+.admin-page select option {
+  color: var(--color-white);
+  background-color: var(--color-brown-900);
+}
+
+.admin-edit-page,
+.lead {
+  color: var(--color-white);
+  background-color: rgba(9, 5, 4, 0.45);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+.admin-edit-page summary {
+  color: var(--color-white);
+}
+
+.admin-edit-page summary span,
+.lead small,
+.lead p {
+  color: rgba(255, 255, 255, 0.68);
+}
+
 .section {
   padding: clamp(3.75rem, 3.4137931034rem + 1.3793103448vw, 5rem) var(--container-padding-x);
   background-color: var(--color-brown-900);

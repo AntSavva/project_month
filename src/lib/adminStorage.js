@@ -1,6 +1,5 @@
-﻿import { mkdir, readFile, writeFile } from 'fs/promises'
+import { mkdir, readFile, writeFile } from 'fs/promises'
 import path from 'path'
-import { getPostgresStorage, isDatabaseConfigured } from './postgres'
 
 const dataDir = path.join(process.cwd(), 'data')
 const siteDataPath = path.join(dataDir, 'site.json')
@@ -520,248 +519,11 @@ const writeJson = async (filePath, data) => {
   await writeFile(filePath, `${JSON.stringify(data, null, 2)}\n`, 'utf8')
 }
 
-const toIso = (value) => {
-  if (!value) {
-    return value
-  }
-
-  return value instanceof Date ? value.toISOString() : value
-}
-
-const pageFromDb = (page) => ({
-  id: page.id,
-  type: page.type,
-  title: page.title,
-  slug: page.slug,
-  menuDescription: page.menuDescription,
-  seoTitle: page.seoTitle,
-  seoDescription: page.seoDescription,
-  status: page.status,
-  cover: page.cover,
-  content: page.content,
-  createdAt: toIso(page.createdAt),
-  updatedAt: toIso(page.updatedAt),
-})
-
-const reviewFromDb = (review) => ({
-  id: review.id,
-  author: review.author,
-  date: review.date,
-  text: review.text,
-  avatar: review.avatar,
-  category: review.category,
-  order: review.order,
-  status: review.status,
-  createdAt: toIso(review.createdAt),
-  updatedAt: toIso(review.updatedAt),
-})
-
-const leadFromDb = (lead) => ({
-  id: lead.id,
-  createdAt: toIso(lead.createdAt),
-  updatedAt: toIso(lead.updatedAt),
-  status: lead.status,
-  name: lead.name,
-  phone: lead.phone,
-  email: lead.email,
-  comment: lead.comment,
-  product: lead.product,
-  plan: lead.plan,
-  contactMethod: lead.contactMethod,
-  source: lead.source,
-  form: lead.form,
-})
-
-const canUseDatabase = async () => {
-  if (!isDatabaseConfigured()) {
-    return false
-  }
-
-  try {
-    await getPostgresStorage()
-    return true
-  } catch (error) {
-    console.warn('PostgreSQL is unavailable, falling back to JSON storage:', error.message)
-    return false
-  }
-}
-
-const readSiteDataFromDatabase = async () => {
-  const storage = await getPostgresStorage()
-  const [settings, pages, reviews] = await Promise.all([
-    storage.siteSettings.findUnique({ where: { id: 'site' } }),
-    storage.page.findMany({ orderBy: { updatedAt: 'desc' } }),
-    storage.review.findMany({ orderBy: [{ order: 'desc' }, { createdAt: 'desc' }] }),
-  ])
-
-  return normalizeSiteData(
-    mergeDefaults(
-      {
-        settings: settings
-          ? {
-              phone: settings.phone,
-              email: settings.email,
-              address: settings.address,
-              workingHours: settings.workingHours,
-              legalInfo: settings.legalInfo,
-              socials: settings.socials || {},
-            }
-          : defaultSiteData.settings,
-        reviews: reviews.map(reviewFromDb),
-        productPage: createDefaultProductContent(),
-        interiorPage: createDefaultInteriorContent(),
-        pages: pages.map(pageFromDb),
-      },
-      defaultSiteData
-    )
-  )
-}
-
-const writeSiteDataToDatabase = async (data) => {
-  const storage = await getPostgresStorage()
-  const siteData = normalizeSiteData(mergeDefaults(data, defaultSiteData))
-  const pageIds = siteData.pages.map((page) => page.id)
-  const reviewIds = siteData.reviews.map((review) => review.id)
-
-  await storage.$transaction([
-    storage.siteSettings.upsert({
-      where: { id: 'site' },
-      create: { id: 'site', ...siteData.settings },
-      update: siteData.settings,
-    }),
-    storage.page.deleteMany({ where: { id: { notIn: pageIds.length ? pageIds : [''] } } }),
-    storage.review.deleteMany({ where: { id: { notIn: reviewIds.length ? reviewIds : [''] } } }),
-    ...siteData.pages.map((page) =>
-      storage.page.upsert({
-        where: { id: page.id },
-        create: {
-          id: page.id,
-          type: page.type,
-          title: page.title,
-          slug: page.slug,
-          menuDescription: page.menuDescription || '',
-          seoTitle: page.seoTitle || '',
-          seoDescription: page.seoDescription || '',
-          status: page.status || 'draft',
-          cover: page.cover || '',
-          content: page.content || createDefaultContentByType(page.type),
-        },
-        update: {
-          type: page.type,
-          title: page.title,
-          slug: page.slug,
-          menuDescription: page.menuDescription || '',
-          seoTitle: page.seoTitle || '',
-          seoDescription: page.seoDescription || '',
-          status: page.status || 'draft',
-          cover: page.cover || '',
-          content: page.content || createDefaultContentByType(page.type),
-        },
-      })
-    ),
-    ...siteData.reviews.map((review) =>
-      storage.review.upsert({
-        where: { id: review.id },
-        create: {
-          id: review.id,
-          author: review.author,
-          date: review.date || '',
-          text: review.text,
-          avatar: review.avatar || '',
-          category: review.category || 'all',
-          order: Number(review.order) || 0,
-          status: review.status || 'published',
-        },
-        update: {
-          author: review.author,
-          date: review.date || '',
-          text: review.text,
-          avatar: review.avatar || '',
-          category: review.category || 'all',
-          order: Number(review.order) || 0,
-          status: review.status || 'published',
-        },
-      })
-    ),
-  ])
-
-  return siteData
-}
-
-const createDefaultContentByType = (type) => {
-  if (type === 'interior') {
-    return createDefaultInteriorContent()
-  }
-
-  if (type === 'document') {
-    return createDefaultDocumentContent()
-  }
-
-  return createDefaultProductContent()
-}
-
-const readLeadsFromDatabase = async () => {
-  const storage = await getPostgresStorage()
-  const leads = await storage.lead.findMany({ orderBy: { createdAt: 'desc' } })
-
-  return leads.map(leadFromDb)
-}
-
-const writeLeadsToDatabase = async (leads) => {
-  const storage = await getPostgresStorage()
-  const leadIds = leads.map((lead) => lead.id)
-
-  await storage.$transaction([
-    storage.lead.deleteMany({ where: { id: { notIn: leadIds.length ? leadIds : [''] } } }),
-    ...leads.map((lead) =>
-      storage.lead.upsert({
-        where: { id: lead.id },
-        create: {
-          id: lead.id,
-          status: lead.status || 'new',
-          name: lead.name || '',
-          phone: lead.phone || '',
-          email: lead.email || '',
-          comment: lead.comment || '',
-          product: lead.product || '',
-          plan: lead.plan || '',
-          contactMethod: lead.contactMethod || '',
-          source: lead.source || '',
-          form: lead.form || '',
-          createdAt: lead.createdAt ? new Date(lead.createdAt) : undefined,
-        },
-        update: {
-          status: lead.status || 'new',
-          name: lead.name || '',
-          phone: lead.phone || '',
-          email: lead.email || '',
-          comment: lead.comment || '',
-          product: lead.product || '',
-          plan: lead.plan || '',
-          contactMethod: lead.contactMethod || '',
-          source: lead.source || '',
-          form: lead.form || '',
-        },
-      })
-    ),
-  ])
-
-  return leads
-}
-
 export const readSiteData = async () => {
-  if (await canUseDatabase()) {
-    return readSiteDataFromDatabase()
-  }
-
   return normalizeSiteData(mergeDefaults(await readJson(siteDataPath, defaultSiteData), defaultSiteData))
 }
 
 export const writeSiteData = async (data) => {
-  if (await canUseDatabase()) {
-    return writeSiteDataToDatabase(data)
-  }
-
   return writeJson(siteDataPath, data)
 }
 
@@ -772,18 +534,10 @@ export const createDefaultInteriorContent = () => clone(cleanDefaultInteriorCont
 export const createDefaultDocumentContent = () => clone(cleanDefaultDocumentContent)
 
 export const readLeads = async () => {
-  if (await canUseDatabase()) {
-    return readLeadsFromDatabase()
-  }
-
   return readJson(leadsDataPath, [])
 }
 
 export const writeLeads = async (leads) => {
-  if (await canUseDatabase()) {
-    return writeLeadsToDatabase(leads)
-  }
-
   return writeJson(leadsDataPath, leads)
 }
 

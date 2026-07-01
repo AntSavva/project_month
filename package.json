@@ -12,8 +12,6 @@
     "dev": "next dev --webpack",
     "start": "next start",
     "build": "next build --webpack",
-    "db:init": "node scripts/init-postgres.js",
-    "db:seed": "node scripts/seed-postgres.js",
     "lint:js": "eslint src --ext .js,.jsx",
     "lint:js:fix": "eslint src --ext .js,.jsx --fix",
     "lint:css": "stylelint \"**/*.{css,scss,pcss}\"",
@@ -52,8 +50,7 @@
   "dependencies": {
     "@a1rth/css-normalize": "1.2.1",
     "clsx": "2.1.1",
-    "imask": "7.6.1",
-    "pg": "^8.22.0"
+    "imask": "7.6.1"
   },
   "overrides": {
     "typescript-eslint": {

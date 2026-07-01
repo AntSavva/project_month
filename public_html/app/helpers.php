@@ -475,6 +475,87 @@ function render_reviews_section(array $reviews): string
     return $html . '</section>';
 }
 
+function visible_reviews(array $reviews): array
+{
+    return array_values(array_filter($reviews, function ($review) {
+        return ($review['status'] ?? 'published') !== 'draft';
+    }));
+}
+
+function render_reviews_page(array $site): void
+{
+    $settings = $site['settings'] ?? [];
+    $reviews = visible_reviews($site['reviews'] ?? []);
+    $filters = [
+        ['label' => 'Все', 'value' => 'all'],
+        ['label' => 'Наличники', 'value' => 'trim'],
+        ['label' => 'Обсады', 'value' => 'frames'],
+        ['label' => 'Подоконники', 'value' => 'sills'],
+        ['label' => 'Лестницы', 'value' => 'stairs'],
+        ['label' => 'Малые архитектурные формы', 'value' => 'small-forms'],
+    ];
+
+    $body = '<section class="reviews-hero" aria-labelledby="reviews-hero-title" data-js-reviews-page="">';
+    $body .= '<div class="reviews-hero__inner container"><div class="reviews-hero__content">';
+    $body .= '<p class="reviews-hero__subtitle">Отзывы</p><h1 class="reviews-hero__title h1" id="reviews-hero-title">Мнение наших клиентов</h1></div>';
+    $body .= '<div class="reviews-hero__toolbar"><label class="reviews-hero__type"><span>Тип: <span data-js-reviews-filter-current="">Все</span></span>';
+    $body .= '<select class="reviews-hero__type-select" name="reviews-type" aria-label="Тип отзыва" data-js-reviews-filter-select="">';
+    foreach ($filters as $filter) {
+        $body .= '<option value="' . h($filter['value']) . '">' . h($filter['label']) . '</option>';
+    }
+    $body .= '</select><span class="reviews-hero__select-icon" aria-hidden="true"></span></label>';
+    $body .= '<div class="reviews-hero__filters" aria-label="Категории отзывов" role="tablist">';
+    foreach ($filters as $index => $filter) {
+        $activeClass = $index === 0 ? ' is-active' : '';
+        $selected = $index === 0 ? 'true' : 'false';
+        $body .= '<button class="reviews-hero__filter' . $activeClass . '" type="button" role="tab" aria-selected="' . $selected . '" data-js-reviews-filter="' . h($filter['value']) . '">' . h($filter['label']) . '</button>';
+    }
+    $body .= '</div><label class="reviews-hero__sort"><span>Порядок:</span><select class="reviews-hero__sort-select" name="reviews-order" data-js-reviews-sort="">';
+    $body .= '<option value="default">По умолчанию</option><option value="new">Сначала новые</option><option value="old">Сначала старые</option>';
+    $body .= '</select><span class="reviews-hero__select-icon" aria-hidden="true"></span></label></div></div>';
+    $body .= '<div class="reviews-hero__grid container" data-js-reviews-grid="">';
+
+    if (!$reviews) {
+        $body .= '<p class="reviews-hero__empty">Отзывы пока не добавлены.</p>';
+    }
+
+    foreach ($reviews as $index => $review) {
+        $popupId = 'review-page-popup-' . ($index + 1);
+        $category = $review['category'] ?? 'all';
+        $order = $review['order'] ?? $index;
+        $body .= '<article class="reviews-card" data-category="' . h($category) . '" data-order="' . h($order) . '"><p class="reviews-card__text">' . h($review['text'] ?? '') . '</p>';
+        $body .= '<a class="reviews-card__more" href="#' . h($popupId) . '"><span>Читать полностью</span>' . icon_html('arrow-top-right', 'icon reviews-card__more-icon') . '</a>';
+        $body .= '<footer class="reviews-card__author">';
+        if (!empty($review['avatar'])) {
+            $body .= '<img class="reviews-card__avatar" src="' . h($review['avatar']) . '" alt="" loading="lazy">';
+        } else {
+            $body .= '<span class="reviews-card__avatar" aria-hidden="true"></span>';
+        }
+        $body .= '<span class="reviews-card__meta"><span class="reviews-card__name">' . h($review['author'] ?? '') . '</span><span class="reviews-card__date">' . h($review['date'] ?? '') . '</span></span></footer></article>';
+    }
+
+    $body .= '</div>';
+    foreach ($reviews as $index => $review) {
+        $popupId = 'review-page-popup-' . ($index + 1);
+        $titleId = 'review-page-popup-title-' . ($index + 1);
+        $body .= '<div class="reviews-popup" id="' . h($popupId) . '" role="dialog" aria-modal="true" aria-labelledby="' . h($titleId) . '">';
+        $body .= '<a class="reviews-popup__backdrop" href="#reviews-hero-title" aria-label="Закрыть отзыв"></a><article class="reviews-popup__body">';
+        $body .= '<a class="reviews-popup__close" href="#reviews-hero-title" aria-label="Закрыть">x</a><div class="reviews-popup__author">';
+        if (!empty($review['avatar'])) {
+            $body .= '<img class="reviews-popup__avatar" src="' . h($review['avatar']) . '" alt="" loading="lazy">';
+        } else {
+            $body .= '<span class="reviews-popup__avatar" aria-hidden="true"></span>';
+        }
+        $body .= '<div class="reviews-popup__meta"><h3 class="reviews-popup__title h3" id="' . h($titleId) . '">' . h($review['author'] ?? '') . '</h3><p class="reviews-popup__date">' . h($review['date'] ?? '') . '</p></div></div>';
+        $body .= '<p class="reviews-popup__text">' . h($review['text'] ?? '') . '</p></article></div>';
+    }
+    $body .= '</section>';
+    $body .= render_questions($settings);
+    $body .= render_route($settings);
+
+    render_layout($site, 'Отзывы', $body);
+}
+
 function render_work_features(): string
 {
     $items = [

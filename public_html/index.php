@@ -29,6 +29,11 @@ if ($path === 'about') {
     exit;
 }
 
+if ($path === 'reviews') {
+    render_reviews_page($site);
+    exit;
+}
+
 $page = site_find_page($site, $path);
 
 if ($page) {

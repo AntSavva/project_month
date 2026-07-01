@@ -12,6 +12,141 @@
   background-color: currentColor;
 }
 
+.admin-page .admin-tabs__button {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.admin-page .panel {
+  scroll-margin-top: 1.25rem;
+}
+
+.admin-page .admin-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.admin-page .admin-grid label,
+.admin-page .panel > form > label {
+  display: grid;
+  gap: 0.5rem;
+  color: #62564e;
+  font-weight: 600;
+}
+
+.admin-page .admin-grid .wide,
+.admin-page .admin-grid button,
+.admin-page .panel > form > textarea,
+.admin-page .panel > form > button {
+  grid-column: 1 / -1;
+}
+
+.admin-page input,
+.admin-page select,
+.admin-page textarea {
+  width: 100%;
+  min-height: 2.625rem;
+  padding: 0.5rem 0.75rem;
+  color: #111827;
+  background-color: #fff;
+  border: 0.0625rem solid #d8d1ca;
+  border-radius: var(--border-radius-5);
+}
+
+.admin-page textarea {
+  resize: vertical;
+}
+
+.admin-page .code {
+  min-height: 18rem;
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+.admin-page button {
+  min-height: 2.625rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  color: var(--color-white);
+  background-color: var(--color-accent);
+  border: 0.0625rem solid transparent;
+  border-radius: var(--border-radius-5);
+}
+
+.admin-page .admin-button--ghost {
+  color: #2b3546;
+  background-color: #fff;
+  border-color: #d8d1ca;
+}
+
+.admin-page button.danger,
+.admin-page .delete-form button {
+  color: #b42318;
+  background-color: #fff7f6;
+  border-color: #f1b8b2;
+}
+
+.admin-pages {
+  display: grid;
+  gap: 0.875rem;
+  margin-top: 1.25rem;
+}
+
+.admin-edit-page {
+  padding: 1.125rem;
+  background-color: #f8f5f2;
+  border: 0.0625rem solid #ece3dc;
+  border-radius: var(--border-radius-10);
+}
+
+.admin-edit-page summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  color: #111827;
+  cursor: pointer;
+}
+
+.admin-edit-page summary span {
+  color: #62564e;
+  font-size: 0.875rem;
+}
+
+.admin-edit-page[open] summary {
+  margin-bottom: 1rem;
+}
+
+.delete-form {
+  margin-top: 0.75rem;
+}
+
+.lead-list {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.lead {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  padding: 1rem;
+  background-color: #f8f5f2;
+  border: 0.0625rem solid #ece3dc;
+  border-radius: var(--border-radius-10);
+}
+
+.lead form {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .section {
   padding: clamp(3.75rem, 3.4137931034rem + 1.3793103448vw, 5rem) var(--container-padding-x);
   background-color: var(--color-brown-900);
@@ -221,6 +356,11 @@
 
 @media (max-width: 47.9375rem) {
   .feature-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-page .admin-grid,
+  .lead {
     grid-template-columns: 1fr;
   }
 

@@ -3,6 +3,16 @@
 $message = '';
 $error = '';
 
+function render_admin_layout(string $title, string $content): void
+{
+    echo '<!doctype html><html lang="ru"><head><meta charset="utf-8">';
+    echo '<meta name="viewport" content="width=device-width, initial-scale=1">';
+    echo '<title>' . h($title) . '</title>';
+    echo '<link rel="stylesheet" href="/_next/static/css/502c9b70610a5c6c.css">';
+    echo '<link rel="stylesheet" href="/assets/css/site.css">';
+    echo '</head><body>' . $content . '</body></html>';
+}
+
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     $action = $_POST['action'] ?? '';
 
@@ -124,29 +134,37 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
 }
 
 if (!admin_is_authenticated()) {
-    $content = '<main class="admin admin-login"><form method="post" class="panel">'
+    $content = '<main class="admin-page admin-page--login"><form method="post" class="admin-login">'
         . '<input type="hidden" name="action" value="login">'
-        . '<h1>Админ-панель</h1>'
-        . ($error ? '<p class="alert alert-error">' . h($error) . '</p>' : '')
-        . '<label>Пароль<input type="password" name="password" required autofocus></label>'
-        . '<button type="submit">Войти</button></form></main>';
-    render_layout($site, 'Админ-панель', $content);
+        . '<h1 class="admin-login__title">Админ-панель</h1>'
+        . '<p class="admin-login__text">Введите пароль для управления сайтом.</p>'
+        . ($error ? '<p class="admin-message">' . h($error) . '</p>' : '')
+        . '<input class="admin-input" type="password" name="password" placeholder="Пароль" required autofocus>'
+        . '<button class="admin-button" type="submit">Войти</button></form></main>';
+    render_admin_layout('Админ-панель', $content);
     return;
 }
 
 $settings = $site['settings'] ?? [];
 $leads = array_reverse(leads_read());
-$content = '<main class="admin"><header class="admin-top"><div><p class="eyebrow">Кубэра</p><h1>Админ-панель</h1></div>'
-    . '<form method="post"><input type="hidden" name="action" value="logout"><button type="submit">Выйти</button></form></header>';
+$content = '<main class="admin-page"><header class="admin-header"><div><p class="admin-header__eyebrow">Кубэра</p><h1 class="admin-header__title">Админ-панель сайта</h1></div>'
+    . '<form method="post"><input type="hidden" name="action" value="logout"><button class="admin-button admin-button--ghost" type="submit">Выйти</button></form></header>'
+    . '<nav class="admin-tabs" aria-label="Разделы админки">'
+    . '<a class="admin-tabs__button" href="#leads">Заявки</a>'
+    . '<a class="admin-tabs__button" href="#reviews">Отзывы</a>'
+    . '<a class="admin-tabs__button" href="#settings">Контакты и реквизиты</a>'
+    . '<a class="admin-tabs__button" href="#create-page">Создать страницу</a>'
+    . '<a class="admin-tabs__button" href="#pages">Страницы</a>'
+    . '</nav>';
 
 if ($message) {
-    $content .= '<p class="alert alert-success">' . h($message) . '</p>';
+    $content .= '<p class="admin-message admin-message--floating">' . h($message) . '</p>';
 }
 if ($error) {
-    $content .= '<p class="alert alert-error">' . h($error) . '</p>';
+    $content .= '<p class="admin-message admin-message--floating">' . h($error) . '</p>';
 }
 
-$content .= '<section class="panel"><h2>Настройки сайта</h2><form method="post" class="admin-grid">'
+$content .= '<section id="settings" class="panel admin-section"><h2 class="admin-section__title">Настройки сайта</h2><form method="post" class="admin-grid">'
     . '<input type="hidden" name="action" value="save_settings">'
     . '<label>Телефон<input name="phone" value="' . h($settings['phone'] ?? '') . '"></label>'
     . '<label>Email<input name="email" value="' . h($settings['email'] ?? '') . '"></label>'
@@ -159,7 +177,7 @@ $content .= '<section class="panel"><h2>Настройки сайта</h2><form 
     . '<label class="wide">Юридическая информация<textarea name="legalInfo" rows="4">' . h($settings['legalInfo'] ?? '') . '</textarea></label>'
     . '<button type="submit">Сохранить настройки</button></form></section>';
 
-$content .= '<section class="panel"><h2>Создать страницу</h2><form method="post" enctype="multipart/form-data" class="admin-grid">'
+$content .= '<section id="create-page" class="panel admin-section"><h2 class="admin-section__title">Создать страницу</h2><form method="post" enctype="multipart/form-data" class="admin-grid">'
     . '<input type="hidden" name="action" value="create_page">'
     . '<label>Тип<select name="type"><option value="product">Продукция</option><option value="interior">Интерьер</option><option value="document">Документ</option></select></label>'
     . '<label>Название<input name="title" required></label>'
@@ -171,10 +189,10 @@ $content .= '<section class="panel"><h2>Создать страницу</h2><for
     . '<label>Обложка<input type="file" name="cover" accept="image/*"></label>'
     . '<button type="submit">Создать</button></form></section>';
 
-$content .= '<section class="panel"><h2>Страницы</h2><div class="admin-pages">';
+$content .= '<section id="pages" class="panel admin-section"><h2 class="admin-section__title">Страницы</h2><div class="admin-pages">';
 foreach ($site['pages'] ?? [] as $page) {
     $contentJson = json_encode($page['content'] ?? [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-    $content .= '<details class="admin-page"><summary><strong>' . h($page['title'] ?? '') . '</strong> <span>' . h($page['type'] ?? '') . ' / ' . h($page['slug'] ?? '') . ' / ' . h($page['status'] ?? '') . '</span></summary>';
+    $content .= '<details class="admin-edit-page"><summary><strong>' . h($page['title'] ?? '') . '</strong> <span>' . h($page['type'] ?? '') . ' / ' . h($page['slug'] ?? '') . ' / ' . h($page['status'] ?? '') . '</span></summary>';
     $content .= '<form method="post" enctype="multipart/form-data" class="admin-grid">'
         . '<input type="hidden" name="action" value="save_page">'
         . '<input type="hidden" name="id" value="' . h($page['id'] ?? '') . '">'
@@ -193,12 +211,12 @@ foreach ($site['pages'] ?? [] as $page) {
 }
 $content .= '</div></section>';
 
-$content .= '<section class="panel"><h2>Отзывы</h2><form method="post">'
+$content .= '<section id="reviews" class="panel admin-section"><h2 class="admin-section__title">Отзывы</h2><form method="post">'
     . '<input type="hidden" name="action" value="save_reviews">'
     . '<textarea name="reviews" rows="18" class="code">' . h(json_encode($site['reviews'] ?? [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)) . '</textarea>'
     . '<button type="submit">Сохранить отзывы</button></form></section>';
 
-$content .= '<section class="panel"><h2>Заявки</h2><div class="lead-list">';
+$content .= '<section id="leads" class="panel admin-section"><h2 class="admin-section__title">Заявки</h2><div class="lead-list">';
 if (!$leads) {
     $content .= '<p>Заявок пока нет.</p>';
 }
@@ -210,4 +228,4 @@ foreach ($leads as $lead) {
 }
 $content .= '</div></section></main>';
 
-render_layout($site, 'Админ-панель', $content);
+render_admin_layout('Админ-панель', $content);

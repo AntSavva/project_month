@@ -333,15 +333,47 @@ function render_reviews_section(array $reviews): string
         return '';
     }
 
-    $html = '<section class="reviews container" aria-labelledby="reviews-title"><div class="reviews__header"><h2 class="reviews__title h2" id="reviews-title">Отзывы клиентов</h2></div><div class="reviews__slider"><div class="reviews__viewport"><div class="reviews__track">';
-    foreach (array_slice($reviews, 0, 10) as $review) {
-        $html .= '<article class="reviews-card"><p class="reviews-card__text">' . h($review['text'] ?? '') . '</p><footer class="reviews-card__author">';
+    $visibleReviews = array_slice($reviews, 0, 10);
+    $html = '<section class="reviews container" aria-labelledby="reviews-title">';
+    $html .= '<div class="reviews__header"><h2 class="reviews__title h2" id="reviews-title">Отзывы клиентов</h2></div>';
+    $html .= '<div class="reviews__slider" data-js-reviews-slider=""><div class="reviews__viewport"><div class="reviews__track" data-js-reviews-slider-track="">';
+
+    foreach ($visibleReviews as $index => $review) {
+        $popupId = 'review-popup-' . ($index + 1);
+        $html .= '<article class="reviews-card"><p class="reviews-card__text">' . h($review['text'] ?? '') . '</p>';
+        $html .= '<a class="reviews-card__more" href="#' . h($popupId) . '"><span>Читать полностью</span>' . icon_html('arrow-top-right', 'icon reviews-card__more-icon') . '</a>';
+        $html .= '<footer class="reviews-card__author">';
         if (!empty($review['avatar'])) {
             $html .= '<img class="reviews-card__avatar" src="' . h($review['avatar']) . '" alt="" loading="lazy">';
+        } else {
+            $html .= '<span class="reviews-card__avatar" aria-hidden="true"></span>';
         }
         $html .= '<span class="reviews-card__meta"><span class="reviews-card__name">' . h($review['author'] ?? '') . '</span><span class="reviews-card__date">' . h($review['date'] ?? '') . '</span></span></footer></article>';
     }
-    return $html . '</div></div></div><a class="button reviews__button" href="/reviews">Посмотреть все отзывы</a></section>';
+
+    $html .= '</div></div>';
+    $html .= '<div class="reviews__controls" aria-label="Навигация по отзывам">';
+    $html .= '<button class="reviews__arrow reviews__arrow--prev" type="button" aria-label="Предыдущие отзывы" data-js-reviews-slider-prev="">' . icon_html('arrow-left', 'icon reviews__arrow-icon') . '</button>';
+    $html .= '<button class="reviews__arrow reviews__arrow--next" type="button" aria-label="Следующие отзывы" data-js-reviews-slider-next="">' . icon_html('arrow-right', 'icon reviews__arrow-icon') . '</button>';
+    $html .= '</div></div>';
+    $html .= '<a class="button reviews__button" href="/reviews">Посмотреть все отзывы</a>';
+
+    foreach ($visibleReviews as $index => $review) {
+        $popupId = 'review-popup-' . ($index + 1);
+        $titleId = 'review-popup-title-' . ($index + 1);
+        $html .= '<div class="reviews-popup" id="' . h($popupId) . '" role="dialog" aria-modal="true" aria-labelledby="' . h($titleId) . '">';
+        $html .= '<a class="reviews-popup__backdrop" href="#reviews-title" aria-label="Закрыть отзыв"></a><article class="reviews-popup__body">';
+        $html .= '<a class="reviews-popup__close" href="#reviews-title" aria-label="Закрыть">x</a><div class="reviews-popup__author">';
+        if (!empty($review['avatar'])) {
+            $html .= '<img class="reviews-popup__avatar" src="' . h($review['avatar']) . '" alt="" loading="lazy">';
+        } else {
+            $html .= '<span class="reviews-popup__avatar" aria-hidden="true"></span>';
+        }
+        $html .= '<div class="reviews-popup__meta"><h3 class="reviews-popup__title h3" id="' . h($titleId) . '">' . h($review['author'] ?? '') . '</h3><p class="reviews-popup__date">' . h($review['date'] ?? '') . '</p></div></div>';
+        $html .= '<p class="reviews-popup__text">' . h($review['text'] ?? '') . '</p></article></div>';
+    }
+
+    return $html . '</section>';
 }
 
 function render_work_features(): string

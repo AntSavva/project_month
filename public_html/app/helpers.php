@@ -106,12 +106,13 @@ function render_layout(array $site, string $title, string $content): void
     render_header($products, $interiors, $phone, $email);
     echo '<main class="content">' . $content . '</main>';
     render_footer($settings, $products, $interiors, $documents);
+    render_site_scripts();
     echo '</body></html>';
 }
 
 function render_header(array $products, array $interiors, string $phone, string $email): void
 {
-    echo '<header class="header"><div class="header__inner">';
+    echo '<header class="header" data-js-overlay-menu=""><div class="header__inner">';
     echo '<a class="logo header__logo" href="/" title="Home" aria-label="Home"><img class="logo__image" src="/images/logo.svg" alt="" width="216" height="40" loading="eager"></a>';
     echo '<nav class="header__nav" aria-label="Основная навигация"><ul class="header__nav-list">';
     render_header_dropdown('Продукция', $products, asset_url('images/AboutProduction/production-photo.png'));
@@ -124,8 +125,50 @@ function render_header(array $products, array $interiors, string $phone, string 
     echo '<a class="header__contact-link" href="' . h(phone_href($phone)) . '">' . icon_html('phone', 'icon header__contact-icon', true) . '<span>' . h($phone) . '</span></a>';
     echo '<a class="header__contact-link" href="' . h(email_href($email)) . '">' . icon_html('mail', 'icon header__contact-icon', true) . '<span>' . h($email) . '</span></a>';
     echo '</address><a class="button header__callback" href="#request">Записаться на замер</a>';
-    echo '<button class="burger-button header__burger visible-tablet" type="button" aria-label="Открыть меню"><svg class="burger-button__svg" width="44" height="44" viewBox="0 0 100 100"><path class="burger-button__line burger-button__line--1" d="M 20,29 H 80"/><path class="burger-button__line burger-button__line--2" d="M 20,50 H 80"/><path class="burger-button__line burger-button__line--3" d="M 20,71 H 80"/></svg></button>';
-    echo '</div></div></header>';
+    echo '<button class="burger-button header__burger visible-tablet" type="button" aria-label="Открыть меню" data-js-overlay-menu-burger-button=""><svg class="burger-button__svg" width="44" height="44" viewBox="0 0 100 100"><path class="burger-button__line burger-button__line--1" d="M 20,29 H 80"/><path class="burger-button__line burger-button__line--2" d="M 20,50 H 80"/><path class="burger-button__line burger-button__line--3" d="M 20,71 H 80"/></svg></button>';
+    echo '</div></div>';
+    render_overlay_menu($products, $interiors, $phone, $email);
+    echo '</header>';
+}
+
+function render_overlay_menu(array $products, array $interiors, string $phone, string $email): void
+{
+    echo '<dialog class="header__overlay-menu" data-js-overlay-menu-dialog="">';
+    echo '<div class="header__overlay-menu-inner"><div class="header__overlay-head">';
+    echo '<a class="logo header__overlay-logo" href="/" title="Home" aria-label="Home"><img class="logo__image" src="/images/logo.svg" alt="" width="216" height="40" loading="lazy"></a>';
+    echo '<button class="header__overlay-close" type="button" aria-label="Закрыть меню" data-js-overlay-menu-close=""></button>';
+    echo '</div><nav class="header__overlay-nav" aria-label="Мобильная навигация">';
+
+    render_overlay_menu_group('Продукция', $products, true);
+    render_overlay_menu_group('Отделка интерьера', $interiors, false);
+
+    echo '<ul class="header__overlay-nav-list header__overlay-nav-list--main">';
+    echo '<li class="header__overlay-nav-item"><a class="header__overlay-nav-link" href="/about/">О компании</a></li>';
+    echo '<li class="header__overlay-nav-item"><a class="header__overlay-nav-link" href="/reviews/">Отзывы</a></li>';
+    echo '<li class="header__overlay-nav-item"><a class="header__overlay-nav-link" href="/contacts/">Контакты</a></li>';
+    echo '</ul></nav><div class="header__overlay-footer"><address class="header__overlay-contacts">';
+    echo '<a class="header__overlay-contact-link" href="' . h(phone_href($phone)) . '">' . icon_html('phone', 'icon header__overlay-contact-icon', true) . '<span>' . h($phone) . '</span></a>';
+    echo '<a class="header__overlay-contact-link" href="' . h(email_href($email)) . '">' . icon_html('mail', 'icon header__overlay-contact-icon', true) . '<span>' . h($email) . '</span></a>';
+    echo '</address><a class="button header__overlay-callback" href="#request">Записаться на замер</a></div></div></dialog>';
+}
+
+function render_overlay_menu_group(string $label, array $pages, bool $showDescription): void
+{
+    if (!$pages) {
+        return;
+    }
+
+    echo '<details class="header__overlay-nav-group" open><summary class="header__overlay-nav-title">' . h($label) . '</summary>';
+    echo '<ul class="header__overlay-product-list">';
+    foreach ($pages as $page) {
+        echo '<li class="header__overlay-product-item"><a class="header__overlay-product-link" href="' . h(page_href($page)) . '">';
+        echo '<span class="header__overlay-product-label">' . h($page['title'] ?? '') . '</span>';
+        if ($showDescription && !empty($page['menuDescription'])) {
+            echo '<span class="header__overlay-product-description">' . h($page['menuDescription']) . '</span>';
+        }
+        echo '</a></li>';
+    }
+    echo '</ul></details>';
 }
 
 function render_header_dropdown(string $label, array $pages, string $cover): void
@@ -141,6 +184,74 @@ function render_header_dropdown(string $label, array $pages, string $cover): voi
         echo '<li class="header__mega-item"><a class="header__mega-link" href="' . h(page_href($page)) . '">' . h($page['title'] ?? '') . '</a></li>';
     }
     echo '</ul><img class="header__mega-cover" src="' . h($cover) . '" alt="" width="730" height="360"></div></div></li>';
+}
+
+function render_site_scripts(): void
+{
+    echo <<<'HTML'
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('[data-js-overlay-menu]').forEach(function (root) {
+    if (root.hasAttribute('data-js-overlay-menu-bound')) {
+      return;
+    }
+
+    var dialog = root.querySelector('[data-js-overlay-menu-dialog]');
+    var burger = root.querySelector('[data-js-overlay-menu-burger-button]');
+
+    if (!dialog || !burger) {
+      return;
+    }
+
+    var closeMenu = function () {
+      burger.classList.remove('is-active');
+      document.documentElement.classList.remove('is-lock');
+
+      if (dialog.open && typeof dialog.close === 'function') {
+        dialog.close();
+      } else {
+        dialog.open = false;
+      }
+    };
+
+    root.setAttribute('data-js-overlay-menu-bound', '');
+
+    burger.addEventListener('click', function (event) {
+      event.preventDefault();
+
+      if (dialog.open) {
+        closeMenu();
+        return;
+      }
+
+      burger.classList.add('is-active');
+      document.documentElement.classList.add('is-lock');
+
+      if (typeof dialog.showModal === 'function') {
+        dialog.showModal();
+      } else {
+        dialog.open = true;
+      }
+    });
+
+    dialog.addEventListener('click', function (event) {
+      if (
+        event.target === dialog ||
+        event.target.closest('[data-js-overlay-menu-close]') ||
+        event.target.closest('a')
+      ) {
+        closeMenu();
+      }
+    });
+
+    dialog.addEventListener('close', function () {
+      burger.classList.remove('is-active');
+      document.documentElement.classList.remove('is-lock');
+    });
+  });
+});
+</script>
+HTML;
 }
 
 function render_footer(array $settings, array $products, array $interiors, array $documents): void

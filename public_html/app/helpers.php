@@ -249,6 +249,49 @@ document.addEventListener('DOMContentLoaded', function () {
       document.documentElement.classList.remove('is-lock');
     });
   });
+
+  document.querySelectorAll('[data-js-reviews-slider]').forEach(function (slider) {
+    if (slider.hasAttribute('data-js-reviews-slider-bound')) {
+      return;
+    }
+
+    var viewport = slider.querySelector('.reviews__viewport');
+    var track = slider.querySelector('[data-js-reviews-slider-track]');
+    var prevButton = slider.querySelector('[data-js-reviews-slider-prev]');
+    var nextButton = slider.querySelector('[data-js-reviews-slider-next]');
+
+    if (!viewport || !track || !prevButton || !nextButton) {
+      return;
+    }
+
+    var getStep = function () {
+      var firstCard = track.querySelector('.reviews-card');
+      var gap = parseFloat(getComputedStyle(track).columnGap) || 0;
+
+      return firstCard ? firstCard.getBoundingClientRect().width + gap : viewport.clientWidth;
+    };
+
+    var updateButtons = function () {
+      var maxScroll = Math.max(viewport.scrollWidth - viewport.clientWidth - 2, 0);
+
+      prevButton.disabled = viewport.scrollLeft <= 2;
+      nextButton.disabled = viewport.scrollLeft >= maxScroll;
+    };
+
+    slider.setAttribute('data-js-reviews-slider-bound', '');
+    updateButtons();
+
+    prevButton.addEventListener('click', function () {
+      viewport.scrollBy({ left: -getStep(), behavior: 'smooth' });
+    });
+
+    nextButton.addEventListener('click', function () {
+      viewport.scrollBy({ left: getStep(), behavior: 'smooth' });
+    });
+
+    viewport.addEventListener('scroll', updateButtons, { passive: true });
+    window.addEventListener('resize', updateButtons);
+  });
 });
 </script>
 HTML;

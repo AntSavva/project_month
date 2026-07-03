@@ -413,6 +413,7 @@ function render_home(array $site): void
     $content .= render_production_showcase();
     $content .= render_reviews_section($reviews);
     $content .= render_work_features();
+    $content .= render_modular_house_promo();
     $content .= render_standards();
     $content .= render_questions($settings);
     $content .= render_route($settings);
@@ -771,6 +772,18 @@ function render_work_features(): string
         $html .= '<article class="work-features-card' . h($item['class'] ?? '') . '"><div class="work-features-card__content"><h3 class="work-features-card__title h3">' . h($item['title']) . '</h3><p class="work-features-card__description">' . h($item['description']) . '</p></div><img class="work-features-card__decor" src="' . h(asset_url('images/CardIcons/' . $item['icon'] . '.png')) . '" alt="" width="189" height="189" loading="lazy"></article>';
     }
     return $html . '</div></section>';
+}
+
+function render_modular_house_promo(): string
+{
+    return '<section class="modular-house-promo container" aria-labelledby="modular-house-promo-title">'
+        . '<div class="modular-house-promo__inner">'
+        . '<img class="modular-house-promo__image" src="' . h(asset_url('images/Promo/modular-house.png')) . '" alt="" width="1840" height="752" loading="lazy">'
+        . '<div class="modular-house-promo__content">'
+        . '<h2 class="modular-house-promo__title h2" id="modular-house-promo-title">Спроектируем и соберём ваш дом<br>за 2 месяца</h2>'
+        . '<p class="modular-house-promo__description">Мы знаем, как обращаться с деревом. Теперь строим из него целые дома<br>по модульной технологии. Быстро, тепло и без усадки</p>'
+        . '<a class="button modular-house-promo__button" href="#request">Подробнее</a>'
+        . '</div></div></section>';
 }
 
 function render_standards(bool $isOpen = true): string

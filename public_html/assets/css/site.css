@@ -12,6 +12,70 @@
   background-color: currentColor;
 }
 
+.modular-house-promo {
+  padding-block: clamp(2rem, 4vw, 3.25rem);
+  background-color: var(--color-brown-900);
+}
+
+.modular-house-promo__inner {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: clamp(22rem, 39vw, 30.25rem);
+  overflow: hidden;
+  border-radius: var(--border-radius-10);
+  isolation: isolate;
+}
+
+.modular-house-promo__inner::after {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(90deg, rgba(0, 0, 0, 0.22), rgba(0, 0, 0, 0.34)),
+    radial-gradient(circle at center, rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.34));
+  content: "";
+}
+
+.modular-house-promo__image {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.modular-house-promo__content {
+  display: grid;
+  justify-items: center;
+  gap: 0.875rem;
+  width: min(45rem, calc(100% - 2rem));
+  color: var(--color-white);
+  text-align: center;
+}
+
+.modular-house-promo__title {
+  font-family: "Russo One", sans-serif;
+  font-size: clamp(1.75rem, 3.2vw, 2.25rem);
+  line-height: 1.18;
+  text-shadow: 0 0.125rem 0.875rem rgba(0, 0, 0, 0.42);
+}
+
+.modular-house-promo__description {
+  max-width: 43rem;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: clamp(0.9375rem, 1.35vw, 1.0625rem);
+  line-height: 1.35;
+  text-shadow: 0 0.125rem 0.75rem rgba(0, 0, 0, 0.42);
+}
+
+.modular-house-promo__button {
+  min-height: 2rem;
+  padding-inline: 0.75rem;
+  font-size: 1rem;
+}
+
 .admin-page .admin-tabs__button {
   display: flex;
   align-items: center;
@@ -597,6 +661,37 @@
 @media (max-width: 47.9375rem) {
   .feature-grid {
     grid-template-columns: 1fr;
+  }
+
+  .modular-house-promo {
+    padding-block: 2rem;
+  }
+
+  .modular-house-promo__inner {
+    min-height: 22rem;
+    border-radius: var(--border-radius-10);
+  }
+
+  .modular-house-promo__image {
+    object-position: 58% center;
+  }
+
+  .modular-house-promo__content {
+    gap: 0.75rem;
+    width: min(100% - 2rem, 24rem);
+  }
+
+  .modular-house-promo__title {
+    font-size: 1.75rem;
+  }
+
+  .modular-house-promo__title br,
+  .modular-house-promo__description br {
+    display: none;
+  }
+
+  .modular-house-promo__description {
+    font-size: 0.9375rem;
   }
 
   .home-request__inner {

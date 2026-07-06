@@ -100,7 +100,7 @@ function render_layout(array $site, string $title, string $content): void
     echo '<!doctype html><html lang="ru"><head><meta charset="utf-8">';
     echo '<meta name="viewport" content="width=device-width, initial-scale=1">';
     echo '<title>' . h($title) . '</title>';
-    echo '<link rel="stylesheet" href="/_next/static/css/502c9b70610a5c6c.css">';
+    echo '<link rel="stylesheet" href="/_next/static/css/d64a07c86d44443e.css">';
     echo '<link rel="stylesheet" href="/assets/css/site.css">';
     echo '</head><body>';
     render_header($products, $interiors, $phone, $email);

@@ -20,13 +20,13 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    column-gap: fluid(48, 20);
+    column-gap: fluid(28, 16);
     min-height: inherit;
-    padding-inline: 40px;
+    padding-inline: 32px;
 
     @media (max-width: 1500px) {
-      column-gap: 18px;
-      padding-inline: 32px;
+      column-gap: 14px;
+      padding-inline: 24px;
     }
 
     @include mobile {
@@ -38,7 +38,7 @@
     flex-shrink: 0;
 
     @media (max-width: 1500px) {
-      width: 200px;
+      width: 180px;
     }
 
     @include mobile {
@@ -59,10 +59,10 @@
   &__nav-list {
     display: flex;
     align-items: center;
-    column-gap: 24px;
+    column-gap: 18px;
 
     @media (max-width: 1500px) {
-      column-gap: 18px;
+      column-gap: 14px;
     }
   }
 
@@ -99,7 +99,7 @@
     align-items: center;
     column-gap: 4px;
     padding: 0;
-    font-size: fluid(24, 16);
+    font-size: fluid(18, 16);
     line-height: 1.16;
     color: var(--color-gray);
     white-space: nowrap;
@@ -108,7 +108,7 @@
     transition: color var(--transition-duration);
 
     @media (max-width: 1500px) {
-      font-size: 18px;
+      font-size: 16px;
     }
 
     &.is-active {
@@ -211,19 +211,22 @@
   }
 
   &__actions {
-    column-gap: 24px;
+    column-gap: 16px;
 
     @media (max-width: 1500px) {
-      column-gap: 16px;
+      column-gap: 12px;
     }
   }
 
   &__contacts {
-    column-gap: 24px;
+    column-gap: 16px;
     font-style: normal;
 
     @media (max-width: 1500px) {
-      column-gap: 16px;
+      column-gap: 12px;
+    }
+
+    @media (max-width: 1700px) {
 
       .header__contact-link[href^='mailto:'] {
         display: none;
@@ -236,15 +239,15 @@
   }
 
   &__contact-link {
-    column-gap: 8px;
-    min-height: 40px;
+    column-gap: 6px;
+    min-height: 34px;
     color: var(--color-gray);
-    font-size: fluid(24, 16);
+    font-size: fluid(18, 16);
     line-height: 1.16;
     white-space: nowrap;
 
     @media (max-width: 1500px) {
-      font-size: 18px;
+      font-size: 16px;
     }
 
     @include hover {
@@ -253,12 +256,12 @@
   }
 
   &__contact-icon {
-    @include square(28px);
+    @include square(22px);
 
     flex-shrink: 0;
 
     @media (max-width: 1500px) {
-      @include square(22px);
+      @include square(20px);
     }
   }
 
@@ -266,10 +269,10 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 40px;
-    padding: 6px 12px;
+    min-height: 34px;
+    padding: 5px 10px;
     color: var(--color-white);
-    font-size: fluid(24, 16);
+    font-size: fluid(18, 16);
     line-height: 1.16;
     text-align: center;
     white-space: nowrap;
@@ -284,12 +287,9 @@
       transform var(--transition-duration);
 
     @media (max-width: 1500px) {
-      min-height: 36px;
-      padding-inline: 10px;
-      font-size: 18px;
-      max-width: 190px;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      min-height: 32px;
+      padding-inline: 8px;
+      font-size: 16px;
     }
 
     @include hover {

@@ -36,8 +36,8 @@ export default () => {
               className="questions__manager-photo"
               src={managerPhoto}
               alt=""
-              width="80"
-              height="80"
+              width="96"
+              height="96"
               loading="lazy"
             />
             <div className="questions__manager-info">

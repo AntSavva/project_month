@@ -22,7 +22,7 @@
       "seoTitle": "Отделка библиотек, кабинетов и офисов",
       "seoDescription": "Деревянная отделка библиотек, кабинетов и офисов под ключ.",
       "status": "published",
-      "cover": "",
+      "cover": "/assets/source/images/InteriorCards/library.png",
       "updatedAt": "2026-06-28T13:46:00.314Z",
       "content": {
         "hero": {
@@ -205,7 +205,7 @@
       "seoTitle": "Отделка ресторанов, баров и кафе",
       "seoDescription": "Деревянная отделка ресторанов, баров и кафе под ключ.",
       "status": "published",
-      "cover": "",
+      "cover": "/assets/source/images/InteriorCards/restoraunt.png",
       "content": {
         "hero": {
           "subtitle": "Внутренняя отделка",
@@ -371,7 +371,7 @@
       "seoTitle": "Отделка бань и банных комплексов",
       "seoDescription": "Деревянная отделка бань и банных комплексов под ключ.",
       "status": "published",
-      "cover": "",
+      "cover": "/assets/source/images/InteriorCards/sauna.png",
       "content": {
         "hero": {
           "subtitle": "Внутренняя отделка",

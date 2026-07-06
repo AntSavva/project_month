@@ -40,6 +40,23 @@ function asset_url(string $path): string
     return '/assets/source/' . ltrim($path, '/');
 }
 
+function interior_cover_url(array $page): string
+{
+    $cover = (string) ($page['cover'] ?? '');
+
+    if ($cover !== '') {
+        return $cover;
+    }
+
+    $fallback = [
+        'interior' => asset_url('images/InteriorCards/library.png'),
+        'restorany-bary-kafe' => asset_url('images/InteriorCards/restoraunt.png'),
+        'bani-i-bannye-kompleksy' => asset_url('images/InteriorCards/sauna.png'),
+    ];
+
+    return $fallback[(string) ($page['slug'] ?? '')] ?? '';
+}
+
 function icon_html(string $name, string $class = 'icon', bool $hasFill = false): string
 {
     $attrs = $hasFill ? ' data-fill=""' : '';
@@ -116,7 +133,7 @@ function render_header(array $products, array $interiors, string $phone, string 
     echo '<a class="logo header__logo" href="/" title="Home" aria-label="Home"><img class="logo__image" src="/images/logo.svg" alt="" width="216" height="40" loading="eager"></a>';
     echo '<nav class="header__nav" aria-label="Основная навигация"><ul class="header__nav-list">';
     render_header_dropdown('Продукция', $products, asset_url('images/AboutProduction/production-photo.png'));
-    render_header_dropdown('Отделка интерьера', $interiors, asset_url('images/Cases/case-preview.png'));
+    render_header_dropdown('Отделка интерьера', $interiors, asset_url('images/Cases/case-preview.png'), true);
     echo '<li class="header__nav-item"><a class="header__nav-link" href="/about/"><span>О компании</span></a></li>';
     echo '<li class="header__nav-item"><a class="header__nav-link" href="/reviews/"><span>Отзывы</span></a></li>';
     echo '<li class="header__nav-item"><a class="header__nav-link" href="/contacts/"><span>Контакты</span></a></li>';
@@ -171,19 +188,34 @@ function render_overlay_menu_group(string $label, array $pages, bool $showDescri
     echo '</ul></details>';
 }
 
-function render_header_dropdown(string $label, array $pages, string $cover): void
+function render_header_dropdown(string $label, array $pages, string $cover, bool $usePageCovers = false): void
 {
     if (!$pages) {
         return;
+    }
+
+    $previewCover = $cover;
+
+    if ($usePageCovers) {
+        foreach ($pages as $page) {
+            $pageCover = interior_cover_url($page);
+
+            if ($pageCover !== '') {
+                $previewCover = $pageCover;
+                break;
+            }
+        }
     }
 
     echo '<li class="header__nav-item header__nav-item--dropdown">';
     echo '<button class="header__nav-link" type="button"><span>' . h($label) . '</span><svg class="header__nav-arrow" width="8" height="6" viewBox="0 0 8 6" aria-hidden="true"><path d="M4 6L0.535898 0H7.4641L4 6Z" /></svg></button>';
     echo '<div class="header__mega-menu"><div class="header__mega-menu-inner header__mega-menu-inner--compact"><ul class="header__mega-list">';
     foreach ($pages as $page) {
-        echo '<li class="header__mega-item"><a class="header__mega-link" href="' . h(page_href($page)) . '">' . h($page['title'] ?? '') . '</a></li>';
+        $pageCover = $usePageCovers ? interior_cover_url($page) : '';
+        $coverAttribute = $pageCover !== '' ? ' data-header-preview-cover="' . h($pageCover) . '"' : '';
+        echo '<li class="header__mega-item"><a class="header__mega-link" href="' . h(page_href($page)) . '"' . $coverAttribute . '>' . h($page['title'] ?? '') . '</a></li>';
     }
-    echo '</ul><img class="header__mega-cover" src="' . h($cover) . '" alt="" width="730" height="360"></div></div></li>';
+    echo '</ul><img class="header__mega-cover" src="' . h($previewCover) . '" alt="" width="730" height="360" data-header-preview-image=""></div></div></li>';
 }
 
 function render_site_scripts(): void
@@ -247,6 +279,27 @@ document.addEventListener('DOMContentLoaded', function () {
     dialog.addEventListener('close', function () {
       burger.classList.remove('is-active');
       document.documentElement.classList.remove('is-lock');
+    });
+  });
+
+  document.querySelectorAll('.header__mega-menu').forEach(function (menu) {
+    var image = menu.querySelector('[data-header-preview-image]');
+
+    if (!image) {
+      return;
+    }
+
+    menu.querySelectorAll('[data-header-preview-cover]').forEach(function (link) {
+      var updatePreview = function () {
+        var nextCover = link.getAttribute('data-header-preview-cover');
+
+        if (nextCover) {
+          image.setAttribute('src', nextCover);
+        }
+      };
+
+      link.addEventListener('mouseenter', updatePreview);
+      link.addEventListener('focus', updatePreview);
     });
   });
 
@@ -354,9 +407,10 @@ function render_interior_cards(array $pages): string
 
     foreach ($pages as $page) {
         $description = $page['menuDescription'] ?? ($page['seoDescription'] ?? '');
+        $cover = interior_cover_url($page);
         $html .= '<a class="interior-solutions-card" href="' . h(page_href($page)) . '">';
-        if (!empty($page['cover'])) {
-            $html .= '<span class="interior-solutions-card__media"><img class="interior-solutions-card__image" src="' . h($page['cover']) . '" alt="" width="540" height="304" loading="lazy"></span>';
+        if ($cover !== '') {
+            $html .= '<span class="interior-solutions-card__media"><img class="interior-solutions-card__image" src="' . h($cover) . '" alt="" width="540" height="304" loading="lazy"></span>';
         } else {
             $html .= '<span class="interior-solutions-card__media" role="img" aria-label="' . h($page['title'] ?? '') . '"></span>';
         }
@@ -1080,7 +1134,7 @@ function render_service_faq(array $items): string
 function render_interior_hero(array $page, array $contentData, array $settings): string
 {
     $hero = $contentData['hero'] ?? [];
-    $image = $hero['image'] ?? ($page['cover'] ?: asset_url('images/ServiceHero/hero-image.png'));
+    $image = $hero['image'] ?? (interior_cover_url($page) ?: asset_url('images/ServiceHero/hero-image.png'));
     $html = '<section class="interior-hero" aria-labelledby="interior-hero-title"><div class="interior-hero__inner container"><div class="interior-hero__content">';
     $html .= '<p class="interior-hero__eyebrow">' . h($hero['subtitle'] ?? 'Внутренняя отделка') . '</p>';
     $html .= '<h1 class="interior-hero__title h1" id="interior-hero-title"><span>' . h($hero['title'] ?? $page['title'] ?? '') . '</span><span class="interior-hero__title-accent">' . h($hero['accent'] ?? '') . '</span></h1>';

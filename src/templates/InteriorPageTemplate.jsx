@@ -12,6 +12,7 @@ import Reviews from '@/sections/Reviews'
 import Route from '@/sections/Route'
 import ServiceFaq from '@/sections/ServiceFaq'
 import ServiceMaterials from '@/sections/ServiceMaterials'
+import { getInteriorCover } from '@/lib/interiorCovers'
 
 export default function InteriorPageTemplate(props) {
   const { page, content, reviews = [] } = props
@@ -19,7 +20,7 @@ export default function InteriorPageTemplate(props) {
   const seoDescription = page?.seoDescription || ''
   const heroData = {
     ...(content?.hero || {}),
-    image: content?.hero?.image || page?.cover,
+    image: content?.hero?.image || getInteriorCover(page),
   }
 
   return (

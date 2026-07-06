@@ -7,6 +7,7 @@ import Button from '@/components/Button'
 import Icon from '@/components/Icon'
 import Logo from '@/components/Logo'
 import { useSiteSettings } from '@/contexts/SiteSettingsContext'
+import { getInteriorCover } from '@/lib/interiorCovers'
 import { getEmailHref, getPhoneHref } from '@/lib/siteSettings'
 
 const normalizePath = (value = '') => {
@@ -17,11 +18,11 @@ const normalizePath = (value = '') => {
 
 const isActiveHref = (href, currentPath) => normalizePath(href) === normalizePath(currentPath)
 
-const createMenuItem = (page) => ({
+const createMenuItem = (page, getCover = (item) => item.cover) => ({
   label: page.title,
   href: page.href,
   description: page.menuDescription,
-  cover: page.cover,
+  cover: getCover(page),
 })
 
 const getCoverSrc = (items, fallbackImage) =>
@@ -90,7 +91,9 @@ export default (props) => {
   const { className, url = '' } = props
   const settings = useSiteSettings()
   const productItems = settings.pages.filter((page) => page.type === 'product').map(createMenuItem)
-  const interiorItems = settings.pages.filter((page) => page.type === 'interior').map(createMenuItem)
+  const interiorItems = settings.pages
+    .filter((page) => page.type === 'interior')
+    .map((page) => createMenuItem(page, getInteriorCover))
   const dropdowns = {
     products: {
       title: 'Продукция',

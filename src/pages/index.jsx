@@ -11,6 +11,7 @@ import Standards from '@/sections/Standards'
 import WorkFeatures from '@/sections/WorkFeatures'
 import ProductionShowcase from '@/sections/ProductionShowcase'
 import { readSiteData } from '@/lib/adminStorage'
+import { getInteriorCover } from '@/lib/interiorCovers'
 
 export const metadata = {
   title: 'Главная',
@@ -55,7 +56,7 @@ export const getServerSideProps = async () => {
           title: page.title,
           slug: page.slug,
           description: page.menuDescription || page.seoDescription || '',
-          image: page.cover || '',
+          image: getInteriorCover(page),
         })),
     },
   }

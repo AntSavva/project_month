@@ -24,6 +24,11 @@ if ($path === '') {
     exit;
 }
 
+if ($path === 'service') {
+    header('Location: /nalichniki', true, 301);
+    exit;
+}
+
 if ($path === 'about') {
     render_about($site);
     exit;

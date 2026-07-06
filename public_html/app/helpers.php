@@ -468,7 +468,6 @@ function render_home(array $site): void
     $content .= render_reviews_section($reviews);
     $content .= render_work_features();
     $content .= render_modular_house_promo();
-    $content .= render_standards();
     $content .= render_questions($settings);
     $content .= render_route($settings);
 
@@ -626,7 +625,6 @@ function render_about(array $site): void
     $body = render_about_hero();
     $body .= render_about_values();
     $body .= render_about_production();
-    $body .= render_standards(false);
     $body .= render_route($settings);
 
     render_layout($site, 'О компании', $body);

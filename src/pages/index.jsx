@@ -7,7 +7,6 @@ import InteriorSolutions from '@/sections/InteriorSolutions'
 import Questions from '@/sections/Questions'
 import Reviews from '@/sections/Reviews'
 import Route from '@/sections/Route'
-import Standards from '@/sections/Standards'
 import WorkFeatures from '@/sections/WorkFeatures'
 import ProductionShowcase from '@/sections/ProductionShowcase'
 import { readSiteData } from '@/lib/adminStorage'
@@ -29,7 +28,6 @@ export default ({ reviews = [], products = [], interiors = [] }) => {
       <ProductionShowcase />
       <Reviews reviews={reviews} maxItems={10} />
       <WorkFeatures />
-      <Standards />
       <Questions />
       <Route />
     </>

@@ -77,7 +77,8 @@ export default () => {
           </Button>
 
           <p className="callback-popup__privacy">
-            Нажимая на кнопку, вы соглашаетесь с политикой конфиденциальности.
+            Нажимая на кнопку, вы соглашаетесь с{' '}
+            <a href="/privacy-policy">политикой конфиденциальности</a>.
           </p>
         </form>
       </div>

@@ -447,7 +447,7 @@ function render_lead_form(string $class, string $phone, string $source): string
         . '<input class="' . h($class) . '__control" name="phone" placeholder="' . h($phone) . '" aria-label="Телефон" inputmode="tel" required>'
         . '<textarea class="' . h($class) . '__control ' . h($class) . '__control--textarea" name="comment" placeholder="Комментарий" aria-label="Комментарий"></textarea>'
         . '<button class="button ' . h($class) . '__button" type="submit">Записаться на замер</button>'
-        . '<p class="' . h($class) . '__privacy">Нажимая на кнопку, вы соглашаетесь с политикой конфиденциальности.</p>'
+        . '<p class="' . h($class) . '__privacy">Нажимая на кнопку, вы соглашаетесь с <a href="/privacy-policy">политикой конфиденциальности</a>.</p>'
         . '</form>';
 }
 
@@ -898,7 +898,7 @@ function render_service_hero(array $page, array $contentData, array $settings): 
     $html .= '<input class="service-hero__control" name="name" placeholder="Григорий" aria-label="Ваше имя" required>';
     $html .= '<input class="service-hero__control" name="phone" placeholder="' . h($settings['phone'] ?? '') . '" aria-label="Телефон" inputmode="tel" required>';
     $html .= '<textarea class="service-hero__control service-hero__control--textarea" name="comment" placeholder="Комментарий" aria-label="Комментарий"></textarea>';
-    $html .= '<button class="button service-hero__button" type="submit">Записаться на замер</button></div><p class="service-hero__privacy">Нажимая на кнопку, вы соглашаетесь с политикой конфиденциальности.</p></form></div>';
+    $html .= '<button class="button service-hero__button" type="submit">Записаться на замер</button></div><p class="service-hero__privacy">Нажимая на кнопку, вы соглашаетесь с <a href="/privacy-policy">политикой конфиденциальности</a>.</p></form></div>';
 
     return $html . '<img class="service-hero__image" src="' . h($cover) . '" alt="" width="730" height="730" loading="eager"></div></section>';
 }
@@ -1139,7 +1139,7 @@ function render_interior_hero(array $page, array $contentData, array $settings):
     $html .= '<form class="interior-hero__form" action="/lead" method="post"><input type="hidden" name="source" value="' . h($page['slug'] ?? 'interior') . '"><div class="interior-hero__fields">';
     $html .= '<input class="interior-hero__control" name="name" placeholder="Григорий" aria-label="Ваше имя" required>';
     $html .= '<input class="interior-hero__control" name="phone" placeholder="' . h($settings['phone'] ?? '') . '" aria-label="Телефон" inputmode="tel" required>';
-    $html .= '<button class="button interior-hero__button" type="submit">Записаться на замер</button></div><p class="interior-hero__privacy">Нажимая на кнопку, вы соглашаетесь с политикой конфиденциальности.</p></form></div>';
+    $html .= '<button class="button interior-hero__button" type="submit">Записаться на замер</button></div><p class="interior-hero__privacy">Нажимая на кнопку, вы соглашаетесь с <a href="/privacy-policy">политикой конфиденциальности</a>.</p></form></div>';
 
     return $html . '<img class="interior-hero__image" src="' . h($image) . '" alt="" width="730" height="730" loading="eager"></div></section>';
 }
@@ -1192,7 +1192,7 @@ function render_interior_proposal_request(array $settings, string $source): stri
     $html .= '<input class="interior-proposal-request__control" name="name" placeholder="Григорий" aria-label="Ваше имя" required>';
     $html .= '<input class="interior-proposal-request__control" name="phone" placeholder="' . h($settings['phone'] ?? '') . '" aria-label="Телефон" inputmode="tel" required>';
     $html .= '<textarea class="interior-proposal-request__control interior-proposal-request__control--textarea" name="comment" placeholder="Комментарий" aria-label="Комментарий"></textarea>';
-    $html .= '<button class="button interior-proposal-request__button" type="submit">Записаться на замер</button><p class="interior-proposal-request__privacy">Нажимая на кнопку, вы соглашаетесь с политикой конфиденциальности.</p></form></div></section>';
+    $html .= '<button class="button interior-proposal-request__button" type="submit">Записаться на замер</button><p class="interior-proposal-request__privacy">Нажимая на кнопку, вы соглашаетесь с <a href="/privacy-policy">политикой конфиденциальности</a>.</p></form></div></section>';
 
     return $html;
 }

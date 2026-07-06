@@ -117,7 +117,7 @@ function render_layout(array $site, string $title, string $content): void
     echo '<!doctype html><html lang="ru"><head><meta charset="utf-8">';
     echo '<meta name="viewport" content="width=device-width, initial-scale=1">';
     echo '<title>' . h($title) . '</title>';
-    echo '<link rel="stylesheet" href="/_next/static/css/169ed8bd0982525b.css">';
+    echo '<link rel="stylesheet" href="/_next/static/css/5fdba65b6bcd6527.css">';
     echo '<link rel="stylesheet" href="/assets/css/site.css">';
     echo '</head><body>';
     render_header($products, $interiors, $phone, $email);
@@ -860,7 +860,7 @@ function render_questions(array $settings): string
     foreach (social_links($settings) as $social) {
         $html .= '<li class="questions__social-item"><a class="questions__social-link" href="' . h($social['href']) . '" aria-label="' . h($social['label']) . '">' . icon_html($social['name'], 'icon questions__social-icon', true) . '</a></li>';
     }
-    $html .= '</ul><div class="questions__manager"><img class="questions__manager-photo" src="' . h(asset_url('images/Questions/manager-photo.png')) . '" alt="" width="80" height="80" loading="lazy"><div class="questions__manager-info"><p class="questions__manager-name">Силинский Максим</p><p class="questions__manager-position">Менеджер продаж</p></div></div></div>';
+    $html .= '</ul><div class="questions__manager"><img class="questions__manager-photo" src="' . h(asset_url('images/Questions/manager-photo.png')) . '" alt="" width="96" height="96" loading="lazy"><div class="questions__manager-info"><p class="questions__manager-name">Григорий Карпинский</p><p class="questions__manager-position">Менеджер продаж</p></div></div></div>';
     $html .= render_lead_form('questions', $settings['phone'] ?? '', 'questions');
     return $html . '</div></section>';
 }
@@ -1246,7 +1246,7 @@ function render_interior_questions(array $settings): string
     foreach (social_links($settings, true) as $social) {
         $html .= '<li class="interior-questions__social-item"><a class="interior-questions__social-link" href="' . h($social['href']) . '" aria-label="' . h($social['label']) . '">' . icon_html($social['name'], 'icon interior-questions__social-icon', true) . '</a></li>';
     }
-    $html .= '</ul><div class="interior-questions__manager"><img class="interior-questions__manager-photo" src="' . h(asset_url('images/Questions/manager-photo.png')) . '" alt="" width="80" height="80" loading="lazy"><div class="interior-questions__manager-info"><p class="interior-questions__manager-name">Григорий Карпинский</p><p class="interior-questions__manager-position">Менеджер продаж</p></div></div></div>';
+    $html .= '</ul><div class="interior-questions__manager"><img class="interior-questions__manager-photo" src="' . h(asset_url('images/Questions/manager-photo.png')) . '" alt="" width="96" height="96" loading="lazy"><div class="interior-questions__manager-info"><p class="interior-questions__manager-name">Григорий Карпинский</p><p class="interior-questions__manager-position">Менеджер продаж</p></div></div></div>';
     $html .= render_lead_form('interior-questions', $settings['phone'] ?? '', 'interior-questions');
 
     return $html . '</div></section>';

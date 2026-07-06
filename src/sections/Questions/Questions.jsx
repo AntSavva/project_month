@@ -41,7 +41,7 @@ export default () => {
               loading="lazy"
             />
             <div className="questions__manager-info">
-              <p className="questions__manager-name">Силинский Максим</p>
+              <p className="questions__manager-name">Григорий Карпинский</p>
               <p className="questions__manager-position">Менеджер продаж</p>
             </div>
           </div>

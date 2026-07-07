@@ -223,7 +223,7 @@ function render_layout(array $site, string $title, string $content, array $seo =
     echo '<meta name="twitter:description" content="' . h($description) . '">';
     echo '<meta name="twitter:image" content="' . h($image) . '">';
     echo '<script type="application/ld+json">' . json_encode($schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . '</script>';
-    echo '<link rel="stylesheet" href="/_next/static/css/5fdba65b6bcd6527.css">';
+    echo '<link rel="stylesheet" href="/assets/css/base.css">';
     echo '<link rel="stylesheet" href="/assets/css/site.css">';
     echo '</head><body>';
     render_header($products, $interiors, $phone, $email);

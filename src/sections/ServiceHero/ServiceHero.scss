@@ -193,14 +193,16 @@
     padding-bottom: 60px;
 
     &__inner {
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0;
       min-height: auto;
       padding-top: 0;
     }
 
     &__content {
+      position: relative;
+      z-index: 1;
       max-width: 100%;
       margin-top: 0;
     }
@@ -252,10 +254,12 @@
     &__image {
       order: -1;
       align-self: center;
-      width: min(100%, 520px);
-      max-height: 330px;
-      margin: 0 auto;
+      width: min(78vw, 300px);
+      height: min(78vw, 300px);
+      max-height: none;
+      margin: 0 auto 24px;
       object-fit: contain;
+      object-position: center;
     }
   }
 }

@@ -45,6 +45,12 @@
   }
 }
 
+@media (max-width: 63.9375rem) {
+  .header__overlay-logo:focus-visible {
+    outline: none;
+  }
+}
+
 .icon[data-fill] {
   background-color: currentColor;
 }

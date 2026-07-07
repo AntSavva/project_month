@@ -384,6 +384,10 @@
 
   &__overlay-logo {
     width: 164px;
+
+    &:focus-visible {
+      outline: none;
+    }
   }
 
   &__overlay-close {

@@ -666,7 +666,8 @@ function render_home(array $site): void
     $content .= render_questions($settings);
     $content .= render_route($settings);
 
-    render_layout($site, SITE_NAME, $content, [
+    render_layout($site, 'Столярные изделия из дерева на заказ в Санкт-Петербурге — Кубэра', $content, [
+        'description' => 'Производим столярные изделия из массива дерева на заказ: лестницы, наличники, обсады, арки, мебель, декор и деревянную отделку в Санкт-Петербурге.',
         'canonical' => '/',
         'image' => asset_url('images/Hero/hero-bg.png'),
     ]);
@@ -825,7 +826,8 @@ function render_about(array $site): void
     $body .= render_about_production();
     $body .= render_route($settings);
 
-    render_layout($site, 'О компании', $body, [
+    render_layout($site, 'О компании Кубэра — столярное производство в Санкт-Петербурге', $body, [
+        'description' => 'Кубэра — столярное производство в Санкт-Петербурге: проектируем, изготавливаем и монтируем изделия из массива дерева для домов и интерьеров.',
         'canonical' => '/about',
         'image' => asset_url('images/AboutProduction/production-photo.png'),
     ]);
@@ -961,7 +963,8 @@ function render_reviews_page(array $site): void
     $body .= render_questions($settings);
     $body .= render_route($settings);
 
-    render_layout($site, 'Отзывы', $body, [
+    render_layout($site, 'Отзывы клиентов о столярных изделиях Кубэра', $body, [
+        'description' => 'Отзывы клиентов о деревянных наличниках, обсадах, лестницах, МАФах и других столярных изделиях Кубэра с производством и монтажом.',
         'canonical' => '/reviews',
     ]);
 }
@@ -1011,7 +1014,8 @@ function render_contacts_page(array $site): void
     $body .= render_questions($settings);
     $body .= render_route($settings);
 
-    render_layout($site, 'Контакты', $body, [
+    render_layout($site, 'Контакты Кубэра — заказать замер столярных изделий', $body, [
+        'description' => 'Контакты Кубэра для заказа замера и консультации по столярным изделиям из дерева, деревянной отделке и индивидуальным проектам в Санкт-Петербурге.',
         'canonical' => '/contacts',
     ]);
 }

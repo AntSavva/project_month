@@ -134,6 +134,35 @@ function interior_cover_url(array $page): string
     return $fallback[(string) ($page['slug'] ?? '')] ?? '';
 }
 
+function image_alt(string $text, string $fallback = 'Изображение'): string
+{
+    $alt = trim(preg_replace('/\s+/u', ' ', strip_tags($text)) ?? '');
+
+    if ($alt === '') {
+        return $fallback;
+    }
+
+    if (function_exists('mb_substr') && function_exists('mb_strlen') && mb_strlen($alt) > 125) {
+        return rtrim(mb_substr($alt, 0, 122)) . '...';
+    }
+
+    return $alt;
+}
+
+function page_image_alt(array $page, string $prefix = 'Фото'): string
+{
+    $title = (string) ($page['seoTitle'] ?? $page['title'] ?? '');
+    $titleParts = preg_split('/\s+—\s+/u', $title);
+    $title = is_array($titleParts) ? ($titleParts[0] ?? $title) : $title;
+
+    return image_alt(trim($prefix . ' ' . $title), $prefix . ' ' . SITE_NAME);
+}
+
+function review_avatar_alt(array $review): string
+{
+    return image_alt('Фото клиента ' . (string) ($review['author'] ?? ''), 'Фото клиента ' . SITE_NAME);
+}
+
 function icon_html(string $name, string $class = 'icon', bool $hasFill = false): string
 {
     $attrs = $hasFill ? ' data-fill=""' : '';
@@ -296,7 +325,7 @@ function render_robots(array $site): void
 function render_header(array $products, array $interiors, string $phone, string $email): void
 {
     echo '<header class="header" data-js-overlay-menu=""><div class="header__inner">';
-    echo '<a class="logo header__logo" href="/" title="Home" aria-label="Home"><img class="logo__image" src="/images/logo.svg" alt="" width="216" height="40" loading="eager"></a>';
+    echo '<a class="logo header__logo" href="/" title="Home" aria-label="Home"><img class="logo__image" src="/images/logo.svg" alt="Кубэра" width="216" height="40" loading="eager"></a>';
     echo '<nav class="header__nav" aria-label="Основная навигация"><ul class="header__nav-list">';
     render_header_dropdown('Продукция', $products, asset_url('images/AboutProduction/production-photo.png'));
     render_header_dropdown('Отделка интерьера', $interiors, asset_url('images/Cases/case-preview.png'), true);
@@ -318,7 +347,7 @@ function render_overlay_menu(array $products, array $interiors, string $phone, s
 {
     echo '<dialog class="header__overlay-menu" data-js-overlay-menu-dialog="">';
     echo '<div class="header__overlay-menu-inner"><div class="header__overlay-head">';
-    echo '<a class="logo header__overlay-logo" href="/" title="Home" aria-label="Home"><img class="logo__image" src="/images/logo.svg" alt="" width="216" height="40" loading="lazy"></a>';
+    echo '<a class="logo header__overlay-logo" href="/" title="Home" aria-label="Home"><img class="logo__image" src="/images/logo.svg" alt="Кубэра" width="216" height="40" loading="lazy"></a>';
     echo '<button class="header__overlay-close" type="button" aria-label="Закрыть меню" data-js-overlay-menu-close=""></button>';
     echo '</div><nav class="header__overlay-nav" aria-label="Мобильная навигация">';
 
@@ -381,7 +410,7 @@ function render_header_dropdown(string $label, array $pages, string $cover, bool
         $coverAttribute = $pageCover !== '' ? ' data-header-preview-cover="' . h($pageCover) . '"' : '';
         echo '<li class="header__mega-item"><a class="header__mega-link" href="' . h(page_href($page)) . '"' . $coverAttribute . '>' . h($page['title'] ?? '') . '</a></li>';
     }
-    echo '</ul><img class="header__mega-cover" src="' . h($previewCover) . '" alt="" width="730" height="360" data-header-preview-image=""></div></div></li>';
+    echo '</ul><img class="header__mega-cover" src="' . h($previewCover) . '" alt="' . h(image_alt($label . ' Кубэра')) . '" width="730" height="360" data-header-preview-image=""></div></div></li>';
 }
 
 function render_site_scripts(): void
@@ -556,7 +585,7 @@ function render_product_cards(array $pages): string
         $image = $page['cover'] ?: $fallbackImages[$index % count($fallbackImages)];
         $description = $page['menuDescription'] ?? ($page['seoDescription'] ?? '');
         $html .= '<a class="products-card" href="' . h(page_href($page)) . '">';
-        $html .= '<span class="products-card__picture"><img class="products-card__image" src="' . h($image) . '" alt="" width="450" height="450" loading="lazy"></span>';
+        $html .= '<span class="products-card__picture"><img class="products-card__image" src="' . h($image) . '" alt="' . h(page_image_alt($page)) . '" width="450" height="450" loading="lazy"></span>';
         $html .= '<span class="products-card__content"><span class="products-card__title h3">' . h($page['title'] ?? '') . '</span>';
         if ($description) {
             $html .= '<span class="products-card__description">' . h($description) . '</span>';
@@ -576,7 +605,7 @@ function render_interior_cards(array $pages): string
         $cover = interior_cover_url($page);
         $html .= '<a class="interior-solutions-card" href="' . h(page_href($page)) . '">';
         if ($cover !== '') {
-            $html .= '<span class="interior-solutions-card__media"><img class="interior-solutions-card__image" src="' . h($cover) . '" alt="" width="540" height="304" loading="lazy"></span>';
+            $html .= '<span class="interior-solutions-card__media"><img class="interior-solutions-card__image" src="' . h($cover) . '" alt="' . h(page_image_alt($page)) . '" width="540" height="304" loading="lazy"></span>';
         } else {
             $html .= '<span class="interior-solutions-card__media" role="img" aria-label="' . h($page['title'] ?? '') . '"></span>';
         }
@@ -650,7 +679,7 @@ function render_home_hero(): string
         ['title' => 'Индивидуальный подход', 'description' => 'Подпись', 'icon' => 'person'],
         ['title' => 'От дизайна до установки', 'description' => 'Подпись', 'icon' => 'detail'],
     ];
-    $html = '<section class="hero" aria-labelledby="hero-title"><img class="hero__bg-image" src="' . h(asset_url('images/Hero/hero-bg.png')) . '" alt="" width="1304" height="586" loading="eager">';
+    $html = '<section class="hero" aria-labelledby="hero-title"><img class="hero__bg-image" src="' . h(asset_url('images/Hero/hero-bg.png')) . '" alt="Столярные изделия из массива дерева на заказ" width="1304" height="586" loading="eager">';
     $html .= '<div class="hero__inner container"><div class="hero__content"><p class="hero__eyebrow h3">Столярные изделия</p><h1 class="hero__title h1" id="hero-title"><span>Производство эксклюзивных</span><span class="hero__title-accent">столярных изделий из массива</span></h1></div>';
     $html .= '<ul class="hero__advantages" aria-label="Преимущества">';
     foreach ($advantages as $item) {
@@ -680,7 +709,7 @@ function render_cases(): string
 {
     $html = '<section class="cases container" aria-labelledby="cases-title"><div class="cases__header"><h2 class="cases__title h2" id="cases-title">Уже реализованные проекты</h2></div><div class="cases__list">';
     for ($i = 0; $i < 4; $i++) {
-        $html .= '<article class="cases-card"><div class="cases-card__content"><div class="cases-card__text"><h3 class="cases-card__title h3">Название</h3><p class="cases-card__description">Описание</p></div></div><img class="cases-card__image" src="' . h(asset_url('images/Cases/case-preview.png')) . '" alt="" width="910" height="380" loading="lazy"></article>';
+        $html .= '<article class="cases-card"><div class="cases-card__content"><div class="cases-card__text"><h3 class="cases-card__title h3">Название</h3><p class="cases-card__description">Описание</p></div></div><img class="cases-card__image" src="' . h(asset_url('images/Cases/case-preview.png')) . '" alt="Реализованный проект столярного изделия из дерева" width="910" height="380" loading="lazy"></article>';
     }
     return $html . '</div></section>';
 }
@@ -698,7 +727,7 @@ function render_production_showcase(): string
     foreach ($items as $item) {
         $html .= '<article class="production-showcase-feature"><img class="production-showcase-feature__icon" src="' . h(asset_url('images/CardIcons/' . $item['icon'] . '.png')) . '" alt="" width="64" height="64" loading="lazy"><div class="production-showcase-feature__content"><h3 class="production-showcase-feature__title">' . h($item['title']) . '</h3><p class="production-showcase-feature__description">' . h($item['description']) . '</p></div></article>';
     }
-    return $html . '</div><img class="production-showcase__image" src="' . h(asset_url('images/AboutProduction/production-photo.png')) . '" alt="" width="910" height="662" loading="lazy"></div></div></section>';
+    return $html . '</div><img class="production-showcase__image" src="' . h(asset_url('images/AboutProduction/production-photo.png')) . '" alt="Производство столярных изделий из дерева" width="910" height="662" loading="lazy"></div></div></section>';
 }
 
 function render_about_hero(): string
@@ -822,7 +851,7 @@ function render_reviews_section(array $reviews): string
         $html .= '<a class="reviews-card__more" href="#' . h($popupId) . '"><span>Читать полностью</span>' . icon_html('arrow-top-right', 'icon reviews-card__more-icon') . '</a>';
         $html .= '<footer class="reviews-card__author">';
         if (!empty($review['avatar'])) {
-            $html .= '<img class="reviews-card__avatar" src="' . h($review['avatar']) . '" alt="" loading="lazy">';
+            $html .= '<img class="reviews-card__avatar" src="' . h($review['avatar']) . '" alt="' . h(review_avatar_alt($review)) . '" loading="lazy">';
         } else {
             $html .= '<span class="reviews-card__avatar" aria-hidden="true"></span>';
         }
@@ -843,7 +872,7 @@ function render_reviews_section(array $reviews): string
         $html .= '<a class="reviews-popup__backdrop" href="#reviews-title" aria-label="Закрыть отзыв"></a><article class="reviews-popup__body">';
         $html .= '<a class="reviews-popup__close" href="#reviews-title" aria-label="Закрыть">x</a><div class="reviews-popup__author">';
         if (!empty($review['avatar'])) {
-            $html .= '<img class="reviews-popup__avatar" src="' . h($review['avatar']) . '" alt="" loading="lazy">';
+            $html .= '<img class="reviews-popup__avatar" src="' . h($review['avatar']) . '" alt="' . h(review_avatar_alt($review)) . '" loading="lazy">';
         } else {
             $html .= '<span class="reviews-popup__avatar" aria-hidden="true"></span>';
         }
@@ -906,7 +935,7 @@ function render_reviews_page(array $site): void
         $body .= '<a class="reviews-card__more" href="#' . h($popupId) . '"><span>Читать полностью</span>' . icon_html('arrow-top-right', 'icon reviews-card__more-icon') . '</a>';
         $body .= '<footer class="reviews-card__author">';
         if (!empty($review['avatar'])) {
-            $body .= '<img class="reviews-card__avatar" src="' . h($review['avatar']) . '" alt="" loading="lazy">';
+            $body .= '<img class="reviews-card__avatar" src="' . h($review['avatar']) . '" alt="' . h(review_avatar_alt($review)) . '" loading="lazy">';
         } else {
             $body .= '<span class="reviews-card__avatar" aria-hidden="true"></span>';
         }
@@ -921,7 +950,7 @@ function render_reviews_page(array $site): void
         $body .= '<a class="reviews-popup__backdrop" href="#reviews-hero-title" aria-label="Закрыть отзыв"></a><article class="reviews-popup__body">';
         $body .= '<a class="reviews-popup__close" href="#reviews-hero-title" aria-label="Закрыть">x</a><div class="reviews-popup__author">';
         if (!empty($review['avatar'])) {
-            $body .= '<img class="reviews-popup__avatar" src="' . h($review['avatar']) . '" alt="" loading="lazy">';
+            $body .= '<img class="reviews-popup__avatar" src="' . h($review['avatar']) . '" alt="' . h(review_avatar_alt($review)) . '" loading="lazy">';
         } else {
             $body .= '<span class="reviews-popup__avatar" aria-hidden="true"></span>';
         }
@@ -1006,7 +1035,7 @@ function render_modular_house_promo(): string
 {
     return '<section class="modular-house-promo container" aria-labelledby="modular-house-promo-title">'
         . '<div class="modular-house-promo__inner">'
-        . '<img class="modular-house-promo__image" src="' . h(asset_url('images/Promo/modular-house.png')) . '" alt="" width="1840" height="752" loading="lazy">'
+        . '<img class="modular-house-promo__image" src="' . h(asset_url('images/Promo/modular-house.png')) . '" alt="Модульный деревянный дом от Кубэра" width="1840" height="752" loading="lazy">'
         . '<div class="modular-house-promo__content">'
         . '<h2 class="modular-house-promo__title h2" id="modular-house-promo-title">Спроектируем и соберём ваш дом<br>за 2 месяца</h2>'
         . '<p class="modular-house-promo__description">Мы знаем, как обращаться с деревом. Теперь строим из него целые дома<br>по модульной технологии. Быстро, тепло и без усадки</p>'
@@ -1036,7 +1065,7 @@ function render_questions(array $settings): string
     foreach (social_links($settings) as $social) {
         $html .= '<li class="questions__social-item"><a class="questions__social-link" href="' . h($social['href']) . '" aria-label="' . h($social['label']) . '">' . icon_html($social['name'], 'icon questions__social-icon', true) . '</a></li>';
     }
-    $html .= '</ul><div class="questions__manager"><img class="questions__manager-photo" src="' . h(asset_url('images/Questions/manager-photo.png')) . '" alt="" width="96" height="96" loading="lazy"><div class="questions__manager-info"><p class="questions__manager-name">Григорий Карпинский</p><p class="questions__manager-position">Менеджер продаж</p></div></div></div>';
+    $html .= '</ul><div class="questions__manager"><img class="questions__manager-photo" src="' . h(asset_url('images/Questions/manager-photo.png')) . '" alt="Григорий Карпинский, менеджер продаж Кубэра" width="96" height="96" loading="lazy"><div class="questions__manager-info"><p class="questions__manager-name">Григорий Карпинский</p><p class="questions__manager-position">Менеджер продаж</p></div></div></div>';
     $html .= render_lead_form('questions', $settings['phone'] ?? '', 'questions');
     return $html . '</div></section>';
 }
@@ -1076,7 +1105,7 @@ function render_service_hero(array $page, array $contentData, array $settings): 
     $html .= '<textarea class="service-hero__control service-hero__control--textarea" name="comment" placeholder="Комментарий" aria-label="Комментарий"></textarea>';
     $html .= '<button class="button service-hero__button" type="submit">Записаться на замер</button></div><p class="service-hero__privacy">Нажимая на кнопку, вы соглашаетесь с <a href="/privacy-policy">политикой конфиденциальности</a>.</p></form></div>';
 
-    return $html . '<img class="service-hero__image" src="' . h($cover) . '" alt="" width="730" height="730" loading="eager"></div></section>';
+    return $html . '<img class="service-hero__image" src="' . h($cover) . '" alt="' . h(page_image_alt($page, 'Фото изделия')) . '" width="730" height="730" loading="eager"></div></section>';
 }
 
 function render_service_includes(?array $data): string
@@ -1260,7 +1289,7 @@ function render_service_cases(): string
 {
     $html = '<section class="service-cases" aria-labelledby="service-cases-title"><div class="service-cases__inner container"><div class="service-cases__header"><h2 class="service-cases__title h2" id="service-cases-title">Уже реализованные проекты</h2></div><div class="service-cases__list">';
     for ($i = 0; $i < 4; $i++) {
-        $html .= '<article class="service-cases-card"><div class="service-cases-card__content"><div class="service-cases-card__text"><h3 class="service-cases-card__title h3">Название</h3><p class="service-cases-card__description">Описание</p></div></div><img class="service-cases-card__image" src="' . h(asset_url('images/Cases/case-preview.png')) . '" alt="" width="910" height="380" loading="lazy"></article>';
+        $html .= '<article class="service-cases-card"><div class="service-cases-card__content"><div class="service-cases-card__text"><h3 class="service-cases-card__title h3">Название</h3><p class="service-cases-card__description">Описание</p></div></div><img class="service-cases-card__image" src="' . h(asset_url('images/Cases/case-preview.png')) . '" alt="Реализованный проект деревянного изделия на заказ" width="910" height="380" loading="lazy"></article>';
     }
 
     return $html . '</div></div></section>';
@@ -1317,7 +1346,7 @@ function render_interior_hero(array $page, array $contentData, array $settings):
     $html .= '<input class="interior-hero__control" name="phone" placeholder="' . h($settings['phone'] ?? '') . '" aria-label="Телефон" inputmode="tel" required>';
     $html .= '<button class="button interior-hero__button" type="submit">Записаться на замер</button></div><p class="interior-hero__privacy">Нажимая на кнопку, вы соглашаетесь с <a href="/privacy-policy">политикой конфиденциальности</a>.</p></form></div>';
 
-    return $html . '<img class="interior-hero__image" src="' . h($image) . '" alt="" width="730" height="730" loading="eager"></div></section>';
+    return $html . '<img class="interior-hero__image" src="' . h($image) . '" alt="' . h(page_image_alt($page, 'Фото отделки')) . '" width="730" height="730" loading="eager"></div></section>';
 }
 
 function render_interior_includes(?array $data): string
@@ -1422,7 +1451,7 @@ function render_interior_questions(array $settings): string
     foreach (social_links($settings, true) as $social) {
         $html .= '<li class="interior-questions__social-item"><a class="interior-questions__social-link" href="' . h($social['href']) . '" aria-label="' . h($social['label']) . '">' . icon_html($social['name'], 'icon interior-questions__social-icon', true) . '</a></li>';
     }
-    $html .= '</ul><div class="interior-questions__manager"><img class="interior-questions__manager-photo" src="' . h(asset_url('images/Questions/manager-photo.png')) . '" alt="" width="96" height="96" loading="lazy"><div class="interior-questions__manager-info"><p class="interior-questions__manager-name">Григорий Карпинский</p><p class="interior-questions__manager-position">Менеджер продаж</p></div></div></div>';
+    $html .= '</ul><div class="interior-questions__manager"><img class="interior-questions__manager-photo" src="' . h(asset_url('images/Questions/manager-photo.png')) . '" alt="Григорий Карпинский, менеджер продаж Кубэра" width="96" height="96" loading="lazy"><div class="interior-questions__manager-info"><p class="interior-questions__manager-name">Григорий Карпинский</p><p class="interior-questions__manager-position">Менеджер продаж</p></div></div></div>';
     $html .= render_lead_form('interior-questions', $settings['phone'] ?? '', 'interior-questions');
 
     return $html . '</div></section>';
@@ -1514,7 +1543,7 @@ function render_page(array $site, array $page): void
     $body = '<section class="' . h($heroClass) . ' container"><div class="' . h($heroClass) . '__content"><p class="' . h($heroClass) . '__subtitle">' . h($hero['subtitle'] ?? '') . '</p>';
     $body .= '<h1 class="' . h($heroClass) . '__title h1">' . h($hero['title'] ?? $page['title'] ?? '') . ' <span>' . h($hero['accent'] ?? '') . '</span></h1></div>';
     if (!empty($page['cover'])) {
-        $body .= '<img class="' . h($heroClass) . '__image" src="' . h($page['cover']) . '" alt="" loading="lazy">';
+        $body .= '<img class="' . h($heroClass) . '__image" src="' . h($page['cover']) . '" alt="' . h(page_image_alt($page)) . '" loading="lazy">';
     }
     $body .= '</section>';
 

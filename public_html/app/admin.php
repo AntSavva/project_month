@@ -335,7 +335,7 @@ if ($currentSection === 'reviews') {
             . '<label class="wide">Текст отзыва<textarea name="text" rows="6">' . h($review['text'] ?? '') . '</textarea></label>'
             . '</div>';
         if (!empty($review['avatar'])) {
-            $content .= '<div class="admin-review-card__avatar"><img src="' . h($review['avatar']) . '" alt=""><span>' . h($review['avatar']) . '</span></div>';
+            $content .= '<div class="admin-review-card__avatar"><img src="' . h($review['avatar']) . '" alt="' . h(image_alt('Аватар отзыва ' . (string) ($review['author'] ?? ''), 'Аватар отзыва')) . '"><span>' . h($review['avatar']) . '</span></div>';
         }
         $content .= '<div class="admin-review-card__actions">'
             . '<button type="submit" name="review_action" value="save">Сохранить карточку</button>'

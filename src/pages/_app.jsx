@@ -43,6 +43,22 @@ const pageSeo = {
   },
 }
 
+const siteUrl = 'https://kubera-dom.ru'
+
+const normalizePath = (value = '/') => {
+  const path = value.split('?')[0].split('#')[0].replace(/\/$/, '')
+
+  return path || '/'
+}
+
+const absoluteUrl = (path = '/') => {
+  if (/^https?:\/\//i.test(path)) {
+    return path
+  }
+
+  return `${siteUrl}/${path.replace(/^\/+/, '')}`
+}
+
 const initClientModules = async () => {
   const [
     { default: OverlayMenu },
@@ -71,9 +87,19 @@ const initClientModules = async () => {
 export default function App({ Component, pageProps }) {
   const router = useRouter()
   const isAdminPage = Component.isAdminPage
-  const cleanPath = router.pathname === '/404' ? router.pathname : router.pathname.replace(/\/$/, '')
-  const seo = pageSeo[cleanPath] ?? pageSeo['/']
+  const cleanPath = router.pathname === '/404' ? router.pathname : normalizePath(router.asPath)
+  const page = pageProps.page
+  const seo = page
+    ? {
+        title: page.seoTitle || page.title || pageSeo['/'].title,
+        description: page.seoDescription || page.menuDescription || pageSeo['/'].description,
+        canonical: `/${page.slug}`,
+        image: page.cover,
+      }
+    : pageSeo[cleanPath] ?? pageSeo['/']
   const title = `${siteName} | ${seo.title}`
+  const canonical = absoluteUrl(seo.canonical || cleanPath)
+  const image = absoluteUrl(seo.image || '/assets/source/images/Hero/hero-bg.png')
 
   useEffect(() => {
     initClientModules()
@@ -86,11 +112,18 @@ export default function App({ Component, pageProps }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>{title}</title>
         <meta name="description" content={seo.description} />
+        <meta name="robots" content={router.pathname === '/404' ? 'noindex, nofollow' : 'index, follow'} />
+        <link rel="canonical" href={canonical} />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content={siteName} />
         <meta property="og:title" content={title} />
         <meta property="og:description" content={seo.description} />
+        <meta property="og:url" content={canonical} />
+        <meta property="og:image" content={image} />
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={seo.description} />
+        <meta name="twitter:image" content={image} />
       </Head>
       {isAdminPage ? (
         <Component {...pageProps} />

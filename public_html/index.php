@@ -19,6 +19,16 @@ if ($path === 'lead' && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     exit;
 }
 
+if ($path === 'robots.txt') {
+    render_robots($site);
+    exit;
+}
+
+if ($path === 'sitemap.xml') {
+    render_sitemap($site);
+    exit;
+}
+
 if ($path === '') {
     render_home($site);
     exit;

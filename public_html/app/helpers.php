@@ -22,6 +22,83 @@ function text_excerpt(string $value, int $length = 150): string
     return (function_exists('mb_substr') ? mb_substr($value, 0, $length - 1) : substr($value, 0, $length - 1)) . '...';
 }
 
+function site_origin(): string
+{
+    $host = $_SERVER['HTTP_HOST'] ?? '';
+    if ($host !== '') {
+        $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+        if (strpos($host, 'localhost') === false && strpos($host, '127.0.0.1') === false) {
+            $scheme = 'https';
+        }
+
+        return $scheme . '://' . $host;
+    }
+
+    return 'https://kubera-dom.ru';
+}
+
+function absolute_url(string $path): string
+{
+    if (preg_match('#^https?://#i', $path)) {
+        return $path;
+    }
+
+    return rtrim(site_origin(), '/') . '/' . ltrim($path, '/');
+}
+
+function canonical_path(?string $path = null): string
+{
+    $path = $path ?? parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+    $path = '/' . trim((string) $path, '/');
+
+    return $path === '/' ? '/' : rtrim($path, '/');
+}
+
+function page_seo(array $page): array
+{
+    $title = trim((string) ($page['seoTitle'] ?? ''));
+    $description = trim((string) ($page['seoDescription'] ?? ''));
+
+    if ($title === '') {
+        $title = trim((string) ($page['title'] ?? SITE_NAME));
+    }
+
+    if ($description === '') {
+        $description = trim((string) ($page['menuDescription'] ?? ''));
+    }
+
+    return [
+        'title' => $title,
+        'description' => $description,
+        'canonical' => page_href($page),
+        'image' => (string) ($page['cover'] ?? ''),
+    ];
+}
+
+function seo_schema(array $site, string $canonical): array
+{
+    $settings = $site['settings'] ?? [];
+    $sameAs = array_values(array_filter($settings['socials'] ?? [], function ($url) {
+        return is_string($url) && $url !== '' && $url !== '/';
+    }));
+
+    return [
+        '@context' => 'https://schema.org',
+        '@type' => 'LocalBusiness',
+        '@id' => absolute_url('/#organization'),
+        'name' => SITE_NAME,
+        'url' => absolute_url('/'),
+        'telephone' => $settings['phone'] ?? '',
+        'email' => $settings['email'] ?? '',
+        'address' => [
+            '@type' => 'PostalAddress',
+            'streetAddress' => $settings['address'] ?? '',
+        ],
+        'sameAs' => $sameAs,
+        'mainEntityOfPage' => $canonical,
+    ];
+}
+
 function get_nested(array $data, string $path, $fallback = '')
 {
     foreach (explode('.', $path) as $key) {
@@ -105,7 +182,7 @@ function content_items(array $block): array
     return is_array($items) ? $items : [];
 }
 
-function render_layout(array $site, string $title, string $content): void
+function render_layout(array $site, string $title, string $content, array $seo = []): void
 {
     $settings = $site['settings'] ?? [];
     $products = site_pages($site, 'product', true);
@@ -113,10 +190,39 @@ function render_layout(array $site, string $title, string $content): void
     $documents = site_pages($site, 'document', true);
     $phone = $settings['phone'] ?? '';
     $email = $settings['email'] ?? '';
+    $description = trim((string) ($seo['description'] ?? ''));
+    if ($description === '') {
+        $description = text_excerpt($content, 160);
+    }
+    if ($description === '') {
+        $description = $title;
+    }
+    $canonical = absolute_url(canonical_path($seo['canonical'] ?? null));
+    $image = trim((string) ($seo['image'] ?? ''));
+    if ($image === '') {
+        $image = asset_url('images/Hero/hero-bg.png');
+    }
+    $image = absolute_url($image);
+    $robots = !empty($seo['noindex']) ? 'noindex, nofollow' : 'index, follow';
+    $schema = seo_schema($site, $canonical);
 
     echo '<!doctype html><html lang="ru"><head><meta charset="utf-8">';
     echo '<meta name="viewport" content="width=device-width, initial-scale=1">';
     echo '<title>' . h($title) . '</title>';
+    echo '<meta name="description" content="' . h($description) . '">';
+    echo '<meta name="robots" content="' . h($robots) . '">';
+    echo '<link rel="canonical" href="' . h($canonical) . '">';
+    echo '<meta property="og:type" content="website">';
+    echo '<meta property="og:site_name" content="' . h(SITE_NAME) . '">';
+    echo '<meta property="og:title" content="' . h($title) . '">';
+    echo '<meta property="og:description" content="' . h($description) . '">';
+    echo '<meta property="og:url" content="' . h($canonical) . '">';
+    echo '<meta property="og:image" content="' . h($image) . '">';
+    echo '<meta name="twitter:card" content="summary_large_image">';
+    echo '<meta name="twitter:title" content="' . h($title) . '">';
+    echo '<meta name="twitter:description" content="' . h($description) . '">';
+    echo '<meta name="twitter:image" content="' . h($image) . '">';
+    echo '<script type="application/ld+json">' . json_encode($schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . '</script>';
     echo '<link rel="stylesheet" href="/_next/static/css/5fdba65b6bcd6527.css">';
     echo '<link rel="stylesheet" href="/assets/css/site.css">';
     echo '</head><body>';
@@ -125,6 +231,66 @@ function render_layout(array $site, string $title, string $content): void
     render_footer($settings, $products, $interiors, $documents);
     render_site_scripts();
     echo '</body></html>';
+}
+
+function sitemap_urls(array $site): array
+{
+    $urls = [
+        ['loc' => '/', 'priority' => '1.0'],
+        ['loc' => '/about', 'priority' => '0.7'],
+        ['loc' => '/reviews', 'priority' => '0.6'],
+        ['loc' => '/contacts', 'priority' => '0.7'],
+    ];
+
+    foreach (site_pages($site, null, true) as $page) {
+        if (($page['type'] ?? '') === 'document') {
+            $priority = '0.4';
+        } elseif (($page['type'] ?? '') === 'interior') {
+            $priority = '0.8';
+        } else {
+            $priority = '0.9';
+        }
+
+        $urls[] = [
+            'loc' => page_href($page),
+            'lastmod' => $page['updatedAt'] ?? '',
+            'priority' => $priority,
+        ];
+    }
+
+    $seen = [];
+    return array_values(array_filter($urls, function ($url) use (&$seen) {
+        $loc = $url['loc'];
+        if (isset($seen[$loc])) {
+            return false;
+        }
+        $seen[$loc] = true;
+        return true;
+    }));
+}
+
+function render_sitemap(array $site): void
+{
+    header('Content-Type: application/xml; charset=utf-8');
+    echo '<?xml version="1.0" encoding="UTF-8"?>';
+    echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
+    foreach (sitemap_urls($site) as $url) {
+        echo '<url><loc>' . h(absolute_url($url['loc'])) . '</loc>';
+        if (!empty($url['lastmod'])) {
+            echo '<lastmod>' . h(substr((string) $url['lastmod'], 0, 10)) . '</lastmod>';
+        }
+        echo '<changefreq>weekly</changefreq><priority>' . h($url['priority']) . '</priority></url>';
+    }
+    echo '</urlset>';
+}
+
+function render_robots(array $site): void
+{
+    header('Content-Type: text/plain; charset=utf-8');
+    echo "User-agent: *\n";
+    echo "Disallow: /admin\n";
+    echo "Disallow: /lead\n";
+    echo "Sitemap: " . absolute_url('/sitemap.xml') . "\n";
 }
 
 function render_header(array $products, array $interiors, string $phone, string $email): void
@@ -471,7 +637,10 @@ function render_home(array $site): void
     $content .= render_questions($settings);
     $content .= render_route($settings);
 
-    render_layout($site, SITE_NAME, $content);
+    render_layout($site, SITE_NAME, $content, [
+        'canonical' => '/',
+        'image' => asset_url('images/Hero/hero-bg.png'),
+    ]);
 }
 
 function render_home_hero(): string
@@ -627,7 +796,10 @@ function render_about(array $site): void
     $body .= render_about_production();
     $body .= render_route($settings);
 
-    render_layout($site, 'О компании', $body);
+    render_layout($site, 'О компании', $body, [
+        'canonical' => '/about',
+        'image' => asset_url('images/AboutProduction/production-photo.png'),
+    ]);
 }
 
 function render_reviews_section(array $reviews): string
@@ -760,7 +932,9 @@ function render_reviews_page(array $site): void
     $body .= render_questions($settings);
     $body .= render_route($settings);
 
-    render_layout($site, 'Отзывы', $body);
+    render_layout($site, 'Отзывы', $body, [
+        'canonical' => '/reviews',
+    ]);
 }
 
 function render_contacts_hero(array $settings): string
@@ -808,7 +982,9 @@ function render_contacts_page(array $site): void
     $body .= render_questions($settings);
     $body .= render_route($settings);
 
-    render_layout($site, 'Контакты', $body);
+    render_layout($site, 'Контакты', $body, [
+        'canonical' => '/contacts',
+    ]);
 }
 
 function render_work_features(): string
@@ -1282,10 +1458,11 @@ function render_page(array $site, array $page): void
 {
     $type = $page['type'] ?? 'product';
     $contentData = $page['content'] ?? [];
+    $seo = page_seo($page);
 
     if ($type === 'document') {
         $body = render_document_page($page, $contentData);
-        render_layout($site, $page['seoTitle'] ?? $page['title'] ?? SITE_NAME, $body);
+        render_layout($site, $seo['title'], $body, $seo);
         return;
     }
 
@@ -1307,7 +1484,7 @@ function render_page(array $site, array $page): void
         $body .= render_questions($settings);
         $body .= render_route($settings);
 
-        render_layout($site, $page['seoTitle'] ?? $page['title'] ?? SITE_NAME, $body);
+        render_layout($site, $seo['title'], $body, $seo);
         return;
     }
 
@@ -1327,7 +1504,7 @@ function render_page(array $site, array $page): void
         $body .= render_interior_questions($settings);
         $body .= render_route($settings);
 
-        render_layout($site, $page['seoTitle'] ?? $page['title'] ?? SITE_NAME, $body);
+        render_layout($site, $seo['title'], $body, $seo);
         return;
     }
 
@@ -1367,12 +1544,15 @@ function render_page(array $site, array $page): void
     $body .= '<section class="section"><h2>Частые вопросы</h2>' . render_faq($contentData['faq']['items'] ?? []) . '</section>';
     $body .= render_request_form($page['slug'] ?? 'page');
 
-    render_layout($site, $page['seoTitle'] ?? $page['title'] ?? SITE_NAME, $body);
+    render_layout($site, $seo['title'], $body, $seo);
 }
 
 function render_not_found(array $site): void
 {
-    render_layout($site, 'Страница не найдена', '<section class="not-found-hero container"><h1 class="not-found-hero__title h1">Страница не найдена</h1><a class="button" href="/">На главную</a></section>');
+    render_layout($site, 'Страница не найдена', '<section class="not-found-hero container"><h1 class="not-found-hero__title h1">Страница не найдена</h1><a class="button" href="/">На главную</a></section>', [
+        'canonical' => canonical_path(),
+        'noindex' => true,
+    ]);
 }
 
 function handle_lead_submit(): void

@@ -8,6 +8,43 @@
   -webkit-mask: var(--iconUrl) center / contain no-repeat;
 }
 
+@media (max-width: 47.9375rem) {
+  .service-hero {
+    min-height: auto;
+    padding-bottom: 60px;
+  }
+
+  .service-hero__inner {
+    flex-direction: column;
+    gap: 18px;
+    min-height: auto;
+  }
+
+  .service-hero__content {
+    margin-top: 0;
+  }
+
+  .service-hero__subtitle {
+    margin-bottom: 8px;
+    font-size: 18px;
+  }
+
+  .service-hero__title {
+    margin-bottom: 28px;
+    font-size: clamp(32px, 10.2vw, 40px);
+    line-height: 1.08;
+  }
+
+  .service-hero__image {
+    order: -1;
+    align-self: center;
+    width: min(100%, 520px);
+    max-height: 330px;
+    margin: 0 auto;
+    object-fit: contain;
+  }
+}
+
 .icon[data-fill] {
   background-color: currentColor;
 }

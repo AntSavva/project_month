@@ -188,30 +188,33 @@
   }
 
   @include mobile {
-    min-height: 844px;
+    min-height: auto;
     padding-top: 80px;
+    padding-bottom: 60px;
 
     &__inner {
       display: flex;
-      flex-direction: column-reverse;
-      gap: 0;
-      min-height: 764px;
+      flex-direction: column;
+      gap: 18px;
+      min-height: auto;
       padding-top: 0;
     }
 
     &__content {
       max-width: 100%;
-      margin-top: -11px;
+      margin-top: 0;
     }
 
     &__subtitle {
-      margin-bottom: 10px;
-      font-size: 20px;
+      margin-bottom: 8px;
+      font-size: 18px;
     }
 
     &__title {
       max-width: 100%;
-      margin-bottom: 40px;
+      margin-bottom: 28px;
+      font-size: clamp(32px, 10.2vw, 40px);
+      line-height: 1.08;
     }
 
     &__form {
@@ -247,11 +250,11 @@
     }
 
     &__image {
-      width: calc(100% + var(--container-padding-x) * 2);
-      height: auto;
-      margin-top: -223px;
-      margin-right: calc(var(--container-padding-x) * -1);
-      margin-left: calc(var(--container-padding-x) * -1);
+      order: -1;
+      align-self: center;
+      width: min(100%, 520px);
+      max-height: 330px;
+      margin: 0 auto;
       object-fit: contain;
     }
   }

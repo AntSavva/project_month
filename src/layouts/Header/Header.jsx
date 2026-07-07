@@ -90,7 +90,9 @@ const DropdownButton = ({ label }) => (
 export default (props) => {
   const { className, url = '' } = props
   const settings = useSiteSettings()
-  const productItems = settings.pages.filter((page) => page.type === 'product').map(createMenuItem)
+  const productItems = settings.pages
+    .filter((page) => page.type === 'product')
+    .map((page) => createMenuItem(page))
   const interiorItems = settings.pages
     .filter((page) => page.type === 'interior')
     .map((page) => createMenuItem(page, getInteriorCover))

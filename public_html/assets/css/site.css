@@ -253,6 +253,18 @@ button.project-card:focus-visible {
   background: #c78700;
 }
 
+.service-benefits-card__items,
+.service-request__benefits {
+  padding-left: 0;
+  list-style: none;
+}
+
+.service-benefits-card__item,
+.service-request__benefits li {
+  padding-left: 0;
+  list-style: none;
+}
+
 .project-gallery__arrow:focus-visible,
 .project-gallery__close:focus-visible,
 .project-gallery__dot:focus-visible {

@@ -229,7 +229,7 @@ function render_layout(array $site, string $title, string $content, array $seo =
     $canonical = absolute_url(canonical_path($seo['canonical'] ?? null));
     $image = trim((string) ($seo['image'] ?? ''));
     if ($image === '') {
-        $image = asset_url('images/Hero/hero-bg.png');
+        $image = asset_url('images/Social/background-message.png');
     }
     $image = absolute_url($image);
     $robots = !empty($seo['noindex']) ? 'noindex, nofollow' : 'index, follow';
@@ -247,6 +247,8 @@ function render_layout(array $site, string $title, string $content, array $seo =
     echo '<meta property="og:description" content="' . h($description) . '">';
     echo '<meta property="og:url" content="' . h($canonical) . '">';
     echo '<meta property="og:image" content="' . h($image) . '">';
+    echo '<meta property="og:image:width" content="1749">';
+    echo '<meta property="og:image:height" content="925">';
     echo '<meta name="twitter:card" content="summary_large_image">';
     echo '<meta name="twitter:title" content="' . h($title) . '">';
     echo '<meta name="twitter:description" content="' . h($description) . '">';
@@ -797,7 +799,7 @@ function render_home(array $site): void
     render_layout($site, 'Столярные изделия из дерева на заказ в Санкт-Петербурге — Кубэра', $content, [
         'description' => 'Производим столярные изделия из массива дерева на заказ: лестницы, наличники, обсады, арки, мебель, декор и деревянную отделку в Санкт-Петербурге.',
         'canonical' => '/',
-        'image' => asset_url('images/Hero/hero-bg.png'),
+        'image' => asset_url('images/Social/background-message.png'),
     ]);
 }
 

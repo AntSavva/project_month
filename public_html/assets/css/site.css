@@ -29,37 +29,40 @@
   gap: 0;
 }
 
-.project-card {
+button.project-card {
   display: grid;
-  grid-template-columns: minmax(0, 0.85fr) minmax(360px, 1.15fr);
+  grid-template-columns: minmax(0, 1fr) minmax(420px, 0.98fr);
   align-items: center;
   width: 100%;
   gap: clamp(32px, 5vw, 88px);
   padding: clamp(28px, 4vw, 42px) 0;
-  color: inherit;
+  color: #ffffff;
   text-align: left;
   background: transparent;
   border: 0;
   border-top: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 0;
   cursor: pointer;
 }
 
-.project-card:last-child {
+button.project-card:last-child {
   border-bottom: 1px solid rgba(255, 255, 255, 0.22);
 }
 
 .project-card__content {
   display: grid;
   align-content: start;
+  grid-template-rows: auto auto 1fr auto;
   gap: 12px;
+  min-height: clamp(210px, 15vw, 280px);
   min-width: 0;
 }
 
 .project-card__title {
   margin: 0;
   font-family: "Arial Black", Arial, sans-serif;
-  font-size: clamp(28px, 3.4vw, 52px);
-  line-height: 1.08;
+  font-size: clamp(26px, 2.4vw, 40px);
+  line-height: 1.12;
   letter-spacing: 0;
 }
 
@@ -67,23 +70,25 @@
   max-width: 620px;
   margin: 0;
   color: rgba(255, 255, 255, 0.68);
-  font-size: clamp(18px, 1.7vw, 26px);
+  font-size: clamp(17px, 1.25vw, 22px);
   line-height: 1.35;
 }
 
 .project-card__meta {
-  margin-top: 8px;
+  align-self: end;
+  width: max-content;
+  margin-top: 32px;
   color: #c78700;
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 .project-card__media {
   display: block;
   width: 100%;
-  aspect-ratio: 16 / 7;
+  aspect-ratio: 16 / 6.6;
   overflow: hidden;
   background: #211915;
   border-radius: 8px;
@@ -97,13 +102,13 @@
   transition: filter 180ms ease, transform 180ms ease;
 }
 
-.project-card:hover .project-card__image,
-.project-card:focus-visible .project-card__image {
+button.project-card:hover .project-card__image,
+button.project-card:focus-visible .project-card__image {
   filter: brightness(0.92);
   transform: scale(1.02);
 }
 
-.project-card:focus-visible {
+button.project-card:focus-visible {
   outline: 2px solid #c78700;
   outline-offset: 8px;
 }
@@ -267,9 +272,13 @@
 }
 
 @media (max-width: 1023px) {
-  .project-card {
+  button.project-card {
     grid-template-columns: 1fr;
     gap: 22px;
+  }
+
+  .project-card__content {
+    min-height: auto;
   }
 
   .project-card__media {
@@ -283,7 +292,7 @@
     padding-bottom: 52px;
   }
 
-  .project-card {
+  button.project-card {
     padding: 24px 0;
   }
 

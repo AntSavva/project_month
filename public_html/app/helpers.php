@@ -253,7 +253,7 @@ function render_layout(array $site, string $title, string $content, array $seo =
     echo '<meta name="twitter:image" content="' . h($image) . '">';
     echo '<script type="application/ld+json">' . json_encode($schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . '</script>';
     echo '<link rel="stylesheet" href="/assets/css/base.css">';
-    echo '<link rel="stylesheet" href="/assets/css/site.css">';
+    echo '<link rel="stylesheet" href="/assets/css/site.css?v=20260708-project-gallery-fix">';
     echo '</head><body>';
     render_header($products, $interiors, $phone, $email);
     echo '<main class="content">' . $content . '</main>';
@@ -902,7 +902,7 @@ function render_project_cases(string $class = 'cases'): string
         $cover = $images[0];
         $galleryId = $dialogId . '-item-' . $index;
         $html .= '<button class="project-card" type="button" data-project-card aria-haspopup="dialog" aria-controls="' . h($dialogId) . '">';
-        $html .= '<span class="project-card__content"><span class="project-card__title h3">' . h($project['title']) . '</span><span class="project-card__description">' . h($project['description']) . '</span><span class="project-card__meta">' . count($images) . ' фото</span></span>';
+        $html .= '<span class="project-card__content"><span class="project-card__title h3">' . h($project['title']) . '</span><span class="project-card__description">' . h($project['description']) . '</span><span class="project-card__meta">Подробнее ↗</span></span>';
         $html .= '<span class="project-card__media"><img class="project-card__image" src="' . h(asset_url('images/Projects/' . $cover['file'])) . '" alt="' . h($cover['alt']) . '" width="910" height="520" loading="lazy"></span>';
         $html .= '<span class="project-card__gallery-data" hidden data-project-title="' . h($project['title']) . '" data-project-description="' . h($project['description']) . '" data-project-gallery="' . h($galleryId) . '">';
         foreach ($images as $imageIndex => $image) {

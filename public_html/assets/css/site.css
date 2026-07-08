@@ -22,6 +22,11 @@
 .project-cases__title {
   max-width: 760px;
   margin: 0;
+  color: #ffffff;
+  font-family: "Russo One", sans-serif;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: 0;
 }
 
 .project-cases__list {

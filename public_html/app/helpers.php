@@ -253,7 +253,7 @@ function render_layout(array $site, string $title, string $content, array $seo =
     echo '<meta name="twitter:image" content="' . h($image) . '">';
     echo '<script type="application/ld+json">' . json_encode($schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . '</script>';
     echo '<link rel="stylesheet" href="/assets/css/base.css">';
-    echo '<link rel="stylesheet" href="/assets/css/site.css?v=20260708-project-gallery-fix">';
+    echo '<link rel="stylesheet" href="/assets/css/site.css?v=20260708-project-gallery-clean">';
     echo '</head><body>';
     render_header($products, $interiors, $phone, $email);
     echo '<main class="content">' . $content . '</main>';
@@ -548,21 +548,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
     var dialog = root.querySelector('[data-project-gallery-dialog]');
     var image = root.querySelector('[data-project-gallery-image]');
-    var title = root.querySelector('[data-project-gallery-title]');
-    var description = root.querySelector('[data-project-gallery-description]');
-    var counter = root.querySelector('[data-project-gallery-counter]');
     var dots = root.querySelector('[data-project-gallery-dots]');
     var closeButton = root.querySelector('[data-project-gallery-close]');
     var prevButton = root.querySelector('[data-project-gallery-prev]');
     var nextButton = root.querySelector('[data-project-gallery-next]');
 
-    if (!dialog || !image || !title || !description || !counter || !dots || !closeButton || !prevButton || !nextButton) {
+    if (!dialog || !image || !dots || !closeButton || !prevButton || !nextButton) {
       return;
     }
 
     var galleryItems = [];
-    var galleryTitle = '';
-    var galleryDescription = '';
     var currentIndex = 0;
 
     var renderGallery = function () {
@@ -573,9 +568,6 @@ document.addEventListener('DOMContentLoaded', function () {
       var currentItem = galleryItems[currentIndex];
       image.setAttribute('src', currentItem.src);
       image.setAttribute('alt', currentItem.alt);
-      title.textContent = galleryTitle;
-      description.textContent = galleryDescription;
-      counter.textContent = (currentIndex + 1) + ' / ' + galleryItems.length;
       dots.innerHTML = '';
 
       galleryItems.forEach(function (_, index) {
@@ -592,8 +584,6 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     var openGallery = function (dataNode) {
-      galleryTitle = dataNode.getAttribute('data-project-title') || '';
-      galleryDescription = dataNode.getAttribute('data-project-description') || '';
       galleryItems = Array.prototype.slice.call(dataNode.querySelectorAll('[data-gallery-src]')).map(function (node) {
         return {
           src: node.getAttribute('data-gallery-src') || '',
@@ -655,7 +645,9 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     dialog.addEventListener('click', function (event) {
-      if (event.target === dialog) {
+      var isGalleryControl = event.target.closest('.project-gallery__figure, .project-gallery__arrow, .project-gallery__dots, .project-gallery__close');
+
+      if (!isGalleryControl) {
         closeGallery();
       }
     });
@@ -913,9 +905,9 @@ function render_project_cases(string $class = 'cases'): string
 
     $html .= '</div><dialog class="project-gallery" id="' . h($dialogId) . '" data-project-gallery-dialog>';
     $html .= '<button class="project-gallery__close" type="button" aria-label="Закрыть галерею" data-project-gallery-close>×</button>';
-    $html .= '<div class="project-gallery__body"><div class="project-gallery__caption"><h3 class="project-gallery__title" data-project-gallery-title></h3><p class="project-gallery__description" data-project-gallery-description></p></div>';
+    $html .= '<div class="project-gallery__body">';
     $html .= '<button class="project-gallery__arrow project-gallery__arrow--prev" type="button" aria-label="Предыдущее фото" data-project-gallery-prev>←</button>';
-    $html .= '<figure class="project-gallery__figure"><img class="project-gallery__image" src="" alt="" data-project-gallery-image><figcaption class="project-gallery__counter" data-project-gallery-counter></figcaption></figure>';
+    $html .= '<figure class="project-gallery__figure"><img class="project-gallery__image" src="" alt="" data-project-gallery-image></figure>';
     $html .= '<button class="project-gallery__arrow project-gallery__arrow--next" type="button" aria-label="Следующее фото" data-project-gallery-next>→</button>';
     $html .= '<div class="project-gallery__dots" data-project-gallery-dots></div></div></dialog></section>';
 

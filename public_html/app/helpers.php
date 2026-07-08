@@ -540,6 +540,142 @@ document.addEventListener('DOMContentLoaded', function () {
     viewport.addEventListener('scroll', updateButtons, { passive: true });
     window.addEventListener('resize', updateButtons);
   });
+
+  document.querySelectorAll('[data-js-projects]').forEach(function (root) {
+    if (root.hasAttribute('data-js-projects-bound')) {
+      return;
+    }
+
+    var dialog = root.querySelector('[data-project-gallery-dialog]');
+    var image = root.querySelector('[data-project-gallery-image]');
+    var title = root.querySelector('[data-project-gallery-title]');
+    var description = root.querySelector('[data-project-gallery-description]');
+    var counter = root.querySelector('[data-project-gallery-counter]');
+    var dots = root.querySelector('[data-project-gallery-dots]');
+    var closeButton = root.querySelector('[data-project-gallery-close]');
+    var prevButton = root.querySelector('[data-project-gallery-prev]');
+    var nextButton = root.querySelector('[data-project-gallery-next]');
+
+    if (!dialog || !image || !title || !description || !counter || !dots || !closeButton || !prevButton || !nextButton) {
+      return;
+    }
+
+    var galleryItems = [];
+    var galleryTitle = '';
+    var galleryDescription = '';
+    var currentIndex = 0;
+
+    var renderGallery = function () {
+      if (!galleryItems.length) {
+        return;
+      }
+
+      var currentItem = galleryItems[currentIndex];
+      image.setAttribute('src', currentItem.src);
+      image.setAttribute('alt', currentItem.alt);
+      title.textContent = galleryTitle;
+      description.textContent = galleryDescription;
+      counter.textContent = (currentIndex + 1) + ' / ' + galleryItems.length;
+      dots.innerHTML = '';
+
+      galleryItems.forEach(function (_, index) {
+        var dot = document.createElement('button');
+        dot.type = 'button';
+        dot.className = 'project-gallery__dot' + (index === currentIndex ? ' is-active' : '');
+        dot.setAttribute('aria-label', 'Показать фото ' + (index + 1));
+        dot.addEventListener('click', function () {
+          currentIndex = index;
+          renderGallery();
+        });
+        dots.appendChild(dot);
+      });
+    };
+
+    var openGallery = function (dataNode) {
+      galleryTitle = dataNode.getAttribute('data-project-title') || '';
+      galleryDescription = dataNode.getAttribute('data-project-description') || '';
+      galleryItems = Array.prototype.slice.call(dataNode.querySelectorAll('[data-gallery-src]')).map(function (node) {
+        return {
+          src: node.getAttribute('data-gallery-src') || '',
+          alt: node.getAttribute('data-gallery-alt') || ''
+        };
+      }).filter(function (item) {
+        return item.src !== '';
+      });
+
+      if (!galleryItems.length) {
+        return;
+      }
+
+      currentIndex = 0;
+      renderGallery();
+      document.documentElement.classList.add('is-lock');
+
+      if (typeof dialog.showModal === 'function') {
+        dialog.showModal();
+      } else {
+        dialog.setAttribute('open', '');
+      }
+    };
+
+    var closeGallery = function () {
+      if (typeof dialog.close === 'function' && dialog.open) {
+        dialog.close();
+      } else {
+        dialog.removeAttribute('open');
+        document.documentElement.classList.remove('is-lock');
+      }
+    };
+
+    var moveGallery = function (step) {
+      if (!galleryItems.length) {
+        return;
+      }
+
+      currentIndex = (currentIndex + step + galleryItems.length) % galleryItems.length;
+      renderGallery();
+    };
+
+    root.querySelectorAll('[data-project-card]').forEach(function (card) {
+      card.addEventListener('click', function () {
+        var dataNode = card.querySelector('.project-card__gallery-data');
+
+        if (dataNode) {
+          openGallery(dataNode);
+        }
+      });
+    });
+
+    closeButton.addEventListener('click', closeGallery);
+    prevButton.addEventListener('click', function () {
+      moveGallery(-1);
+    });
+    nextButton.addEventListener('click', function () {
+      moveGallery(1);
+    });
+
+    dialog.addEventListener('click', function (event) {
+      if (event.target === dialog) {
+        closeGallery();
+      }
+    });
+
+    dialog.addEventListener('close', function () {
+      document.documentElement.classList.remove('is-lock');
+    });
+
+    dialog.addEventListener('keydown', function (event) {
+      if (event.key === 'ArrowLeft') {
+        moveGallery(-1);
+      }
+
+      if (event.key === 'ArrowRight') {
+        moveGallery(1);
+      }
+    });
+
+    root.setAttribute('data-js-projects-bound', '');
+  });
 });
 </script>
 HTML;
@@ -706,13 +842,89 @@ function render_advantages(): string
     return $html . '</div></section>';
 }
 
+function project_groups(): array
+{
+    return [
+        [
+            'title' => 'Барные стойки и столешницы из дерева',
+            'description' => 'Комплекс работ по изготовлению деревянных барных стоек, столешниц и интерьерных элементов для кухни и зоны отдыха.',
+            'images' => [
+                ['file' => 'bar1.webp', 'alt' => 'Деревянная барная стойка в интерьере кухни'],
+                ['file' => 'bar2.webp', 'alt' => 'Столешница и фасад барной стойки из дерева'],
+                ['file' => 'bar3.webp', 'alt' => 'Готовая барная стойка из массива дерева'],
+            ],
+        ],
+        [
+            'title' => 'Деревянные конструкции и интерьерный декор',
+            'description' => 'Деревянные балки, перегородки, порталы и декоративные конструкции для частных домов и интерьерных проектов.',
+            'images' => [
+                ['file' => 'CONST1.webp', 'alt' => 'Деревянные порталы и полки в интерьере'],
+                ['file' => 'CONST2.webp', 'alt' => 'Декоративные потолочные балки из дерева'],
+                ['file' => 'CONST3.webp', 'alt' => 'Деревянная отделка мансардного помещения'],
+                ['file' => 'CONST4.webp', 'alt' => 'Деревянные рейки и перегородки в интерьере'],
+            ],
+        ],
+        [
+            'title' => 'Библиотеки, кабинеты и деревянная отделка',
+            'description' => 'Встроенные библиотеки, стеллажи и деревянная отделка кабинетов под размер с учетом архитектуры помещения.',
+            'images' => [
+                ['file' => 'inter1.webp', 'alt' => 'Домашняя библиотека с деревянными стеллажами'],
+                ['file' => 'inter2.webp', 'alt' => 'Кабинет с деревянной библиотекой и лестницей'],
+                ['file' => 'inter3.webp', 'alt' => 'Комната-библиотека с деревянными стеллажами'],
+            ],
+        ],
+        [
+            'title' => 'Деревянные лестницы на заказ',
+            'description' => 'Лестницы из дерева и комбинированные конструкции с металлическим каркасом, перилами и подсветкой.',
+            'images' => [
+                ['file' => 'ladd1.webp', 'alt' => 'Деревянная лестница на металлическом каркасе'],
+                ['file' => 'ladd2.webp', 'alt' => 'Лестница с деревянными ступенями и металлическими перилами'],
+                ['file' => 'ladd3.webp', 'alt' => 'Деревянная лестница с подсветкой ступеней'],
+                ['file' => 'ladd4.webp', 'alt' => 'Двухмаршевая деревянная лестница в доме'],
+            ],
+        ],
+    ];
+}
+
+function render_project_cases(string $class = 'cases'): string
+{
+    static $instance = 0;
+    $instance++;
+    $titleId = $class . '-projects-title-' . $instance;
+    $dialogId = $class . '-projects-gallery-' . $instance;
+    $projects = project_groups();
+
+    $html = '<section class="' . h($class) . ' project-cases container" aria-labelledby="' . h($titleId) . '" data-js-projects>';
+    $html .= '<div class="project-cases__header"><h2 class="project-cases__title h2" id="' . h($titleId) . '">Уже реализованные проекты</h2></div><div class="project-cases__list">';
+
+    foreach ($projects as $index => $project) {
+        $images = $project['images'];
+        $cover = $images[0];
+        $galleryId = $dialogId . '-item-' . $index;
+        $html .= '<button class="project-card" type="button" data-project-card aria-haspopup="dialog" aria-controls="' . h($dialogId) . '">';
+        $html .= '<span class="project-card__content"><span class="project-card__title h3">' . h($project['title']) . '</span><span class="project-card__description">' . h($project['description']) . '</span><span class="project-card__meta">' . count($images) . ' фото</span></span>';
+        $html .= '<span class="project-card__media"><img class="project-card__image" src="' . h(asset_url('images/Projects/' . $cover['file'])) . '" alt="' . h($cover['alt']) . '" width="910" height="520" loading="lazy"></span>';
+        $html .= '<span class="project-card__gallery-data" hidden data-project-title="' . h($project['title']) . '" data-project-description="' . h($project['description']) . '" data-project-gallery="' . h($galleryId) . '">';
+        foreach ($images as $imageIndex => $image) {
+            $html .= '<span data-gallery-src="' . h(asset_url('images/Projects/' . $image['file'])) . '" data-gallery-alt="' . h($image['alt']) . '" data-gallery-index="' . h((string) $imageIndex) . '"></span>';
+        }
+        $html .= '</span></button>';
+    }
+
+    $html .= '</div><dialog class="project-gallery" id="' . h($dialogId) . '" data-project-gallery-dialog>';
+    $html .= '<button class="project-gallery__close" type="button" aria-label="Закрыть галерею" data-project-gallery-close>×</button>';
+    $html .= '<div class="project-gallery__body"><div class="project-gallery__caption"><h3 class="project-gallery__title" data-project-gallery-title></h3><p class="project-gallery__description" data-project-gallery-description></p></div>';
+    $html .= '<button class="project-gallery__arrow project-gallery__arrow--prev" type="button" aria-label="Предыдущее фото" data-project-gallery-prev>←</button>';
+    $html .= '<figure class="project-gallery__figure"><img class="project-gallery__image" src="" alt="" data-project-gallery-image><figcaption class="project-gallery__counter" data-project-gallery-counter></figcaption></figure>';
+    $html .= '<button class="project-gallery__arrow project-gallery__arrow--next" type="button" aria-label="Следующее фото" data-project-gallery-next>→</button>';
+    $html .= '<div class="project-gallery__dots" data-project-gallery-dots></div></div></dialog></section>';
+
+    return $html;
+}
+
 function render_cases(): string
 {
-    $html = '<section class="cases container" aria-labelledby="cases-title"><div class="cases__header"><h2 class="cases__title h2" id="cases-title">Уже реализованные проекты</h2></div><div class="cases__list">';
-    for ($i = 0; $i < 4; $i++) {
-        $html .= '<article class="cases-card"><div class="cases-card__content"><div class="cases-card__text"><h3 class="cases-card__title h3">Название</h3><p class="cases-card__description">Описание</p></div></div><img class="cases-card__image" src="' . h(asset_url('images/Cases/case-preview.png')) . '" alt="Реализованный проект столярного изделия из дерева" width="910" height="380" loading="lazy"></article>';
-    }
-    return $html . '</div></section>';
+    return render_project_cases('cases');
 }
 
 function render_production_showcase(): string
@@ -1291,12 +1503,7 @@ function render_service_options(): string
 
 function render_service_cases(): string
 {
-    $html = '<section class="service-cases" aria-labelledby="service-cases-title"><div class="service-cases__inner container"><div class="service-cases__header"><h2 class="service-cases__title h2" id="service-cases-title">Уже реализованные проекты</h2></div><div class="service-cases__list">';
-    for ($i = 0; $i < 4; $i++) {
-        $html .= '<article class="service-cases-card"><div class="service-cases-card__content"><div class="service-cases-card__text"><h3 class="service-cases-card__title h3">Название</h3><p class="service-cases-card__description">Описание</p></div></div><img class="service-cases-card__image" src="' . h(asset_url('images/Cases/case-preview.png')) . '" alt="Реализованный проект деревянного изделия на заказ" width="910" height="380" loading="lazy"></article>';
-    }
-
-    return $html . '</div></div></section>';
+    return render_project_cases('service-cases');
 }
 
 function render_service_process(): string

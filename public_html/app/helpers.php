@@ -1229,8 +1229,8 @@ function render_contacts_page(array $site): void
 function render_work_features(): string
 {
     $items = [
-        ['title' => 'Древесина экстра-класса и 1 сорта', 'description' => 'На наших изделиях вы не найдете сколы, трещины, сучки и другие дефекты', 'icon' => 'star'],
-        ['title' => 'Фиксированная стоимость', 'description' => 'Описание', 'icon' => 'rubles', 'class' => ' work-features-card--last-mobile'],
+        ['title' => 'Древесина экстра-класса и 1 сорта', 'description' => 'На наших изделиях вы не найдете сколы, трещины и другие дефекты', 'icon' => 'star'],
+        ['title' => 'Фиксированная стоимость', 'description' => 'Цена не меняется, если не меняется профиль работ', 'icon' => 'rubles', 'class' => ' work-features-card--last-mobile'],
         ['title' => 'Условия в договоре', 'description' => 'Срок изготовления, гарантия на монтаж и конструкцию, критерии проверки качества', 'icon' => 'detail'],
         ['title' => 'Большой запас прочности', 'description' => 'Учитываем множество факторов, обязательно соблюдаем ГОСТы и СНиПы', 'icon' => 'shield'],
     ];

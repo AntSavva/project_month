@@ -253,7 +253,7 @@ function render_layout(array $site, string $title, string $content, array $seo =
     echo '<meta name="twitter:image" content="' . h($image) . '">';
     echo '<script type="application/ld+json">' . json_encode($schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . '</script>';
     echo '<link rel="stylesheet" href="/assets/css/base.css">';
-    echo '<link rel="stylesheet" href="/assets/css/site.css?v=20260708-project-title-fix">';
+    echo '<link rel="stylesheet" href="/assets/css/site.css?v=20260708-gallery-arrow-icons">';
     echo '</head><body>';
     render_header($products, $interiors, $phone, $email);
     echo '<main class="content">' . $content . '</main>';
@@ -906,9 +906,9 @@ function render_project_cases(string $class = 'cases'): string
     $html .= '</div><dialog class="project-gallery" id="' . h($dialogId) . '" data-project-gallery-dialog>';
     $html .= '<button class="project-gallery__close" type="button" aria-label="Закрыть галерею" data-project-gallery-close>×</button>';
     $html .= '<div class="project-gallery__body">';
-    $html .= '<button class="project-gallery__arrow project-gallery__arrow--prev" type="button" aria-label="Предыдущее фото" data-project-gallery-prev>←</button>';
+    $html .= '<button class="project-gallery__arrow project-gallery__arrow--prev" type="button" aria-label="Предыдущее фото" data-project-gallery-prev><span class="project-gallery__arrow-icon" aria-hidden="true"></span></button>';
     $html .= '<figure class="project-gallery__figure"><img class="project-gallery__image" src="" alt="" data-project-gallery-image></figure>';
-    $html .= '<button class="project-gallery__arrow project-gallery__arrow--next" type="button" aria-label="Следующее фото" data-project-gallery-next>→</button>';
+    $html .= '<button class="project-gallery__arrow project-gallery__arrow--next" type="button" aria-label="Следующее фото" data-project-gallery-next><span class="project-gallery__arrow-icon" aria-hidden="true"></span></button>';
     $html .= '<div class="project-gallery__dots" data-project-gallery-dots></div></div></dialog></section>';
 
     return $html;

@@ -185,19 +185,30 @@ button.project-card:focus-visible {
 .project-gallery__arrow {
   display: grid;
   place-items: center;
-  width: 42px;
-  height: 42px;
-  color: #16100c;
-  font-size: 28px;
-  line-height: 1;
-  background: #ffffff;
-  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  padding: 0;
+  color: inherit;
+  font-size: 0;
+  line-height: 0;
+  background: transparent;
+}
+
+.project-gallery__arrow-icon {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: url("/assets/source/images/Gallery/line.svg") center / contain no-repeat;
 }
 
 .project-gallery__arrow--prev {
   grid-column: 1;
   grid-row: 1;
   justify-self: start;
+}
+
+.project-gallery__arrow--prev .project-gallery__arrow-icon {
+  transform: rotate(180deg);
 }
 
 .project-gallery__arrow--next {
@@ -307,7 +318,6 @@ button.project-card:focus-visible {
     z-index: 1;
     width: 38px;
     height: 38px;
-    font-size: 24px;
     transform: translateY(-50%);
   }
 

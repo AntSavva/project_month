@@ -806,12 +806,12 @@ function render_home(array $site): void
 function render_home_hero(): string
 {
     $advantages = [
-        ['title' => '15 лет мастерства', 'description' => 'Подпись', 'icon' => 'star'],
-        ['title' => 'Индивидуальный подход', 'description' => 'Подпись', 'icon' => 'person'],
-        ['title' => 'От дизайна до установки', 'description' => 'Подпись', 'icon' => 'detail'],
+        ['title' => '15 лет мастерства', 'description' => '1500+ реализованных проектов', 'icon' => 'star'],
+        ['title' => 'Индивидуальный подход', 'description' => 'Решения под ваш бюджет', 'icon' => 'person'],
+        ['title' => 'От дизайна до установки', 'description' => 'Полный цикл без посредников', 'icon' => 'detail'],
     ];
     $html = '<section class="hero" aria-labelledby="hero-title"><img class="hero__bg-image" src="' . h(asset_url('images/Hero/hero-bg.png')) . '" alt="Столярные изделия из массива дерева на заказ" width="1304" height="586" loading="eager">';
-    $html .= '<div class="hero__inner container"><div class="hero__content"><p class="hero__eyebrow h3">Столярные изделия</p><h1 class="hero__title h1" id="hero-title"><span>Производство эксклюзивных</span><span class="hero__title-accent">столярных изделий из массива</span></h1></div>';
+    $html .= '<div class="hero__inner container"><div class="hero__content"><p class="hero__eyebrow h3">Санкт-Петербург, Москва и регионы</p><h1 class="hero__title h1" id="hero-title"><span>Производство столярных изделий</span><span class="hero__title-accent">из натуральных пород дерева</span></h1></div>';
     $html .= '<ul class="hero__advantages" aria-label="Преимущества">';
     foreach ($advantages as $item) {
         $html .= '<li class="hero__advantage"><img class="hero__advantage-icon" src="' . h(asset_url('images/CardIcons/' . $item['icon'] . '.png')) . '" alt="" width="64" height="64" loading="eager"><div class="hero__advantage-content"><h2 class="hero__advantage-title h4">' . h($item['title']) . '</h2><p class="hero__advantage-description">' . h($item['description']) . '</p></div></li>';

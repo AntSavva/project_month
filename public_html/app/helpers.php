@@ -924,11 +924,11 @@ function render_cases(): string
 function render_production_showcase(): string
 {
     $items = [
-        ['title' => '1500+ объектов', 'description' => 'Описание', 'icon' => 'woods'],
-        ['title' => 'Работаем с 2009 года', 'description' => 'Описание', 'icon' => 'medal'],
-        ['title' => 'Индивидуальный подход', 'description' => 'Описание', 'icon' => 'person_with_star'],
-        ['title' => 'Профессиональное оборудование', 'description' => 'Описание', 'icon' => 'machine'],
-        ['title' => 'Строгий входной контроль качества материалов', 'description' => 'Описание', 'icon' => 'loop'],
+        ['title' => '1500+ объектов', 'description' => 'Довольные клиенты в каждом районе', 'icon' => 'woods'],
+        ['title' => 'Работаем с 2009 года', 'description' => 'Знаем все нюансы отделки за 15 лет', 'icon' => 'medal'],
+        ['title' => 'Индивидуальный подход', 'description' => 'Учитываем пожелания и бюджет клиента', 'icon' => 'person_with_star'],
+        ['title' => 'Профессиональное оборудование', 'description' => 'Станки с ЧПУ и немецкие линии', 'icon' => 'machine'],
+        ['title' => 'Строгий входной контроль качества материалов', 'description' => 'Проверяем каждую партию перед производством', 'icon' => 'loop'],
     ];
     $html = '<section class="production-showcase" aria-labelledby="production-showcase-title"><div class="production-showcase__inner container"><div class="production-showcase__header"><h2 class="production-showcase__title h2" id="production-showcase-title">Создаем красивые, стильные и долговечные изделия</h2><p class="production-showcase__description">Собственное производство изделий в Санкт-Петербурге с минимальными сроками изготовления от 3 дней</p></div><div class="production-showcase__body"><div class="production-showcase__features">';
     foreach ($items as $item) {

@@ -260,6 +260,7 @@ function content_items(array $block): array
 
 function render_layout(array $site, string $title, string $content, array $seo = []): void
 {
+    $scriptNonce = base64_encode(random_bytes(16));
     $settings = $site['settings'] ?? [];
     $products = site_pages($site, 'product', true);
     $interiors = site_pages($site, 'interior', true);
@@ -281,6 +282,7 @@ function render_layout(array $site, string $title, string $content, array $seo =
     $image = absolute_url($image);
     $robots = !empty($seo['noindex']) ? 'noindex, nofollow' : 'index, follow';
     $schema = seo_schema($site, $canonical);
+    header("Content-Security-Policy: default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; object-src 'none'; script-src 'self' 'nonce-" . $scriptNonce . "'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; frame-src https://yandex.ru https://*.yandex.ru; connect-src 'self'; upgrade-insecure-requests");
 
     echo '<!doctype html><html lang="ru"><head><meta charset="utf-8">';
     echo '<meta name="viewport" content="width=device-width, initial-scale=1">';
@@ -300,14 +302,14 @@ function render_layout(array $site, string $title, string $content, array $seo =
     echo '<meta name="twitter:title" content="' . h($title) . '">';
     echo '<meta name="twitter:description" content="' . h($description) . '">';
     echo '<meta name="twitter:image" content="' . h($image) . '">';
-    echo '<script type="application/ld+json">' . json_encode($schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . '</script>';
+    echo '<script type="application/ld+json" nonce="' . h($scriptNonce) . '">' . json_encode($schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . '</script>';
     echo '<link rel="stylesheet" href="/assets/css/base.css">';
     echo '<link rel="stylesheet" href="/assets/css/site.css?v=20260708-service-list-markers">';
     echo '</head><body>';
     render_header($products, $interiors, $phone, $email);
     echo '<main class="content">' . $content . '</main>';
     render_footer($settings, $products, $interiors, $documents);
-    render_site_scripts();
+    render_site_scripts($scriptNonce);
     echo '</body></html>';
 }
 
@@ -462,10 +464,10 @@ function render_header_dropdown(string $label, array $pages, string $cover, bool
     echo '</ul><img class="header__mega-cover" src="' . h($previewCover) . '" alt="' . h(image_alt($label . ' Кубэра')) . '" width="730" height="360" data-header-preview-image=""></div></div></li>';
 }
 
-function render_site_scripts(): void
+function render_site_scripts(string $scriptNonce): void
 {
+    echo '<script nonce="' . h($scriptNonce) . '">';
     echo <<<'HTML'
-<script>
 document.addEventListener('DOMContentLoaded', function () {
   document.querySelectorAll('[data-js-overlay-menu]').forEach(function (root) {
     if (root.hasAttribute('data-js-overlay-menu-bound')) {
@@ -718,8 +720,8 @@ document.addEventListener('DOMContentLoaded', function () {
     root.setAttribute('data-js-projects-bound', '');
   });
 });
-</script>
 HTML;
+    echo '</script>';
 }
 
 function render_footer(array $settings, array $products, array $interiors, array $documents): void

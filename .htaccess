@@ -17,7 +17,7 @@ RewriteRule ^ https://kubera-dom.ru%{REQUEST_URI} [R=301,L,NE]
 
 RewriteRule ^(app|data)/ - [F,L]
 RewriteRule (^|/)\. - [F,L]
-RewriteRule (^|/)(composer\.(json|lock)|package(-lock)?\.json|README\.md)$ - [F,L,NC]
+RewriteRule (^|/)(composer\.(json|lock)|package(-lock)?\.json|README\.md|LICENSE)$ - [F,L,NC]
 RewriteRule ^(uploads|assets)/.*\.(php[0-9]?|phtml|phar|pl|py|cgi|asp|aspx|jsp|sh)$ - [F,L,NC]
 RewriteRule \.(bak|backup|conf|config|csv|dist|ini|log|old|orig|save|sql|sqlite|swp|toml|tmp|tsv|ya?ml)$ - [F,L,NC]
 

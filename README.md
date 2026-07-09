@@ -1,22 +1,23 @@
 # Kubera PHP site
 
-Production site for Kubera. The live application is a plain PHP site located in `public_html`.
+Production PHP site for Kubera. The repository root is the web root, so the site files are no longer nested inside `public_html`.
 
 ## Structure
 
-- `public_html/index.php` - front controller
-- `public_html/app/` - PHP helpers, storage, admin panel and auth
-- `public_html/assets/` - CSS, fonts, icons and images
-- `public_html/data/site.json` - site content
-- `public_html/uploads/` - uploaded public images
+- `index.php` - front controller
+- `.htaccess` - redirects, routing and security headers
+- `app/` - PHP helpers, storage, admin panel and auth
+- `assets/` - CSS, fonts, icons and images
+- `data/site.json` - site content
+- `uploads/` - uploaded public images
 
 ## Deployment
 
-On Beget, update the repository copy and copy changed files into the live `public_html` directory:
+After this structure change, the repository can be placed directly in the hosting web root:
 
 ```bash
-cd ~/project_month
+cd ~/kubera-dom.ru/public_html
 git pull
 ```
 
-This repository no longer contains the old Next.js source, build scripts, or Node.js package files.
+The old Next.js source, build scripts, Node.js package files, and intermediate `public_html/` folder are not used.

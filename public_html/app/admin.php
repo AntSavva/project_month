@@ -14,52 +14,53 @@ function render_admin_layout(string $title, string $content): void
 }
 
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
-    $action = $_POST['action'] ?? '';
+    $action = post_text('action', 40);
 
-    try {
-        if ($action === 'login') {
-            if (admin_login($_POST['username'] ?? '', $_POST['password'] ?? '')) {
+    if (!csrf_verify((string) ($_POST['csrf_token'] ?? ''))) {
+        $error = 'Сессия устарела. Обновите страницу и повторите действие.';
+    } else {
+        try {
+            if ($action === 'login') {
+                if (admin_login(post_text('username', 80), (string) ($_POST['password'] ?? ''))) {
+                    header('Location: /admin');
+                    exit;
+                }
+
+                $error = 'Неверный пароль.';
+            } elseif ($action === 'logout') {
+                admin_logout();
                 header('Location: /admin');
                 exit;
-            }
-
-            $error = 'Неверный пароль.';
-        } elseif ($action === 'logout') {
-            admin_logout();
-            header('Location: /admin');
-            exit;
-        } elseif (!admin_is_authenticated()) {
-            $error = 'Авторизуйтесь заново.';
-        } elseif ($action === 'save_settings') {
-            $site['settings'] = [
-                'phone' => trim($_POST['phone'] ?? ''),
-                'email' => trim($_POST['email'] ?? ''),
-                'address' => trim($_POST['address'] ?? ''),
-                'workingHours' => trim($_POST['workingHours'] ?? ''),
-                'legalInfo' => trim($_POST['legalInfo'] ?? ''),
+            } elseif (!admin_is_authenticated()) {
+                $error = 'Авторизуйтесь заново.';
+            } elseif ($action === 'save_settings') {
+                $site['settings'] = [
+                'phone' => post_text('phone', 80),
+                'email' => post_email('email'),
+                'address' => post_text('address', 250),
+                'workingHours' => post_text('workingHours', 120),
+                'legalInfo' => post_text('legalInfo', 1000),
                 'socials' => [
-                    'vk' => trim($_POST['vk'] ?? ''),
-                    'telegram' => trim($_POST['telegram'] ?? ''),
-                    'youtube' => trim($_POST['youtube'] ?? ''),
-                    'max' => trim($_POST['max'] ?? ''),
+                    'vk' => post_text('vk', 250),
+                    'telegram' => post_text('telegram', 250),
+                    'youtube' => post_text('youtube', 250),
+                    'max' => post_text('max', 250),
                 ],
             ];
             site_write($site);
             $message = 'Настройки сохранены.';
         } elseif ($action === 'create_page') {
-            $type = in_array($_POST['type'] ?? '', ['product', 'interior', 'document'], true)
-                ? $_POST['type']
-                : 'product';
+            $type = post_choice('type', ['product', 'interior', 'document'], 'product');
             $cover = !empty($_FILES['cover']) ? upload_image($_FILES['cover']) : '';
             $site['pages'][] = [
                 'id' => create_id($type),
                 'type' => $type,
-                'title' => trim($_POST['title'] ?? 'Новая страница'),
-                'slug' => normalize_slug($_POST['slug'] ?? ''),
-                'menuDescription' => trim($_POST['menuDescription'] ?? ''),
-                'seoTitle' => trim($_POST['seoTitle'] ?? ''),
-                'seoDescription' => trim($_POST['seoDescription'] ?? ''),
-                'status' => $_POST['status'] === 'published' ? 'published' : 'draft',
+                'title' => post_text('title', 150, 'Новая страница'),
+                'slug' => normalize_slug(post_text('slug', 150)),
+                'menuDescription' => post_text('menuDescription', 250),
+                'seoTitle' => post_text('seoTitle', 180),
+                'seoDescription' => post_text('seoDescription', 320),
+                'status' => post_choice('status', ['published', 'draft'], 'draft'),
                 'cover' => $cover,
                 'content' => default_content($type),
                 'updatedAt' => date(DATE_ATOM),
@@ -67,13 +68,19 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             site_write($site);
             $message = 'Страница создана.';
         } elseif ($action === 'save_page') {
-            $index = site_find_page_index($site, $_POST['id'] ?? '');
+            $index = site_find_page_index($site, post_text('id', 80));
 
             if ($index === null) {
                 throw new RuntimeException('Страница не найдена.');
             }
 
-            $content = json_decode($_POST['content'] ?? '{}', true);
+            $contentJson = (string) ($_POST['content'] ?? '{}');
+
+            if (strlen($contentJson) > 200000) {
+                throw new RuntimeException('Контент слишком большой.');
+            }
+
+            $content = json_decode($contentJson, true);
 
             if (!is_array($content)) {
                 throw new RuntimeException('Контент должен быть корректным JSON.');
@@ -87,12 +94,12 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             }
 
             $site['pages'][$index] = array_merge($page, [
-                'title' => trim($_POST['title'] ?? ''),
-                'slug' => normalize_slug($_POST['slug'] ?? ''),
-                'menuDescription' => trim($_POST['menuDescription'] ?? ''),
-                'seoTitle' => trim($_POST['seoTitle'] ?? ''),
-                'seoDescription' => trim($_POST['seoDescription'] ?? ''),
-                'status' => $_POST['status'] === 'published' ? 'published' : 'draft',
+                'title' => post_text('title', 150),
+                'slug' => normalize_slug(post_text('slug', 150)),
+                'menuDescription' => post_text('menuDescription', 250),
+                'seoTitle' => post_text('seoTitle', 180),
+                'seoDescription' => post_text('seoDescription', 320),
+                'status' => post_choice('status', ['published', 'draft'], 'draft'),
                 'cover' => $cover,
                 'content' => $content,
                 'updatedAt' => date(DATE_ATOM),
@@ -100,7 +107,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             site_write($site);
             $message = 'Страница сохранена.';
         } elseif ($action === 'delete_page') {
-            $id = $_POST['id'] ?? '';
+            $id = post_text('id', 80);
             $site['pages'] = array_values(array_filter($site['pages'] ?? [], function ($page) use ($id) {
                 return ($page['id'] ?? '') !== $id;
             }));
@@ -108,8 +115,8 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             $message = 'Страница удалена.';
         } elseif ($action === 'save_review') {
             $reviews = array_values($site['reviews'] ?? []);
-            $id = trim($_POST['id'] ?? '');
-            $reviewAction = $_POST['review_action'] ?? 'save';
+            $id = post_text('id', 80);
+            $reviewAction = post_choice('review_action', ['save', 'draft', 'publish', 'delete'], 'save');
             $reviewIndex = null;
 
             foreach ($reviews as $index => $review) {
@@ -128,20 +135,20 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
                 site_write($site);
                 $message = 'Отзыв удален.';
             } else {
-                $author = trim($_POST['author'] ?? '');
-                $text = trim($_POST['text'] ?? '');
+                $author = post_text('author', 120);
+                $text = post_text('text', 3000);
 
                 if ($author === '' || $text === '') {
                     throw new RuntimeException('Заполните имя и текст отзыва.');
                 }
 
-                $avatar = trim($_POST['avatar'] ?? '');
+                $avatar = post_text('avatar', 250);
 
                 if (!empty($_FILES['avatar']) && ($_FILES['avatar']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
                     $avatar = upload_image($_FILES['avatar']);
                 }
 
-                $status = ($_POST['status'] ?? 'published') === 'draft' ? 'draft' : 'published';
+                $status = post_choice('status', ['published', 'draft'], 'published');
 
                 if ($reviewAction === 'draft') {
                     $status = 'draft';
@@ -152,12 +159,12 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
                 $reviewData = [
                     'id' => $id ?: create_id('review'),
                     'author' => $author,
-                    'date' => trim($_POST['date'] ?? ''),
+                    'date' => post_text('date', 80),
                     'text' => $text,
                     'avatar' => $avatar,
-                    'category' => trim($_POST['category'] ?? 'general') ?: 'general',
+                    'category' => post_choice('category', ['general', 'trim', 'frames', 'sills', 'stairs'], 'general'),
                     'status' => $status,
-                    'order' => (int) ($_POST['order'] ?? count($reviews) + 1),
+                    'order' => max(0, min(10000, (int) ($_POST['order'] ?? count($reviews) + 1))),
                 ];
 
                 if ($reviewIndex === null) {
@@ -176,9 +183,11 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             }
         } elseif ($action === 'save_lead_status') {
             $leads = leads_read();
+            $leadStatus = post_choice('status', ['new', 'done'], 'new');
+            $leadId = post_text('id', 80);
             foreach ($leads as &$lead) {
-                if (($lead['id'] ?? '') === ($_POST['id'] ?? '')) {
-                    $lead['status'] = $_POST['status'] ?? 'new';
+                if (($lead['id'] ?? '') === $leadId) {
+                    $lead['status'] = $leadStatus;
                     $lead['updatedAt'] = date(DATE_ATOM);
                 }
             }
@@ -190,9 +199,11 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         $error = $exception->getMessage();
     }
 }
+}
 
 if (!admin_is_authenticated()) {
     $content = '<main class="admin-page admin-page--login"><form method="post" class="admin-login">'
+        . csrf_input()
         . '<input type="hidden" name="action" value="login">'
         . '<h1 class="admin-login__title">Админ-панель</h1>'
         . '<p class="admin-login__text">Введите логин и пароль для управления сайтом.</p>'
@@ -220,7 +231,7 @@ if (!isset($adminSections[$currentSection])) {
 }
 
 $content = '<main class="admin-page"><header class="admin-header"><div><p class="admin-header__eyebrow">Кубэра</p><h1 class="admin-header__title">Админ-панель сайта</h1></div>'
-    . '<form method="post"><input type="hidden" name="action" value="logout"><button class="admin-button admin-button--ghost" type="submit">Выйти</button></form></header>'
+    . '<form method="post">' . csrf_input() . '<input type="hidden" name="action" value="logout"><button class="admin-button admin-button--ghost" type="submit">Выйти</button></form></header>'
     . '<nav class="admin-tabs" aria-label="Разделы админки">';
 
 foreach ($adminSections as $sectionKey => $sectionTitle) {
@@ -239,6 +250,7 @@ if ($error) {
 
 if ($currentSection === 'settings') {
     $content .= '<section id="settings" class="panel admin-section"><h2 class="admin-section__title">Настройки сайта</h2><form method="post" class="admin-grid">'
+    . csrf_input()
     . '<input type="hidden" name="action" value="save_settings">'
     . '<label>Телефон<input name="phone" value="' . h($settings['phone'] ?? '') . '"></label>'
     . '<label>Email<input name="email" value="' . h($settings['email'] ?? '') . '"></label>'
@@ -254,6 +266,7 @@ if ($currentSection === 'settings') {
 
 if ($currentSection === 'create-page') {
     $content .= '<section id="create-page" class="panel admin-section"><h2 class="admin-section__title">Создать страницу</h2><form method="post" enctype="multipart/form-data" class="admin-grid">'
+    . csrf_input()
     . '<input type="hidden" name="action" value="create_page">'
     . '<label>Тип<select name="type"><option value="product">Продукция</option><option value="interior">Интерьер</option><option value="document">Документ</option></select></label>'
     . '<label>Название<input name="title" required></label>'
@@ -272,6 +285,7 @@ if ($currentSection === 'pages') {
         $contentJson = json_encode($page['content'] ?? [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         $content .= '<details class="admin-edit-page"><summary><strong>' . h($page['title'] ?? '') . '</strong> <span>' . h($page['type'] ?? '') . ' / ' . h($page['slug'] ?? '') . ' / ' . h($page['status'] ?? '') . '</span></summary>';
         $content .= '<form method="post" enctype="multipart/form-data" class="admin-grid">'
+            . csrf_input()
             . '<input type="hidden" name="action" value="save_page">'
             . '<input type="hidden" name="id" value="' . h($page['id'] ?? '') . '">'
             . '<label>Название<input name="title" value="' . h($page['title'] ?? '') . '"></label>'
@@ -284,6 +298,7 @@ if ($currentSection === 'pages') {
             . '<label class="wide">Контент JSON<textarea name="content" rows="16" class="code">' . h($contentJson) . '</textarea></label>'
             . '<button type="submit">Сохранить страницу</button></form>';
         $content .= '<form method="post" onsubmit="return confirm(\'Удалить страницу?\')" class="delete-form">'
+            . csrf_input()
             . '<input type="hidden" name="action" value="delete_page"><input type="hidden" name="id" value="' . h($page['id'] ?? '') . '">'
             . '<button type="submit" class="danger">Удалить</button></form></details>';
     }
@@ -317,6 +332,7 @@ if ($currentSection === 'reviews') {
             . '<span class="admin-review-card__excerpt">' . h($isNewReview ? 'Добавить новый отзыв' : $excerpt) . '</span>'
             . '</summary>'
             . '<form method="post" enctype="multipart/form-data" class="admin-review-card__form">'
+            . csrf_input()
             . '<input type="hidden" name="action" value="save_review">'
             . '<input type="hidden" name="id" value="' . h($review['id'] ?? '') . '">'
             . '<input type="hidden" name="avatar" value="' . h($review['avatar'] ?? '') . '">'
@@ -356,7 +372,7 @@ if ($currentSection === 'leads') {
     }
     foreach ($leads as $lead) {
         $content .= '<article class="lead"><div><strong>' . h($lead['name'] ?? 'Без имени') . '</strong><p>' . h($lead['phone'] ?? '') . '</p><p>' . h($lead['comment'] ?? '') . '</p><small>' . h($lead['createdAt'] ?? '') . '</small></div>'
-            . '<form method="post"><input type="hidden" name="action" value="save_lead_status"><input type="hidden" name="id" value="' . h($lead['id'] ?? '') . '">'
+            . '<form method="post">' . csrf_input() . '<input type="hidden" name="action" value="save_lead_status"><input type="hidden" name="id" value="' . h($lead['id'] ?? '') . '">'
             . '<select name="status"><option value="new"' . (($lead['status'] ?? '') === 'new' ? ' selected' : '') . '>Новая</option><option value="done"' . (($lead['status'] ?? '') === 'done' ? ' selected' : '') . '>Обработана</option></select>'
             . '<button type="submit">OK</button></form></article>';
     }

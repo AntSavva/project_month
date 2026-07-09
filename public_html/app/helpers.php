@@ -5,6 +5,53 @@ function h($value): string
     return htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
 
+function limit_text(string $value, int $maxLength): string
+{
+    $value = str_replace("\0", '', $value);
+    $value = preg_replace('/[^\P{C}\t\r\n]+/u', '', $value) ?? $value;
+    $value = trim(strip_tags($value));
+
+    if ($maxLength < 1) {
+        return '';
+    }
+
+    $length = function_exists('mb_strlen') ? mb_strlen($value) : strlen($value);
+
+    if ($length <= $maxLength) {
+        return $value;
+    }
+
+    return function_exists('mb_substr') ? mb_substr($value, 0, $maxLength) : substr($value, 0, $maxLength);
+}
+
+function post_text(string $key, int $maxLength = 500, string $default = ''): string
+{
+    return limit_text((string) ($_POST[$key] ?? $default), $maxLength);
+}
+
+function post_choice(string $key, array $allowed, string $default): string
+{
+    $value = (string) ($_POST[$key] ?? $default);
+
+    return in_array($value, $allowed, true) ? $value : $default;
+}
+
+function post_phone(string $key): string
+{
+    $phone = post_text($key, 40);
+    $phone = preg_replace('/[^\d+\s().-]/u', '', $phone) ?? '';
+    $digits = preg_replace('/\D+/', '', $phone) ?? '';
+
+    return strlen($digits) >= 5 ? trim($phone) : '';
+}
+
+function post_email(string $key): string
+{
+    $email = post_text($key, 120);
+
+    return $email !== '' && filter_var($email, FILTER_VALIDATE_EMAIL) ? $email : '';
+}
+
 function page_href(array $page): string
 {
     return '/' . trim((string) ($page['slug'] ?? ''), '/');
@@ -767,6 +814,7 @@ function render_home_request(array $settings, string $class = 'home-request'): s
 function render_lead_form(string $class, string $phone, string $source): string
 {
     return '<form class="' . h($class) . '__form" action="/lead" method="post">'
+        . csrf_input()
         . '<input type="hidden" name="source" value="' . h($source) . '">'
         . '<input class="' . h($class) . '__control" name="name" placeholder="Григорий" aria-label="Ваше имя" required>'
         . '<input class="' . h($class) . '__control" name="phone" placeholder="' . h($phone) . '" aria-label="Телефон" inputmode="tel" required>'
@@ -1320,7 +1368,7 @@ function render_service_hero(array $page, array $contentData, array $settings): 
     $html = '<section class="service-hero" aria-labelledby="service-hero-title"><div class="service-hero__inner container"><div class="service-hero__content">';
     $html .= '<p class="service-hero__subtitle">' . h($hero['subtitle'] ?? 'Столярные изделия') . '</p>';
     $html .= '<h1 class="service-hero__title h1" id="service-hero-title">' . h($hero['title'] ?? $page['title'] ?? '') . '<span> ' . h($hero['accent'] ?? '') . '</span></h1>';
-    $html .= '<form class="service-hero__form" action="/lead" method="post"><input type="hidden" name="source" value="' . h($page['slug'] ?? 'service') . '"><div class="service-hero__fields">';
+    $html .= '<form class="service-hero__form" action="/lead" method="post">' . csrf_input() . '<input type="hidden" name="source" value="' . h($page['slug'] ?? 'service') . '"><div class="service-hero__fields">';
     $html .= '<input class="service-hero__control" name="name" placeholder="Григорий" aria-label="Ваше имя" required>';
     $html .= '<input class="service-hero__control" name="phone" placeholder="' . h($settings['phone'] ?? '') . '" aria-label="Телефон" inputmode="tel" required>';
     $html .= '<textarea class="service-hero__control service-hero__control--textarea" name="comment" placeholder="Комментарий" aria-label="Комментарий"></textarea>';
@@ -1557,7 +1605,7 @@ function render_interior_hero(array $page, array $contentData, array $settings):
     $html = '<section class="interior-hero" aria-labelledby="interior-hero-title"><div class="interior-hero__inner container"><div class="interior-hero__content">';
     $html .= '<p class="interior-hero__eyebrow">' . h($hero['subtitle'] ?? 'Внутренняя отделка') . '</p>';
     $html .= '<h1 class="interior-hero__title h1" id="interior-hero-title"><span>' . h($hero['title'] ?? $page['title'] ?? '') . '</span><span class="interior-hero__title-accent">' . h($hero['accent'] ?? '') . '</span></h1>';
-    $html .= '<form class="interior-hero__form" action="/lead" method="post"><input type="hidden" name="source" value="' . h($page['slug'] ?? 'interior') . '"><div class="interior-hero__fields">';
+    $html .= '<form class="interior-hero__form" action="/lead" method="post">' . csrf_input() . '<input type="hidden" name="source" value="' . h($page['slug'] ?? 'interior') . '"><div class="interior-hero__fields">';
     $html .= '<input class="interior-hero__control" name="name" placeholder="Григорий" aria-label="Ваше имя" required>';
     $html .= '<input class="interior-hero__control" name="phone" placeholder="' . h($settings['phone'] ?? '') . '" aria-label="Телефон" inputmode="tel" required>';
     $html .= '<button class="button interior-hero__button" type="submit">Записаться на замер</button></div><p class="interior-hero__privacy">Нажимая на кнопку, вы соглашаетесь с <a href="/privacy-policy">политикой конфиденциальности</a>.</p></form></div>';
@@ -1609,7 +1657,7 @@ function render_interior_proposal_request(array $settings, string $source): stri
         $html .= '<li class="interior-proposal-request__social-item"><a class="interior-proposal-request__social-link" href="' . h($social['href']) . '" aria-label="' . h($social['label']) . '">' . icon_html($social['name'], 'icon interior-proposal-request__social-icon', true) . '</a></li>';
     }
     $html .= '</ul></div></div>';
-    $html .= '<form class="interior-proposal-request__form" action="/lead" method="post"><input type="hidden" name="source" value="' . h($source) . '">';
+    $html .= '<form class="interior-proposal-request__form" action="/lead" method="post">' . csrf_input() . '<input type="hidden" name="source" value="' . h($source) . '">';
     $html .= '<input class="interior-proposal-request__control" name="name" placeholder="Григорий" aria-label="Ваше имя" required>';
     $html .= '<input class="interior-proposal-request__control" name="phone" placeholder="' . h($settings['phone'] ?? '') . '" aria-label="Телефон" inputmode="tel" required>';
     $html .= '<textarea class="interior-proposal-request__control interior-proposal-request__control--textarea" name="comment" placeholder="Комментарий" aria-label="Комментарий"></textarea>';
@@ -1802,16 +1850,33 @@ function render_not_found(array $site): void
 
 function handle_lead_submit(): void
 {
+    if (!csrf_verify((string) ($_POST['csrf_token'] ?? ''))) {
+        http_response_code(403);
+        render_not_found(site_read());
+        return;
+    }
+
+    $name = post_text('name', 80);
+    $phone = post_phone('phone');
+    $email = post_email('email');
+    $comment = post_text('comment', 1000);
+    $source = post_text('source', 80, 'site') ?: 'site';
+
+    if ($name === '' || $phone === '') {
+        header('Location: /?sent=0');
+        return;
+    }
+
     $leads = leads_read();
     $leads[] = [
         'id' => create_id('lead'),
         'createdAt' => date(DATE_ATOM),
         'status' => 'new',
-        'name' => trim($_POST['name'] ?? ''),
-        'phone' => trim($_POST['phone'] ?? ''),
-        'email' => trim($_POST['email'] ?? ''),
-        'comment' => trim($_POST['comment'] ?? ''),
-        'source' => trim($_POST['source'] ?? 'site'),
+        'name' => $name,
+        'phone' => $phone,
+        'email' => $email,
+        'comment' => $comment,
+        'source' => $source,
     ];
     leads_write($leads);
     header('Location: /?sent=1');

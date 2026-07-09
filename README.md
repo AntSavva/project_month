@@ -1,35 +1,22 @@
-# Kubera Next.js
+# Kubera PHP site
 
-Сайт компании «Кубэра» на Next.js. Сейчас проект содержит статичную верстку страниц без WordPress/CMS-интеграций; админ-панель и редактирование контента будут добавляться отдельным этапом.
+Production site for Kubera. The live application is a plain PHP site located in `public_html`.
 
-## Стек
+## Structure
 
-- Next.js 16
-- React 18
-- SCSS
-- ESLint, Stylelint, Prettier
+- `public_html/index.php` - front controller
+- `public_html/app/` - PHP helpers, storage, admin panel and auth
+- `public_html/assets/` - CSS, fonts, icons and images
+- `public_html/data/site.json` - site content
+- `public_html/uploads/` - uploaded public images
 
-## Команды
+## Deployment
+
+On Beget, update the repository copy and copy changed files into the live `public_html` directory:
 
 ```bash
-npm install
-npm run dev
-npm run build
-npm run start
+cd ~/project_month
+git pull
 ```
 
-Dev-сервер запускается на `http://localhost:3000`.
-
-## Страницы
-
-- `/`
-- `/about`
-- `/contacts`
-- `/document`
-- `/reviews`
-- `/service`
-- `/services`
-
-## SEO
-
-Базовая SEO-обвязка находится в `src/pages/_app.jsx`: title, description, Open Graph и Twitter Card. Язык документа задается в `src/pages/_document.jsx`.
+This repository no longer contains the old Next.js source, build scripts, or Node.js package files.

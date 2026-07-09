@@ -1,7 +1,6 @@
 node_modules/
 .next/
 .env*
-!.env.example
 .agents/
 .codex/
 .vscode/
@@ -10,7 +9,7 @@ node_modules/
 dist/
 build/
 *.log
-data/leads.json
+public_html/data/leads.json
 .cache/
 *.tmp
 *.DS_Store

@@ -1,6 +1,10 @@
 RewriteEngine On
+Options -Indexes
 
 RewriteRule ^(app|data)/ - [F,L]
+RewriteRule (^|/)\. - [F,L]
+RewriteRule ^(uploads|assets)/.*\.(php[0-9]?|phtml|phar|pl|py|cgi|asp|aspx|jsp|sh)$ - [F,L,NC]
+RewriteRule \.(bak|config|dist|ini|log|sql|swp|tmp)$ - [F,L,NC]
 
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d

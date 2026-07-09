@@ -170,10 +170,41 @@ function upload_image(array $file): string
     }
 
     $extension = strtolower(pathinfo($file['name'] ?? '', PATHINFO_EXTENSION));
-    $allowed = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+    $allowedMimeByExtension = [
+        'jpg' => ['image/jpeg'],
+        'jpeg' => ['image/jpeg'],
+        'png' => ['image/png'],
+        'webp' => ['image/webp'],
+        'gif' => ['image/gif'],
+    ];
 
-    if (!in_array($extension, $allowed, true)) {
+    if (!isset($allowedMimeByExtension[$extension])) {
         throw new RuntimeException('Поддерживаются JPG, PNG, WebP и GIF.');
+    }
+
+    $tmpName = (string) ($file['tmp_name'] ?? '');
+
+    if ($tmpName === '' || !is_uploaded_file($tmpName)) {
+        throw new RuntimeException('Не удалось проверить загруженный файл.');
+    }
+
+    $imageInfo = @getimagesize($tmpName);
+
+    if ($imageInfo === false) {
+        throw new RuntimeException('Файл должен быть изображением.');
+    }
+
+    $mime = strtolower((string) ($imageInfo['mime'] ?? ''));
+
+    if (!in_array($mime, $allowedMimeByExtension[$extension], true)) {
+        throw new RuntimeException('Тип изображения не соответствует расширению файла.');
+    }
+
+    $width = (int) ($imageInfo[0] ?? 0);
+    $height = (int) ($imageInfo[1] ?? 0);
+
+    if ($width < 1 || $height < 1 || $width > 8000 || $height > 8000) {
+        throw new RuntimeException('Некорректный размер изображения.');
     }
 
     $uploadsDir = root_path('uploads');

@@ -18,7 +18,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
 
     try {
         if ($action === 'login') {
-            if (admin_login($_POST['password'] ?? '')) {
+            if (admin_login($_POST['username'] ?? '', $_POST['password'] ?? '')) {
                 header('Location: /admin');
                 exit;
             }
@@ -195,9 +195,10 @@ if (!admin_is_authenticated()) {
     $content = '<main class="admin-page admin-page--login"><form method="post" class="admin-login">'
         . '<input type="hidden" name="action" value="login">'
         . '<h1 class="admin-login__title">Админ-панель</h1>'
-        . '<p class="admin-login__text">Введите пароль для управления сайтом.</p>'
+        . '<p class="admin-login__text">Введите логин и пароль для управления сайтом.</p>'
         . ($error ? '<p class="admin-message">' . h($error) . '</p>' : '')
-        . '<input class="admin-input" type="password" name="password" placeholder="Пароль" required autofocus>'
+        . '<input class="admin-input" type="text" name="username" placeholder="Логин" autocomplete="username" required autofocus>'
+        . '<input class="admin-input" type="password" name="password" placeholder="Пароль" autocomplete="current-password" required>'
         . '<button class="admin-button" type="submit">Войти</button></form></main>';
     render_admin_layout('Админ-панель', $content);
     return;

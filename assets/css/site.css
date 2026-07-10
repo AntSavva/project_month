@@ -678,14 +678,14 @@ button.project-card:focus-visible {
   background-repeat: no-repeat;
 }
 
+.about-values::before {
+  background-position: center 82%;
+}
+
 @media (max-width: 47.9375rem) {
   .about-values {
     background-color: var(--color-brown-900);
     background-image: none;
-  }
-
-  .about-values::before {
-    background-position: center 82%;
   }
 }
 

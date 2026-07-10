@@ -304,11 +304,12 @@ function render_layout(array $site, string $title, string $content, array $seo =
     echo '<meta name="twitter:image" content="' . h($image) . '">';
     echo '<script type="application/ld+json" nonce="' . h($scriptNonce) . '">' . json_encode($schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . '</script>';
     echo '<link rel="stylesheet" href="/assets/css/base.css?v=20260710-factory-background">';
-    echo '<link rel="stylesheet" href="/assets/css/site.css?v=20260710-factory-background">';
+    echo '<link rel="stylesheet" href="/assets/css/site.css?v=20260710-callback-popup">';
     echo '</head><body>';
     render_header($products, $interiors, $phone, $email);
     echo '<main class="content">' . $content . '</main>';
     render_footer($settings, $products, $interiors, $documents);
+    render_callback_popup($products, $phone);
     render_site_scripts($scriptNonce);
     echo '</body></html>';
 }
@@ -387,7 +388,7 @@ function render_header(array $products, array $interiors, string $phone, string 
     echo '<div class="header__actions"><address class="header__contacts">';
     echo '<a class="header__contact-link" href="' . h(phone_href($phone)) . '">' . icon_html('phone', 'icon header__contact-icon', true) . '<span>' . h($phone) . '</span></a>';
     echo '<a class="header__contact-link" href="' . h(email_href($email)) . '">' . icon_html('mail', 'icon header__contact-icon', true) . '<span>' . h($email) . '</span></a>';
-    echo '</address><a class="button header__callback" href="#request">Записаться на замер</a>';
+    echo '</address><a class="button header__callback" href="#callback-popup" data-js-callback-open>Записаться на замер</a>';
     echo '<button class="burger-button header__burger visible-tablet" type="button" aria-label="Открыть меню" data-js-overlay-menu-burger-button=""><svg class="burger-button__svg" width="44" height="44" viewBox="0 0 100 100"><path class="burger-button__line burger-button__line--1" d="M 20,29 H 80"/><path class="burger-button__line burger-button__line--2" d="M 20,50 H 80"/><path class="burger-button__line burger-button__line--3" d="M 20,71 H 80"/></svg></button>';
     echo '</div></div>';
     render_overlay_menu($products, $interiors, $phone, $email);
@@ -412,7 +413,29 @@ function render_overlay_menu(array $products, array $interiors, string $phone, s
     echo '</ul></nav><div class="header__overlay-footer"><address class="header__overlay-contacts">';
     echo '<a class="header__overlay-contact-link" href="' . h(phone_href($phone)) . '">' . icon_html('phone', 'icon header__overlay-contact-icon', true) . '<span>' . h($phone) . '</span></a>';
     echo '<a class="header__overlay-contact-link" href="' . h(email_href($email)) . '">' . icon_html('mail', 'icon header__overlay-contact-icon', true) . '<span>' . h($email) . '</span></a>';
-    echo '</address><a class="button header__overlay-callback" href="#request">Записаться на замер</a></div></div></dialog>';
+    echo '</address><a class="button header__overlay-callback" href="#callback-popup" data-js-callback-open>Записаться на замер</a></div></div></dialog>';
+}
+
+function render_callback_popup(array $products, string $phone): void
+{
+    echo '<dialog class="callback-popup" id="callback-popup" data-js-callback-dialog aria-labelledby="callback-popup-title">';
+    echo '<div class="callback-popup__body"><button class="callback-popup__close" type="button" data-js-callback-close aria-label="Закрыть форму"></button>';
+    echo '<div class="callback-popup__header"><h2 class="callback-popup__title" id="callback-popup-title">Запись на замер</h2><p class="callback-popup__description">В течении часа с вами свяжется наш менеджер</p></div>';
+    echo '<form class="callback-popup__form" action="/lead" method="post">' . csrf_input();
+    echo '<input type="hidden" name="source" value="callback-popup">';
+    echo '<label class="callback-popup__select-wrapper"><span class="visually-hidden">Продукт</span><select class="callback-popup__control" name="product" required><option value="" selected disabled>Продукт</option>';
+    foreach ($products as $product) {
+        $title = trim((string) ($product['title'] ?? ''));
+        if ($title !== '') {
+            echo '<option value="' . h($title) . '">' . h($title) . '</option>';
+        }
+    }
+    echo '<option value="Отделка интерьера">Отделка интерьера</option><option value="Другое">Другое</option></select></label>';
+    echo '<input class="callback-popup__control" name="name" placeholder="Ваше имя" aria-label="Ваше имя" autocomplete="name" required>';
+    echo '<label class="callback-popup__select-wrapper"><span class="visually-hidden">Удобный способ связи</span><select class="callback-popup__control" name="contact_method" required><option value="" selected disabled>Удобный способ связи</option><option value="Телефон">Телефон</option><option value="WhatsApp">WhatsApp</option><option value="Telegram">Telegram</option></select></label>';
+    echo '<input class="callback-popup__control" name="phone" placeholder="' . h($phone) . '" aria-label="Телефон" autocomplete="tel" inputmode="tel" required>';
+    echo '<button class="button callback-popup__button" type="submit">Записаться на замер</button>';
+    echo '<p class="callback-popup__privacy">Нажимая на кнопку, вы соглашаетесь с <a href="/privacy-policy">политикой конфиденциальности</a>.</p></form></div></dialog>';
 }
 
 function render_overlay_menu_group(string $label, array $pages, bool $showDescription): void
@@ -469,6 +492,48 @@ function render_site_scripts(string $scriptNonce): void
     echo '<script nonce="' . h($scriptNonce) . '">';
     echo <<<'HTML'
 document.addEventListener('DOMContentLoaded', function () {
+  var callbackDialog = document.querySelector('[data-js-callback-dialog]');
+
+  if (callbackDialog) {
+    var closeCallbackDialog = function () {
+      if (callbackDialog.open && typeof callbackDialog.close === 'function') {
+        callbackDialog.close();
+      } else {
+        callbackDialog.removeAttribute('open');
+        document.documentElement.classList.remove('is-lock');
+      }
+    };
+
+    document.addEventListener('click', function (event) {
+      var opener = event.target.closest('[data-js-callback-open]');
+
+      if (!opener) {
+        return;
+      }
+
+      event.preventDefault();
+      document.documentElement.classList.add('is-lock');
+
+      if (!callbackDialog.open) {
+        if (typeof callbackDialog.showModal === 'function') {
+          callbackDialog.showModal();
+        } else {
+          callbackDialog.setAttribute('open', '');
+        }
+      }
+    });
+
+    callbackDialog.addEventListener('click', function (event) {
+      if (event.target === callbackDialog || event.target.closest('[data-js-callback-close]')) {
+        closeCallbackDialog();
+      }
+    });
+
+    callbackDialog.addEventListener('close', function () {
+      document.documentElement.classList.remove('is-lock');
+    });
+  }
+
   document.querySelectorAll('[data-js-overlay-menu]').forEach(function (root) {
     if (root.hasAttribute('data-js-overlay-menu-bound')) {
       return;
@@ -1473,7 +1538,7 @@ function render_service_plans(?array $data): string
         foreach (($item['items'] ?? []) as $line) {
             $html .= '<li class="service-plans-card__item">' . h($line) . '</li>';
         }
-        $html .= '</ul></div><a class="button service-plans-card__button" href="#request">Записаться на замер</a></div></li>';
+        $html .= '</ul></div><a class="button service-plans-card__button" href="#callback-popup" data-js-callback-open>Записаться на замер</a></div></li>';
     }
 
     return $html . '</ul></div></section>';
@@ -1705,7 +1770,7 @@ function render_interior_plans(?array $data): string
         foreach (($item['items'] ?? []) as $line) {
             $html .= '<li class="interior-plans-card__item">' . h($line) . '</li>';
         }
-        $html .= '</ul></div><a class="button interior-plans-card__button" href="#request">Записаться</a></div></article>';
+        $html .= '</ul></div><a class="button interior-plans-card__button" href="#callback-popup" data-js-callback-open>Записаться</a></div></article>';
     }
 
     return $html . '</div></section>';
@@ -1862,7 +1927,21 @@ function handle_lead_submit(): void
     $phone = post_phone('phone');
     $email = post_email('email');
     $comment = post_text('comment', 1000);
+    $product = post_text('product', 120);
+    $contactMethod = post_text('contact_method', 40);
     $source = post_text('source', 80, 'site') ?: 'site';
+
+    $details = [];
+    if ($product !== '') {
+        $details[] = 'Продукт: ' . $product;
+    }
+    if ($contactMethod !== '') {
+        $details[] = 'Способ связи: ' . $contactMethod;
+    }
+    if ($comment !== '') {
+        $details[] = $comment;
+    }
+    $comment = implode("\n", $details);
 
     if ($name === '' || $phone === '') {
         header('Location: /?sent=0');

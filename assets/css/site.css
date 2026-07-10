@@ -390,6 +390,207 @@ button.project-card:focus-visible {
   }
 }
 
+/* Shared consultation form */
+.callback-popup {
+  width: min(37.5rem, calc(100% - 2rem));
+  max-width: none;
+  max-height: calc(100dvh - 2rem);
+  margin: auto;
+  padding: 0;
+  color: var(--color-white);
+  background: transparent;
+  border: 0;
+  overflow: visible;
+}
+
+.callback-popup::backdrop {
+  background: rgba(9, 5, 4, 0.7);
+  -webkit-backdrop-filter: blur(0.75rem);
+  backdrop-filter: blur(0.75rem);
+}
+
+.callback-popup:not([open]) {
+  display: none;
+}
+
+.callback-popup__body {
+  position: relative;
+  display: grid;
+  gap: 1rem;
+  max-height: inherit;
+  padding: 2rem 1.75rem 1.625rem;
+  background: #211c18;
+  border-radius: var(--border-radius-5);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.callback-popup__header {
+  display: grid;
+  gap: 0.5rem;
+  padding-right: 1.5rem;
+}
+
+.callback-popup__title {
+  font-family: "Russo One", sans-serif;
+  font-size: 2rem;
+  font-weight: 400;
+  line-height: 1.1;
+}
+
+.callback-popup__description {
+  color: var(--color-gray);
+  font-size: 1rem;
+  line-height: 1.35;
+}
+
+.callback-popup__close {
+  position: absolute;
+  top: 0.625rem;
+  right: 0.75rem;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  color: var(--color-white);
+  background: transparent;
+  border: 0;
+  font-size: 0;
+  line-height: 1;
+}
+
+.callback-popup__close::before,
+.callback-popup__close::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1.25rem;
+  height: 0.125rem;
+  background: currentColor;
+  border-radius: 999px;
+  content: "";
+}
+
+.callback-popup__close::before {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.callback-popup__close::after {
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.callback-popup__form {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.callback-popup__control,
+.callback-popup__button {
+  width: 100%;
+  min-width: 0;
+  min-height: 2.125rem;
+  border-radius: var(--border-radius-5);
+  font-size: 1rem;
+  line-height: 1.2;
+}
+
+.callback-popup__control {
+  padding: 0.375rem 0.625rem;
+  color: var(--color-white);
+  background: rgba(255, 255, 255, 0.3);
+  border: var(--border-width-1) solid rgba(255, 255, 255, 0.1);
+}
+
+.callback-popup__control::placeholder,
+.callback-popup__select-wrapper select:invalid {
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.callback-popup__control:focus-visible {
+  border-color: var(--color-accent);
+  outline: 0.125rem solid rgba(181, 121, 0, 0.35);
+  outline-offset: 0;
+}
+
+.callback-popup__control option {
+  color: var(--color-black);
+  background: var(--color-white);
+}
+
+.callback-popup__select-wrapper {
+  position: relative;
+  display: block;
+}
+
+.callback-popup__select-wrapper::after {
+  position: absolute;
+  top: 50%;
+  right: 0.75rem;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-right: 0.0625rem solid rgba(255, 255, 255, 0.8);
+  border-bottom: 0.0625rem solid rgba(255, 255, 255, 0.8);
+  content: "";
+  pointer-events: none;
+  transform: translateY(-70%) rotate(45deg);
+}
+
+.callback-popup__select-wrapper select {
+  padding-right: 2.25rem;
+  appearance: none;
+}
+
+.callback-popup__button {
+  justify-content: center;
+  border: 0;
+}
+
+.callback-popup__privacy {
+  margin-top: 0.5rem;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.75rem;
+  line-height: 1.35;
+}
+
+.callback-popup__privacy a {
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+@media (max-width: 47.9375rem) {
+  .callback-popup {
+    width: min(100% - 1rem, 31rem);
+    max-height: calc(100dvh - 1rem);
+  }
+
+  .callback-popup__body {
+    gap: 0.875rem;
+    padding: 1.75rem 1rem 1.25rem;
+  }
+
+  .callback-popup__title {
+    font-size: 1.625rem;
+  }
+
+  .callback-popup__description,
+  .callback-popup__control,
+  .callback-popup__button {
+    font-size: 0.9375rem;
+  }
+
+  .callback-popup__control,
+  .callback-popup__button {
+    min-height: 2.75rem;
+  }
+
+  .callback-popup__privacy {
+    font-size: 0.6875rem;
+  }
+}
+
 @media (max-width: 63.9375rem) {
   .header__overlay-logo:focus-visible {
     outline: none;

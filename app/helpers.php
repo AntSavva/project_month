@@ -1437,6 +1437,43 @@ function card_icon_url(?string $icon, string $fallback): string
     return asset_url('images/CardIcons/' . $name . '.png');
 }
 
+function semantic_card_icon_url(array $item, string $fallback): string
+{
+    if (!empty($item['icon'])) {
+        return card_icon_url((string) $item['icon'], $fallback);
+    }
+
+    $text = implode(' ', array_filter([
+        $item['title'] ?? '',
+        $item['description'] ?? '',
+        !empty($item['items']) && is_array($item['items']) ? implode(' ', $item['items']) : '',
+    ], 'is_string'));
+    $rules = [
+        ['достав|транспорт|привоз', 'car'],
+        ['замер|измер|размер', 'roulette'],
+        ['черт[её]ж|проект|эскиз|3d|модел|визуал', 'ruler_and_pen'],
+        ['производ|изготов|фрезер|станок|резк', 'machine'],
+        ['монтаж|установ|сборк', 'level'],
+        ['соедин|креплен|узл|детал', 'detail'],
+        ['цвет|покрас|тонир|ral|подсвет|освещ', 'color'],
+        ['цен|стоим|руб', 'rubles'],
+        ['упаков|комплект', 'box'],
+        ['точност|геометр|расч[её]т|нагруз', 'target'],
+        ['защит|антисеп|огне|влаг|погод|ультрафиолет|долговеч|прочн|над[её]ж|безопас|гарант', 'shield'],
+        ['эколог|дерев|древес|пород|материал', 'tree'],
+        ['индивиду|уникал|эксклюз', 'person_with_star'],
+        ['эстет|декор|форма', 'star'],
+    ];
+
+    foreach ($rules as [$pattern, $icon]) {
+        if (preg_match('/' . $pattern . '/ui', $text)) {
+            return card_icon_url($icon, $fallback);
+        }
+    }
+
+    return card_icon_url(null, $fallback);
+}
+
 function material_image_url(?string $image, string $fallback): string
 {
     return $image ?: asset_url('images/ServiceMaterials/' . $fallback . '.png');
@@ -1473,7 +1510,7 @@ function render_service_includes(?array $data): string
     }
     $html .= '</header><ul class="service-includes__list">';
     foreach ($items as $index => $item) {
-        $icon = card_icon_url($item['icon'] ?? null, $fallbackIcons[$index % count($fallbackIcons)]);
+        $icon = semantic_card_icon_url($item, $fallbackIcons[$index % count($fallbackIcons)]);
         $html .= '<li class="service-includes__item"><article class="service-includes-card"><div class="service-includes-card__content">';
         $html .= '<h3 class="service-includes-card__title h3">' . h($item['title'] ?? '') . '</h3><p class="service-includes-card__description">' . h($item['description'] ?? '') . '</p></div>';
         $html .= '<picture class="service-includes-card__picture"><img class="service-includes-card__image" src="' . h($icon) . '" alt="" width="454" height="454" loading="lazy"></picture></article></li>';
@@ -1517,7 +1554,7 @@ function render_service_icon_cards(?array $data, string $section, array $fallbac
     }
     $html .= '</div><' . ($section === 'service-benefits' ? 'ul' : 'div') . ' class="' . h($section) . ($section === 'service-benefits' ? '__list' : '__grid') . '">';
     foreach ($items as $index => $item) {
-        $icon = card_icon_url($item['icon'] ?? null, $fallbackIcons[$index % count($fallbackIcons)]);
+        $icon = semantic_card_icon_url($item, $fallbackIcons[$index % count($fallbackIcons)]);
         if ($section === 'service-benefits') {
             $cardItems = !empty($item['items']) && is_array($item['items']) ? $item['items'] : array_values(array_filter([$item['description'] ?? '']));
             $html .= '<li class="service-benefits-card"><img class="service-benefits-card__decor" src="' . h($icon) . '" alt="" width="150" height="150" loading="lazy"><div class="service-benefits-card__content"><h3 class="service-benefits-card__title h3">' . h($item['title'] ?? '') . '</h3><ul class="service-benefits-card__items">';
@@ -1547,7 +1584,7 @@ function render_service_plans(?array $data): string
     $items = content_items($data);
     $html = '<section class="service-plans" aria-labelledby="service-plans-title"><div class="service-plans__inner container"><h2 class="service-plans__title h2" id="service-plans-title">' . h($data['title'] ?? 'Варианты сотрудничества') . '</h2><ul class="service-plans__list">';
     foreach ($items as $index => $item) {
-        $icon = card_icon_url($item['icon'] ?? null, $fallbackIcons[$index % count($fallbackIcons)]);
+        $icon = semantic_card_icon_url($item, $fallbackIcons[$index % count($fallbackIcons)]);
         $html .= '<li class="service-plans-card"><div class="service-plans-card__body"><div class="service-plans-card__content"><img class="service-plans-card__icon" src="' . h($icon) . '" alt="" width="100" height="100" loading="lazy"><h3 class="service-plans-card__title h3">' . h($item['title'] ?? '') . '</h3><ul class="service-plans-card__items">';
         foreach (($item['items'] ?? []) as $line) {
             $html .= '<li class="service-plans-card__item">' . h($line) . '</li>';

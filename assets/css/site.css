@@ -468,6 +468,15 @@ button.project-card:focus-visible {
   overflow: hidden;
 }
 
+.about-values {
+  background-image:
+    linear-gradient(180deg, rgba(23, 15, 11, 0.18), rgba(23, 15, 11, 0.18)),
+    url("/assets/source/images/AboutValues/factory_background.webp");
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
 .interior-solutions-card__image {
   display: block;
   width: 100%;

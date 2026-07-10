@@ -304,7 +304,7 @@ function render_layout(array $site, string $title, string $content, array $seo =
     echo '<meta name="twitter:image" content="' . h($image) . '">';
     echo '<script type="application/ld+json" nonce="' . h($scriptNonce) . '">' . json_encode($schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . '</script>';
     echo '<link rel="stylesheet" href="/assets/css/base.css">';
-    echo '<link rel="stylesheet" href="/assets/css/site.css?v=20260708-service-list-markers">';
+    echo '<link rel="stylesheet" href="/assets/css/site.css?v=20260710-factory-background">';
     echo '</head><body>';
     render_header($products, $interiors, $phone, $email);
     echo '<main class="content">' . $content . '</main>';
@@ -378,7 +378,7 @@ function render_header(array $products, array $interiors, string $phone, string 
     echo '<header class="header" data-js-overlay-menu=""><div class="header__inner">';
     echo '<a class="logo header__logo" href="/" title="Home" aria-label="Home"><img class="logo__image" src="/images/logo.svg" alt="Кубэра" width="216" height="40" loading="eager"></a>';
     echo '<nav class="header__nav" aria-label="Основная навигация"><ul class="header__nav-list">';
-    render_header_dropdown('Продукция', $products, asset_url('images/AboutProduction/production-photo.png'));
+    render_header_dropdown('Продукция', $products, asset_url('images/AboutProduction/factory_background.webp'));
     render_header_dropdown('Отделка интерьера', $interiors, asset_url('images/Cases/case-preview.png'), true);
     echo '<li class="header__nav-item"><a class="header__nav-link" href="/about/"><span>О компании</span></a></li>';
     echo '<li class="header__nav-item"><a class="header__nav-link" href="/reviews/"><span>Отзывы</span></a></li>';
@@ -995,7 +995,7 @@ function render_production_showcase(): string
     foreach ($items as $item) {
         $html .= '<article class="production-showcase-feature"><img class="production-showcase-feature__icon" src="' . h(asset_url('images/CardIcons/' . $item['icon'] . '.png')) . '" alt="" width="64" height="64" loading="lazy"><div class="production-showcase-feature__content"><h3 class="production-showcase-feature__title">' . h($item['title']) . '</h3><p class="production-showcase-feature__description">' . h($item['description']) . '</p></div></article>';
     }
-    return $html . '</div><img class="production-showcase__image" src="' . h(asset_url('images/AboutProduction/production-photo.png')) . '" alt="Производство столярных изделий из дерева" width="910" height="662" loading="lazy"></div></div></section>';
+    return $html . '</div><img class="production-showcase__image" src="' . h(asset_url('images/AboutProduction/factory_background.webp')) . '" alt="Производство столярных изделий из дерева" width="910" height="662" loading="lazy"></div></div></section>';
 }
 
 function render_about_hero(): string
@@ -1096,7 +1096,7 @@ function render_about(array $site): void
     render_layout($site, 'О компании Кубэра — столярное производство в Санкт-Петербурге', $body, [
         'description' => 'Кубэра — столярное производство в Санкт-Петербурге: проектируем, изготавливаем и монтируем изделия из массива дерева для домов и интерьеров.',
         'canonical' => '/about',
-        'image' => asset_url('images/AboutProduction/production-photo.png'),
+        'image' => asset_url('images/AboutProduction/factory_background.webp'),
     ]);
 }
 

@@ -304,8 +304,9 @@ function render_layout(array $site, string $title, string $content, array $seo =
     echo '<meta name="twitter:image" content="' . h($image) . '">';
     echo '<script type="application/ld+json" nonce="' . h($scriptNonce) . '">' . json_encode($schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . '</script>';
     echo '<link rel="stylesheet" href="/assets/css/base.css?v=20260710-factory-background">';
-    echo '<link rel="stylesheet" href="/assets/css/site.css?v=20260710-callback-popup">';
-    echo '</head><body>';
+    echo '<link rel="stylesheet" href="/assets/css/site.css?v=20260710-not-found">';
+    $bodyClass = trim((string) ($seo['bodyClass'] ?? ''));
+    echo '</head><body' . ($bodyClass !== '' ? ' class="' . h($bodyClass) . '"' : '') . '>';
     render_header($products, $interiors, $phone, $email);
     echo '<main class="content">' . $content . '</main>';
     render_footer($settings, $products, $interiors, $documents);
@@ -1909,9 +1910,15 @@ function render_page(array $site, array $page): void
 
 function render_not_found(array $site): void
 {
-    render_layout($site, 'Страница не найдена', '<section class="not-found-hero container"><h1 class="not-found-hero__title h1">Страница не найдена</h1><a class="button" href="/">На главную</a></section>', [
+    $content = '<section class="not-found-hero" aria-labelledby="not-found-title"><div class="not-found-hero__content">';
+    $content .= '<p class="not-found-hero__code" aria-hidden="true">404</p>';
+    $content .= '<h1 class="not-found-hero__title" id="not-found-title">Страница не найдена</h1>';
+    $content .= '<a class="button not-found-hero__button" href="/">На главную</a></div></section>';
+
+    render_layout($site, 'Страница не найдена', $content, [
         'canonical' => canonical_path(),
         'noindex' => true,
+        'bodyClass' => 'not-found-page',
     ]);
 }
 

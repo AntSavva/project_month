@@ -1174,15 +1174,109 @@ button.project-card:focus-visible {
   margin: 0;
 }
 
+.not-found-page {
+  min-height: 100dvh;
+  overflow: hidden;
+  background: #130a07;
+}
+
+.not-found-page .header,
+.not-found-page .footer {
+  display: none;
+}
+
+.not-found-page .content {
+  min-height: 100dvh;
+}
+
 .not-found-hero {
-  min-height: 50vh;
-  padding-top: 6rem;
-  padding-bottom: 6rem;
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  place-items: center;
+  min-height: 100dvh;
+  padding: clamp(2rem, 5vw, 4rem) 1.25rem;
+  overflow: hidden;
+  background: #130a07;
+}
+
+.not-found-hero::before,
+.not-found-hero::after {
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  content: "";
+}
+
+.not-found-hero::before {
+  inset: 0 0 auto;
+  height: min(62vw, 35rem);
+  background: url("/assets/static/hero-bg.7a8b7829bd3483fb.png") top center / 100% 100% no-repeat;
+}
+
+.not-found-hero::after {
+  right: -4%;
+  bottom: -2%;
+  width: min(76rem, 90vw);
+  height: min(24rem, 38vw);
+  background: url("/assets/static/form-bg.6a1fb98af6fbd51a.png") bottom right / contain no-repeat;
+  opacity: 0.9;
+}
+
+.not-found-hero__content {
+  display: grid;
+  justify-items: center;
+  gap: 1rem;
+  width: min(100%, 52rem);
+  margin-top: -2vh;
+  text-align: center;
+}
+
+.not-found-hero__code {
+  color: #5f3b00;
+  font-family: "Russo One", sans-serif;
+  font-size: clamp(9rem, 23vw, 17.5rem);
+  font-weight: 400;
+  line-height: 0.8;
 }
 
 .not-found-hero__title {
-  margin-bottom: 2rem;
-  font-family: "Russo One", sans-serif;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: clamp(0.9375rem, 1.5vw, 1.125rem);
+  font-weight: 400;
+  line-height: 1.35;
+}
+
+.not-found-hero__button {
+  justify-content: center;
+  min-height: 2rem;
+  padding-inline: 0.75rem;
+  font-size: 1rem;
+}
+
+@media (max-width: 47.9375rem) {
+  .not-found-hero::before {
+    left: -36%;
+    width: 172%;
+    height: 45vh;
+    background-size: cover;
+  }
+
+  .not-found-hero::after {
+    right: -36%;
+    bottom: -1rem;
+    width: 150vw;
+    height: 42vh;
+  }
+
+  .not-found-hero__content {
+    gap: 1.125rem;
+    margin-top: -5vh;
+  }
+
+  .not-found-hero__code {
+    font-size: clamp(8rem, 42vw, 12rem);
+  }
 }
 
 .reviews {

@@ -678,6 +678,17 @@ button.project-card:focus-visible {
   background-repeat: no-repeat;
 }
 
+@media (max-width: 47.9375rem) {
+  .about-values {
+    background-color: var(--color-brown-900);
+    background-image: none;
+  }
+
+  .about-values::before {
+    background-position: center 82%;
+  }
+}
+
 .interior-solutions-card__image {
   display: block;
   width: 100%;

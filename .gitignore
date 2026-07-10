@@ -11,6 +11,7 @@ build/
 *.log
 data/leads.json
 .cache/
+.seo-cache/
 *.tmp
 *.DS_Store
 AGENTS.md

@@ -1595,10 +1595,10 @@ function render_request_form(string $source = 'site'): string
     return '<section class="service-request container"><div class="service-request__inner"><div class="service-request__content"><div class="service-request__offer"><h2 class="service-request__title h2">Оставить заявку</h2><p class="service-request__description">Расскажите о задаче, и мы свяжемся с вами.</p></div></div>' . render_lead_form('service-request', '', $source) . '</div></section>';
 }
 
-function render_service_request(array $settings, string $source): string
+function render_service_request(array $settings, string $source, string $serviceTitle): string
 {
     $html = '<section class="service-request container" id="request" aria-labelledby="service-request-title"><div class="service-request__inner"><div class="service-request__content"><div class="service-request__offer">';
-    $html .= '<h2 class="service-request__title h2" id="service-request-title">Наличники на весь дом внутренние и наружные</h2><ul class="service-request__benefits"><li>Оперативный выезд на замер</li><li>Скидка 10%</li></ul></div>';
+    $html .= '<h2 class="service-request__title h2" id="service-request-title">Обсудим ваш проект: ' . h($serviceTitle) . '</h2><ul class="service-request__benefits"><li>Оперативный выезд на замер</li><li>Скидка 10%</li></ul></div>';
     $html .= '<div class="service-request__contacts"><p class="service-request__description">Оставьте заявку или свяжитесь с нами удобным способом</p><ul class="service-request__socials" aria-label="Способы связи">';
     foreach (social_links($settings) as $social) {
         $html .= '<li class="service-request__social-item"><a class="service-request__social-link" href="' . h($social['href']) . '" aria-label="' . h($social['label']) . '">' . icon_html($social['name'], 'icon service-request__social-icon', true) . '</a></li>';
@@ -1833,9 +1833,12 @@ function render_page(array $site, array $page): void
         $body .= render_service_includes($contentData['includes'] ?? null);
         $body .= render_service_materials($contentData['materials'] ?? null);
         $body .= render_service_icon_cards($contentData['colors'] ?? null, 'service-colors', ['tree', 'target', 'lines', 'color', 'shield', 'woods'], 'Цветовые решения');
-        $body .= render_service_request($settings, $page['slug'] ?? 'service');
+        $slug = $page['slug'] ?? 'service';
+        $body .= render_service_request($settings, $slug, $page['title'] ?? 'изделие из дерева');
         $body .= render_service_icon_cards($contentData['benefits'] ?? null, 'service-benefits', ['shield_1', 'star', 'medal', 'person'], 'Преимущества');
-        $body .= render_service_plans($contentData['plans'] ?? null);
+        if ($slug === 'nalichniki') {
+            $body .= render_service_plans($contentData['plans'] ?? null);
+        }
         $body .= render_home_request($settings);
         $body .= render_service_options();
         $body .= render_service_cases();

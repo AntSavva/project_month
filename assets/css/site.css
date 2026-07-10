@@ -673,7 +673,7 @@ button.project-card:focus-visible {
   background-image:
     linear-gradient(180deg, rgba(23, 15, 11, 0.18), rgba(23, 15, 11, 0.18)),
     url("/assets/static/factory_background.webp");
-  background-position: center;
+  background-position: center 82%;
   background-size: cover;
   background-repeat: no-repeat;
 }

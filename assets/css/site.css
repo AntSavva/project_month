@@ -1175,18 +1175,11 @@ button.project-card:focus-visible {
 }
 
 .not-found-page {
-  min-height: 100dvh;
-  overflow: hidden;
   background: #130a07;
 }
 
-.not-found-page .header,
-.not-found-page .footer {
-  display: none;
-}
-
 .not-found-page .content {
-  min-height: 100dvh;
+  min-height: 0;
 }
 
 .not-found-hero {
@@ -1194,7 +1187,7 @@ button.project-card:focus-visible {
   isolation: isolate;
   display: grid;
   place-items: center;
-  min-height: 100dvh;
+  min-height: clamp(32rem, calc(100dvh - 5rem), 52rem);
   padding: clamp(2rem, 5vw, 4rem) 1.25rem;
   overflow: hidden;
   background: #130a07;

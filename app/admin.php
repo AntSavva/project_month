@@ -7,6 +7,7 @@ function render_admin_layout(string $title, string $content): void
 {
     echo '<!doctype html><html lang="ru"><head><meta charset="utf-8">';
     echo '<meta name="viewport" content="width=device-width, initial-scale=1">';
+    echo '<meta name="robots" content="noindex, nofollow">';
     echo '<title>' . h($title) . '</title>';
     echo '<link rel="stylesheet" href="/assets/css/admin.css">';
     echo '<link rel="stylesheet" href="/assets/css/site.css">';

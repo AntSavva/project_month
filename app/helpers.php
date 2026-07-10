@@ -101,6 +101,11 @@ function canonical_path(?string $path = null): string
     return $path === '/' ? '/' : rtrim($path, '/');
 }
 
+function is_legal_page(array $page): bool
+{
+    return in_array($page['slug'] ?? '', ['user-agreement', 'personal-data-consent', 'privacy-policy'], true);
+}
+
 function page_seo(array $page): array
 {
     $title = trim((string) ($page['seoTitle'] ?? ''));
@@ -119,6 +124,8 @@ function page_seo(array $page): array
         'description' => $description,
         'canonical' => page_href($page),
         'image' => (string) ($page['cover'] ?? ''),
+        'noindex' => is_legal_page($page),
+        'follow' => is_legal_page($page),
     ];
 }
 
@@ -280,7 +287,9 @@ function render_layout(array $site, string $title, string $content, array $seo =
         $image = asset_url('images/Social/background-message.png');
     }
     $image = absolute_url($image);
-    $robots = !empty($seo['noindex']) ? 'noindex, nofollow' : 'index, follow';
+    $robots = !empty($seo['noindex'])
+        ? 'noindex, ' . (!empty($seo['follow']) ? 'follow' : 'nofollow')
+        : 'index, follow';
     $schema = seo_schema($site, $canonical);
     header("Content-Security-Policy: default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; object-src 'none'; script-src 'self' 'nonce-" . $scriptNonce . "'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; frame-src https://yandex.ru https://*.yandex.ru; connect-src 'self'; upgrade-insecure-requests");
 
@@ -325,6 +334,10 @@ function sitemap_urls(array $site): array
     ];
 
     foreach (site_pages($site, null, true) as $page) {
+        if (is_legal_page($page)) {
+            continue;
+        }
+
         if (($page['type'] ?? '') === 'document') {
             $priority = '0.4';
         } elseif (($page['type'] ?? '') === 'interior') {
@@ -922,7 +935,7 @@ function render_home(array $site): void
 function render_home_hero(): string
 {
     $advantages = [
-        ['title' => '15 лет мастерства', 'description' => '1500+ реализованных проектов', 'icon' => 'star'],
+        ['title' => 'Более 15 лет мастерства', 'description' => '1500+ реализованных проектов', 'icon' => 'star'],
         ['title' => 'Индивидуальный подход', 'description' => 'Решения под ваш бюджет', 'icon' => 'person'],
         ['title' => 'От дизайна до установки', 'description' => 'Полный цикл без посредников', 'icon' => 'detail'],
     ];
@@ -1052,7 +1065,7 @@ function render_production_showcase(): string
 {
     $items = [
         ['title' => '1500+ объектов', 'description' => 'Довольные клиенты в каждом районе', 'icon' => 'woods'],
-        ['title' => 'Работаем с 2009 года', 'description' => 'Знаем все нюансы отделки за 15 лет', 'icon' => 'medal'],
+        ['title' => 'Опыт с 2009 года', 'description' => 'Знаем все нюансы деревянной отделки', 'icon' => 'medal'],
         ['title' => 'Индивидуальный подход', 'description' => 'Учитываем пожелания и бюджет клиента', 'icon' => 'person_with_star'],
         ['title' => 'Профессиональное оборудование', 'description' => 'Станки с ЧПУ и немецкие линии', 'icon' => 'machine'],
         ['title' => 'Строгий входной контроль качества материалов', 'description' => 'Проверяем каждую партию перед производством', 'icon' => 'loop'],
@@ -1327,13 +1340,13 @@ function render_contacts_hero(array $settings): string
     return $html . '</ul></div></section>';
 }
 
-function render_contacts_schedule(): string
+function render_contacts_schedule(array $settings): string
 {
     return '<section class="contacts-schedule" aria-labelledby="contacts-schedule-title"><div class="contacts-schedule__inner container">'
         . '<h2 class="contacts-schedule__title h2" id="contacts-schedule-title">Режим работы</h2>'
         . '<div class="contacts-schedule__grid"><article class="contacts-schedule__card contacts-schedule__card--worktime">'
         . '<span class="contacts-schedule__icon" aria-hidden="true"><img class="contacts-schedule__icon-image" src="' . h(asset_url('images/ContactsSchedule/clock.svg')) . '" alt="" width="28" height="28" loading="lazy"></span>'
-        . '<p class="contacts-schedule__worktime">Понедельник-пятница: с 9:00 до 19:00<br>Суббота-воскресенье: выходные дни</p>'
+        . '<p class="contacts-schedule__worktime">' . h($settings['workingHours'] ?? 'Пн-Пт 10:00–19:00') . '</p>'
         . '</article><article class="contacts-schedule__card contacts-schedule__card--notice">'
         . '<p class="contacts-schedule__notice"><strong>Внимание!</strong> В нерабочее время мы принимаем заказы только через наш сайт, по электронной почте или в Telegram. Если вы напишете нам в выходные - мы ответим в течение ближайшего рабочего часа.</p>'
         . '</article></div></div></section>';
@@ -1343,7 +1356,7 @@ function render_contacts_page(array $site): void
 {
     $settings = $site['settings'] ?? [];
     $body = render_contacts_hero($settings);
-    $body .= render_contacts_schedule();
+    $body .= render_contacts_schedule($settings);
     $body .= render_questions($settings);
     $body .= render_route($settings);
 

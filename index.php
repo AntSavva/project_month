@@ -10,6 +10,7 @@ $path = trim(parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH), '/');
 $path = preg_replace('#^index\.php/?#', '', $path);
 
 if ($path === 'admin') {
+    header('X-Robots-Tag: noindex, nofollow', true);
     require __DIR__ . '/app/admin.php';
     exit;
 }
@@ -17,6 +18,19 @@ if ($path === 'admin') {
 if ($path === 'lead' && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     handle_lead_submit();
     exit;
+}
+
+$method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+if ($method === 'GET' || $method === 'HEAD') {
+    $siteDataPath = root_path('data/site.json');
+    $etag = '"' . sha1_file($siteDataPath) . '"';
+    header('Cache-Control: public, max-age=300, s-maxage=300, stale-while-revalidate=60');
+    header('ETag: ' . $etag);
+
+    if (trim($_SERVER['HTTP_IF_NONE_MATCH'] ?? '') === $etag) {
+        http_response_code(304);
+        exit;
+    }
 }
 
 if ($path === 'robots.txt') {
@@ -62,4 +76,6 @@ if ($page) {
 }
 
 http_response_code(404);
+header('Cache-Control: no-store');
+header_remove('ETag');
 render_not_found($site);

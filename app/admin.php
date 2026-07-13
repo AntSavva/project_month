@@ -86,9 +86,13 @@ function admin_plans_editor(array $items = []): string
 function admin_material_fields($index, array $item = []): string
 {
     $base = 'content[materials][items][' . $index . ']';
+    $image = (string) ($item['image'] ?? '');
     return '<article class="admin-material-card" data-editor-item>'
         . '<label class="admin-field"><span>Название материала</span><input class="admin-input" name="' . h($base . '[title]') . '" value="' . h($item['title'] ?? '') . '"></label>'
-        . '<label class="admin-field"><span>Адрес изображения</span><input class="admin-input" name="' . h($base . '[image]') . '" value="' . h($item['image'] ?? '') . '" placeholder="/uploads/example.webp"></label>'
+        . '<input type="hidden" name="' . h($base . '[image]') . '" value="' . h($image) . '">'
+        . '<label class="admin-cover-upload"><span>Изображение материала</span>'
+        . ($image !== '' ? '<img class="admin-cover-upload__preview" src="' . h($image) . '" alt="">' : '')
+        . '<input class="admin-cover-upload__input" type="file" name="material_images[' . h((string) $index) . ']" accept=".png,.svg,.webp,.jpg,.jpeg,image/png,image/svg+xml,image/webp,image/jpeg"></label>'
         . '<button class="admin-button admin-button--danger" type="button" data-remove-item>Удалить материал</button></article>';
 }
 
@@ -235,7 +239,25 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
 
             $page = $site['pages'][$index];
             if (($page['type'] ?? '') === 'product' && !empty($_POST['structured_content'])) {
-                $content = product_content_from_input(is_array($_POST['content'] ?? null) ? $_POST['content'] : []);
+                $contentInput = is_array($_POST['content'] ?? null) ? $_POST['content'] : [];
+                $materialFiles = is_array($_FILES['material_images'] ?? null) ? $_FILES['material_images'] : [];
+                foreach (is_array($materialFiles['name'] ?? null) ? $materialFiles['name'] : [] as $materialIndex => $name) {
+                    if (!is_array($contentInput['materials']['items'][$materialIndex] ?? null)
+                        || trim((string) ($contentInput['materials']['items'][$materialIndex]['title'] ?? '')) === '') {
+                        continue;
+                    }
+                    $file = [
+                        'name' => $name,
+                        'type' => $materialFiles['type'][$materialIndex] ?? '',
+                        'tmp_name' => $materialFiles['tmp_name'][$materialIndex] ?? '',
+                        'error' => $materialFiles['error'][$materialIndex] ?? UPLOAD_ERR_NO_FILE,
+                        'size' => $materialFiles['size'][$materialIndex] ?? 0,
+                    ];
+                    if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+                        $contentInput['materials']['items'][$materialIndex]['image'] = upload_material_image($file);
+                    }
+                }
+                $content = product_content_from_input($contentInput);
             } else {
                 $contentJson = (string) ($_POST['content'] ?? '{}');
 

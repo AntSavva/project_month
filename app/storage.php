@@ -265,6 +265,93 @@ function product_content_from_input(array $input): array
     ];
 }
 
+function sanitize_uploaded_svg(string $svg): string
+{
+    if (preg_match('/<\s*!(?:DOCTYPE|ENTITY)|<\?xml-stylesheet/i', $svg)) {
+        throw new RuntimeException('SVG содержит запрещённые конструкции.');
+    }
+    if (!class_exists('DOMDocument')) {
+        throw new RuntimeException('Загрузка SVG не поддерживается сервером.');
+    }
+
+    $previousErrors = libxml_use_internal_errors(true);
+    $document = new DOMDocument();
+    $loaded = $document->loadXML($svg, LIBXML_NONET | LIBXML_NOBLANKS);
+    libxml_clear_errors();
+    libxml_use_internal_errors($previousErrors);
+    if (!$loaded || !$document->documentElement || strtolower($document->documentElement->localName) !== 'svg') {
+        throw new RuntimeException('Некорректный SVG-файл.');
+    }
+
+    $blockedElements = ['script', 'style', 'foreignobject', 'iframe', 'object', 'embed', 'audio', 'video', 'set', 'animate', 'animatemotion', 'animatetransform'];
+    foreach ($document->getElementsByTagName('*') as $element) {
+        if (in_array(strtolower($element->localName), $blockedElements, true)) {
+            throw new RuntimeException('SVG содержит небезопасные элементы.');
+        }
+        foreach ($element->attributes as $attribute) {
+            $name = strtolower($attribute->nodeName);
+            $localName = strtolower($attribute->localName ?: $attribute->nodeName);
+            $value = trim($attribute->nodeValue ?? '');
+            if (str_starts_with($name, 'on')
+                || preg_match('/(?:javascript|vbscript)\s*:/i', $value)
+                || preg_match('/url\(\s*[\'\"]?(?!#)/i', $value)
+                || ($localName === 'href' && $value !== '' && !str_starts_with($value, '#'))) {
+                throw new RuntimeException('SVG содержит небезопасные ссылки или атрибуты.');
+            }
+        }
+    }
+
+    $cleanSvg = $document->saveXML($document->documentElement);
+    if ($cleanSvg === false) {
+        throw new RuntimeException('Не удалось обработать SVG.');
+    }
+    return $cleanSvg;
+}
+
+function upload_material_image(array $file): string
+{
+    $extension = strtolower(pathinfo((string) ($file['name'] ?? ''), PATHINFO_EXTENSION));
+    if (!in_array($extension, ['jpg', 'jpeg', 'png', 'webp', 'svg'], true)) {
+        throw new RuntimeException('Поддерживаются PNG, SVG, WebP и JPG.');
+    }
+    if ($extension !== 'svg') {
+        return upload_image($file);
+    }
+    if (($file['error'] ?? UPLOAD_ERR_OK) !== UPLOAD_ERR_OK) {
+        throw new RuntimeException('Не удалось загрузить SVG.');
+    }
+    if (($file['size'] ?? 0) < 1 || ($file['size'] ?? 0) > MAX_UPLOAD_SIZE) {
+        throw new RuntimeException('SVG должен быть меньше 5 МБ.');
+    }
+
+    $tmpName = (string) ($file['tmp_name'] ?? '');
+    if ($tmpName === '' || !is_uploaded_file($tmpName)) {
+        throw new RuntimeException('Не удалось проверить загруженный SVG.');
+    }
+    if (class_exists('finfo')) {
+        $mime = (new finfo(FILEINFO_MIME_TYPE))->file($tmpName);
+        if (!in_array($mime, ['image/svg+xml', 'application/xml', 'text/xml', 'text/plain'], true)) {
+            throw new RuntimeException('Файл должен быть изображением SVG.');
+        }
+    }
+
+    $svg = file_get_contents($tmpName);
+    if ($svg === false) {
+        throw new RuntimeException('Не удалось прочитать SVG.');
+    }
+    $cleanSvg = sanitize_uploaded_svg($svg);
+    $uploadsDir = root_path('uploads');
+    if (!is_dir($uploadsDir)) {
+        mkdir($uploadsDir, 0775, true);
+    }
+    $name = time() . '-' . bin2hex(random_bytes(4)) . '.svg';
+    if (file_put_contents($uploadsDir . '/' . $name, $cleanSvg, LOCK_EX) === false) {
+        throw new RuntimeException('Не удалось сохранить SVG.');
+    }
+
+    return '/uploads/' . $name;
+}
+
 function upload_image(array $file): string
 {
     if (($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {

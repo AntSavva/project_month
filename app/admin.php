@@ -3,6 +3,163 @@
 $message = '';
 $error = '';
 
+function admin_icon_options(): array
+{
+    return [
+        '' => 'Авто (по содержанию)',
+        'box' => 'Бокс',
+        'car' => 'Грузовик',
+        'check' => 'Галочка',
+        'color' => 'Палитра',
+        'detail' => 'Шестерёнка',
+        'level' => 'Уровень',
+        'lines' => 'Стрелки по кругу',
+        'loop' => 'Лупа',
+        'machine' => 'Станок',
+        'medal' => 'Медаль',
+        'person' => 'Пользователь',
+        'person_with_star' => 'Пользователь со звездой',
+        'roulette' => 'Рулетка',
+        'rubles' => 'Ценник',
+        'ruler_and_pen' => 'Карандаш и линейка',
+        'shield' => 'Щит с медалью',
+        'shield_1' => 'Щит',
+        'star' => 'Звезда',
+        'target' => 'Мишень',
+        'tree' => 'Дерево',
+        'woods' => 'Стопка досок',
+    ];
+}
+
+function admin_icon_select(string $name, string $selected = ''): string
+{
+    $options = '';
+    foreach (admin_icon_options() as $value => $label) {
+        $options .= '<option value="' . h($value) . '"' . ($selected === $value ? ' selected' : '') . '>' . h($label) . '</option>';
+    }
+
+    return '<label class="admin-field"><span>Иконка</span><select class="admin-input" name="' . h($name) . '">' . $options . '</select></label>';
+}
+
+function admin_card_fields(string $section, $index, array $item = []): string
+{
+    $base = 'content[' . $section . '][items][' . $index . ']';
+    return '<article class="admin-content-card" data-editor-item>'
+        . '<label class="admin-field"><span>Заголовок</span><input class="admin-input" name="' . h($base . '[title]') . '" value="' . h($item['title'] ?? '') . '"></label>'
+        . '<label class="admin-field"><span>Подзаголовок</span><textarea class="admin-input admin-input--textarea" name="' . h($base . '[description]') . '">' . h($item['description'] ?? '') . '</textarea></label>'
+        . admin_icon_select($base . '[icon]', (string) ($item['icon'] ?? ''))
+        . '<button class="admin-button admin-button--danger admin-button--wide" type="button" data-remove-item>Удалить карточку</button></article>';
+}
+
+function admin_cards_editor(string $section, array $items = []): string
+{
+    $html = '<div class="admin-cards-editor" data-editor data-next-index="' . count($items) . '">';
+    foreach ($items as $index => $item) {
+        $html .= admin_card_fields($section, $index, is_array($item) ? $item : []);
+    }
+    $html .= '<template data-editor-template>' . admin_card_fields($section, '__INDEX__') . '</template>'
+        . '<button class="admin-button admin-button--wide" type="button" data-add-item>Добавить карточку</button></div>';
+    return $html;
+}
+
+function admin_plan_fields($index, array $item = []): string
+{
+    $base = 'content[plans][items][' . $index . ']';
+    $lines = is_array($item['items'] ?? null) ? implode("\n", $item['items']) : (string) ($item['items'] ?? '');
+    return '<article class="admin-content-card" data-editor-item>'
+        . '<label class="admin-field"><span>Название тарифа</span><input class="admin-input" name="' . h($base . '[title]') . '" value="' . h($item['title'] ?? '') . '"></label>'
+        . admin_icon_select($base . '[icon]', (string) ($item['icon'] ?? ''))
+        . '<label class="admin-field"><span>Преимущества тарифа — по одному в строке</span><textarea class="admin-input admin-input--textarea admin-input--large" name="' . h($base . '[items]') . '">' . h($lines) . '</textarea></label>'
+        . '<button class="admin-button admin-button--danger admin-button--wide" type="button" data-remove-item>Удалить тариф</button></article>';
+}
+
+function admin_plans_editor(array $items = []): string
+{
+    $html = '<div class="admin-cards-editor" data-editor data-next-index="' . count($items) . '">';
+    foreach ($items as $index => $item) {
+        $html .= admin_plan_fields($index, is_array($item) ? $item : []);
+    }
+    return $html . '<template data-editor-template>' . admin_plan_fields('__INDEX__') . '</template>'
+        . '<button class="admin-button admin-button--wide" type="button" data-add-item>Добавить тариф</button></div>';
+}
+
+function admin_material_fields($index, array $item = []): string
+{
+    $base = 'content[materials][items][' . $index . ']';
+    return '<article class="admin-material-card" data-editor-item>'
+        . '<label class="admin-field"><span>Название материала</span><input class="admin-input" name="' . h($base . '[title]') . '" value="' . h($item['title'] ?? '') . '"></label>'
+        . '<label class="admin-field"><span>Адрес изображения</span><input class="admin-input" name="' . h($base . '[image]') . '" value="' . h($item['image'] ?? '') . '" placeholder="/uploads/example.webp"></label>'
+        . '<button class="admin-button admin-button--danger" type="button" data-remove-item>Удалить материал</button></article>';
+}
+
+function admin_materials_editor(array $items = []): string
+{
+    $html = '<div class="admin-materials-editor" data-editor data-next-index="' . count($items) . '">';
+    foreach ($items as $index => $item) {
+        $html .= admin_material_fields($index, is_array($item) ? $item : []);
+    }
+    return $html . '<template data-editor-template>' . admin_material_fields('__INDEX__') . '</template>'
+        . '<button class="admin-button admin-button--wide" type="button" data-add-item>Добавить материал</button></div>';
+}
+
+function admin_faq_fields($index, array $item = []): string
+{
+    $base = 'content[faq][items][' . $index . ']';
+    return '<article class="admin-faq-card" data-editor-item>'
+        . '<label class="admin-field"><span>Вопрос</span><input class="admin-input" name="' . h($base . '[question]') . '" value="' . h($item['question'] ?? '') . '"></label>'
+        . '<label class="admin-field"><span>Ответ</span><textarea class="admin-input admin-input--textarea" name="' . h($base . '[answer]') . '">' . h($item['answer'] ?? '') . '</textarea></label>'
+        . '<button class="admin-button admin-button--danger admin-button--wide" type="button" data-remove-item>Удалить вопрос</button></article>';
+}
+
+function admin_faq_editor(array $items = []): string
+{
+    $html = '<div class="admin-faq-editor" data-editor data-next-index="' . count($items) . '">';
+    foreach ($items as $index => $item) {
+        $html .= admin_faq_fields($index, is_array($item) ? $item : []);
+    }
+    return $html . '<template data-editor-template>' . admin_faq_fields('__INDEX__') . '</template>'
+        . '<button class="admin-button admin-button--wide" type="button" data-add-item>Добавить вопрос</button></div>';
+}
+
+function admin_product_content_editor(array $data): string
+{
+    $block = function (string $title, string $body): string {
+        return '<div class="admin-product-block"><h3 class="admin-product-block__title">' . h($title) . '</h3>' . $body . '</div>';
+    };
+    $field = function (string $label, string $name, $value, bool $textarea = false): string {
+        $control = $textarea
+            ? '<textarea class="admin-input admin-input--textarea" name="' . h($name) . '">' . h($value) . '</textarea>'
+            : '<input class="admin-input" name="' . h($name) . '" value="' . h($value) . '">';
+        return '<label class="admin-field"><span>' . h($label) . '</span>' . $control . '</label>';
+    };
+
+    $html = '<input type="hidden" name="structured_content" value="1">';
+    $html .= $block('Первый экран',
+        $field('Надзаголовок', 'content[hero][subtitle]', $data['hero']['subtitle'] ?? '')
+        . $field('Заголовок', 'content[hero][title]', $data['hero']['title'] ?? '')
+        . $field('Акцентная строка', 'content[hero][accent]', $data['hero']['accent'] ?? ''));
+    $html .= $block('Что входит в услугу',
+        $field('Заголовок', 'content[includes][title]', $data['includes']['title'] ?? '')
+        . $field('Подзаголовок', 'content[includes][description]', $data['includes']['description'] ?? '', true)
+        . '<div class="admin-field admin-field--full"><span>Карточки</span>' . admin_cards_editor('includes', $data['includes']['items'] ?? []) . '</div>');
+    $html .= $block('Материалы',
+        $field('Заголовок', 'content[materials][title]', $data['materials']['title'] ?? '')
+        . admin_materials_editor($data['materials']['items'] ?? []));
+    $html .= $block('Дополнительные опции и возможности',
+        $field('Заголовок', 'content[colors][title]', $data['colors']['title'] ?? '')
+        . $field('Описание рядом с заголовком', 'content[colors][description]', $data['colors']['description'] ?? '', true)
+        . '<div class="admin-field admin-field--full"><span>Карточки</span>' . admin_cards_editor('colors', $data['colors']['items'] ?? []) . '</div>');
+    $html .= $block('Преимущества',
+        $field('Заголовок', 'content[benefits][title]', $data['benefits']['title'] ?? '')
+        . $field('Описание рядом с заголовком', 'content[benefits][description]', $data['benefits']['description'] ?? '', true)
+        . '<div class="admin-field admin-field--full"><span>Карточки</span>' . admin_cards_editor('benefits', $data['benefits']['items'] ?? []) . '</div>');
+    $html .= $block('Тарифы',
+        $field('Заголовок секции', 'content[plans][title]', $data['plans']['title'] ?? '')
+        . '<div class="admin-field admin-field--full"><span>Тарифы и списки преимуществ</span>' . admin_plans_editor($data['plans']['items'] ?? []) . '</div>');
+    $html .= $block('FAQ / Частые вопросы', admin_faq_editor($data['faq']['items'] ?? []));
+    return $html;
+}
+
 function render_admin_layout(string $title, string $content): void
 {
     echo '<!doctype html><html lang="ru"><head><meta charset="utf-8">';
@@ -11,6 +168,7 @@ function render_admin_layout(string $title, string $content): void
     echo '<title>' . h($title) . '</title>';
     echo '<link rel="stylesheet" href="/assets/css/admin.css">';
     echo '<link rel="stylesheet" href="/assets/css/site.css">';
+    echo '<script src="/assets/js/admin.js" defer></script>';
     echo '</head><body>' . $content . '</body></html>';
 }
 
@@ -75,19 +233,23 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
                 throw new RuntimeException('Страница не найдена.');
             }
 
-            $contentJson = (string) ($_POST['content'] ?? '{}');
-
-            if (strlen($contentJson) > 200000) {
-                throw new RuntimeException('Контент слишком большой.');
-            }
-
-            $content = json_decode($contentJson, true);
-
-            if (!is_array($content)) {
-                throw new RuntimeException('Контент должен быть корректным JSON.');
-            }
-
             $page = $site['pages'][$index];
+            if (($page['type'] ?? '') === 'product' && !empty($_POST['structured_content'])) {
+                $content = product_content_from_input(is_array($_POST['content'] ?? null) ? $_POST['content'] : []);
+            } else {
+                $contentJson = (string) ($_POST['content'] ?? '{}');
+
+                if (strlen($contentJson) > 200000) {
+                    throw new RuntimeException('Контент слишком большой.');
+                }
+
+                $content = json_decode($contentJson, true);
+
+                if (!is_array($content)) {
+                    throw new RuntimeException('Контент должен быть корректным JSON.');
+                }
+            }
+
             $cover = $page['cover'] ?? '';
 
             if (!empty($_FILES['cover']) && ($_FILES['cover']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
@@ -283,7 +445,10 @@ if ($currentSection === 'create-page') {
 if ($currentSection === 'pages') {
     $content .= '<section id="pages" class="panel admin-section"><h2 class="admin-section__title">Страницы</h2><div class="admin-pages">';
     foreach ($site['pages'] ?? [] as $page) {
-        $contentJson = json_encode($page['content'] ?? [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        $pageContent = is_array($page['content'] ?? null) ? $page['content'] : [];
+        $contentEditor = ($page['type'] ?? '') === 'product'
+            ? admin_product_content_editor($pageContent)
+            : '<label class="wide">Контент JSON<textarea name="content" rows="16" class="code">' . h(json_encode($pageContent, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)) . '</textarea></label>';
         $content .= '<details class="admin-edit-page"><summary><strong>' . h($page['title'] ?? '') . '</strong> <span>' . h($page['type'] ?? '') . ' / ' . h($page['slug'] ?? '') . ' / ' . h($page['status'] ?? '') . '</span></summary>';
         $content .= '<form method="post" enctype="multipart/form-data" class="admin-grid">'
             . csrf_input()
@@ -296,7 +461,7 @@ if ($currentSection === 'pages') {
             . '<label>SEO title<input name="seoTitle" value="' . h($page['seoTitle'] ?? '') . '"></label>'
             . '<label>Новая обложка<input type="file" name="cover" accept="image/*"></label>'
             . '<label class="wide">SEO description<textarea name="seoDescription" rows="3">' . h($page['seoDescription'] ?? '') . '</textarea></label>'
-            . '<label class="wide">Контент JSON<textarea name="content" rows="16" class="code">' . h($contentJson) . '</textarea></label>'
+            . $contentEditor
             . '<button type="submit">Сохранить страницу</button></form>';
         $content .= '<form method="post" onsubmit="return confirm(\'Удалить страницу?\')" class="delete-form">'
             . csrf_input()

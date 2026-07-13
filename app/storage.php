@@ -155,6 +155,116 @@ function default_content(string $type): array
     ];
 }
 
+function product_content_from_input(array $input): array
+{
+    $allowedIcons = ['', 'box', 'car', 'check', 'color', 'detail', 'level', 'lines', 'loop', 'machine', 'medal', 'person', 'person_with_star', 'roulette', 'rubles', 'ruler_and_pen', 'shield', 'shield_1', 'star', 'target', 'tree', 'woods'];
+    $text = function ($value, int $length = 500): string {
+        return is_scalar($value) ? limit_text((string) $value, $length) : '';
+    };
+    $cards = function ($items) use ($text, $allowedIcons): array {
+        $result = [];
+        foreach (array_slice(is_array($items) ? $items : [], 0, 50) as $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+            $card = [
+                'title' => $text($item['title'] ?? '', 200),
+                'description' => $text($item['description'] ?? '', 1000),
+            ];
+            $icon = $text($item['icon'] ?? '', 40);
+            if ($icon !== '' && in_array($icon, $allowedIcons, true)) {
+                $card['icon'] = $icon;
+            }
+            if ($card['title'] !== '' || $card['description'] !== '') {
+                $result[] = $card;
+            }
+        }
+        return $result;
+    };
+    $lines = function ($value) use ($text): array {
+        $value = is_scalar($value) ? (string) $value : '';
+        return array_values(array_filter(array_map(function ($line) use ($text) {
+            return $text($line, 500);
+        }, preg_split('/\R/u', $value) ?: []), 'strlen'));
+    };
+
+    $materials = [];
+    foreach (array_slice(is_array($input['materials']['items'] ?? null) ? $input['materials']['items'] : [], 0, 30) as $item) {
+        if (!is_array($item)) {
+            continue;
+        }
+        $material = [
+            'title' => $text($item['title'] ?? '', 200),
+            'image' => $text($item['image'] ?? '', 500),
+        ];
+        if ($material['title'] !== '') {
+            $materials[] = $material;
+        }
+    }
+
+    $plans = [];
+    foreach (array_slice(is_array($input['plans']['items'] ?? null) ? $input['plans']['items'] : [], 0, 20) as $item) {
+        if (!is_array($item)) {
+            continue;
+        }
+        $plan = [
+            'title' => $text($item['title'] ?? '', 200),
+            'items' => $lines($item['items'] ?? ''),
+        ];
+        $icon = $text($item['icon'] ?? '', 40);
+        if ($icon !== '' && in_array($icon, $allowedIcons, true)) {
+            $plan['icon'] = $icon;
+        }
+        if ($plan['title'] !== '' || $plan['items']) {
+            $plans[] = $plan;
+        }
+    }
+
+    $faq = [];
+    foreach (array_slice(is_array($input['faq']['items'] ?? null) ? $input['faq']['items'] : [], 0, 50) as $item) {
+        if (!is_array($item)) {
+            continue;
+        }
+        $question = $text($item['question'] ?? '', 500);
+        $answer = $text($item['answer'] ?? '', 3000);
+        if ($question !== '' || $answer !== '') {
+            $faq[] = ['question' => $question, 'answer' => $answer];
+        }
+    }
+
+    return [
+        'hero' => [
+            'subtitle' => $text($input['hero']['subtitle'] ?? '', 200),
+            'title' => $text($input['hero']['title'] ?? '', 300),
+            'accent' => $text($input['hero']['accent'] ?? '', 300),
+        ],
+        'includes' => [
+            'title' => $text($input['includes']['title'] ?? '', 300),
+            'description' => $text($input['includes']['description'] ?? '', 1000),
+            'items' => $cards($input['includes']['items'] ?? []),
+        ],
+        'materials' => [
+            'title' => $text($input['materials']['title'] ?? '', 300),
+            'items' => $materials,
+        ],
+        'colors' => [
+            'title' => $text($input['colors']['title'] ?? '', 300),
+            'description' => $text($input['colors']['description'] ?? '', 1000),
+            'items' => $cards($input['colors']['items'] ?? []),
+        ],
+        'benefits' => [
+            'title' => $text($input['benefits']['title'] ?? '', 300),
+            'description' => $text($input['benefits']['description'] ?? '', 1000),
+            'items' => $cards($input['benefits']['items'] ?? []),
+        ],
+        'plans' => [
+            'title' => $text($input['plans']['title'] ?? '', 300),
+            'items' => $plans,
+        ],
+        'faq' => ['items' => $faq],
+    ];
+}
+
 function upload_image(array $file): string
 {
     if (($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {

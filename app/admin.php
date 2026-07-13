@@ -83,6 +83,26 @@ function admin_plans_editor(array $items = []): string
         . '<button class="admin-button admin-button--wide" type="button" data-add-item>Добавить тариф</button></div>';
 }
 
+function admin_room_solution_fields($index, array $item = []): string
+{
+    $base = 'content[roomSolutions][items][' . $index . ']';
+    $lines = is_array($item['items'] ?? null) ? implode("\n", $item['items']) : (string) ($item['items'] ?? '');
+    return '<article class="admin-content-card" data-editor-item>'
+        . '<label class="admin-field"><span>Название решения</span><input class="admin-input" name="' . h($base . '[title]') . '" value="' . h($item['title'] ?? '') . '"></label>'
+        . '<label class="admin-field"><span>Особенности — по одной в строке</span><textarea class="admin-input admin-input--textarea admin-input--large" name="' . h($base . '[items]') . '">' . h($lines) . '</textarea></label>'
+        . '<button class="admin-button admin-button--danger admin-button--wide" type="button" data-remove-item>Удалить решение</button></article>';
+}
+
+function admin_room_solutions_editor(array $items = []): string
+{
+    $html = '<div class="admin-cards-editor" data-editor data-next-index="' . count($items) . '">';
+    foreach ($items as $index => $item) {
+        $html .= admin_room_solution_fields($index, is_array($item) ? $item : []);
+    }
+    return $html . '<template data-editor-template>' . admin_room_solution_fields('__INDEX__') . '</template>'
+        . '<button class="admin-button admin-button--wide" type="button" data-add-item>Добавить решение</button></div>';
+}
+
 function admin_material_fields($index, array $item = []): string
 {
     $base = 'content[materials][items][' . $index . ']';
@@ -125,43 +145,95 @@ function admin_faq_editor(array $items = []): string
         . '<button class="admin-button admin-button--wide" type="button" data-add-item>Добавить вопрос</button></div>';
 }
 
+function admin_content_block(string $title, string $body): string
+{
+    return '<div class="admin-product-block"><h3 class="admin-product-block__title">' . h($title) . '</h3>' . $body . '</div>';
+}
+
+function admin_content_field(string $label, string $name, $value, bool $textarea = false): string
+{
+    $control = $textarea
+        ? '<textarea class="admin-input admin-input--textarea" name="' . h($name) . '">' . h($value) . '</textarea>'
+        : '<input class="admin-input" name="' . h($name) . '" value="' . h($value) . '">';
+    return '<label class="admin-field"><span>' . h($label) . '</span>' . $control . '</label>';
+}
+
 function admin_product_content_editor(array $data): string
 {
-    $block = function (string $title, string $body): string {
-        return '<div class="admin-product-block"><h3 class="admin-product-block__title">' . h($title) . '</h3>' . $body . '</div>';
-    };
-    $field = function (string $label, string $name, $value, bool $textarea = false): string {
-        $control = $textarea
-            ? '<textarea class="admin-input admin-input--textarea" name="' . h($name) . '">' . h($value) . '</textarea>'
-            : '<input class="admin-input" name="' . h($name) . '" value="' . h($value) . '">';
-        return '<label class="admin-field"><span>' . h($label) . '</span>' . $control . '</label>';
-    };
-
     $html = '<input type="hidden" name="structured_content" value="1">';
-    $html .= $block('Первый экран',
-        $field('Надзаголовок', 'content[hero][subtitle]', $data['hero']['subtitle'] ?? '')
-        . $field('Заголовок', 'content[hero][title]', $data['hero']['title'] ?? '')
-        . $field('Акцентная строка', 'content[hero][accent]', $data['hero']['accent'] ?? ''));
-    $html .= $block('Что входит в услугу',
-        $field('Заголовок', 'content[includes][title]', $data['includes']['title'] ?? '')
-        . $field('Подзаголовок', 'content[includes][description]', $data['includes']['description'] ?? '', true)
+    $html .= admin_content_block('Первый экран',
+        admin_content_field('Надзаголовок', 'content[hero][subtitle]', $data['hero']['subtitle'] ?? '')
+        . admin_content_field('Заголовок', 'content[hero][title]', $data['hero']['title'] ?? '')
+        . admin_content_field('Акцентная строка', 'content[hero][accent]', $data['hero']['accent'] ?? ''));
+    $html .= admin_content_block('Что входит в услугу',
+        admin_content_field('Заголовок', 'content[includes][title]', $data['includes']['title'] ?? '')
+        . admin_content_field('Подзаголовок', 'content[includes][description]', $data['includes']['description'] ?? '', true)
         . '<div class="admin-field admin-field--full"><span>Карточки</span>' . admin_cards_editor('includes', $data['includes']['items'] ?? []) . '</div>');
-    $html .= $block('Материалы',
-        $field('Заголовок', 'content[materials][title]', $data['materials']['title'] ?? '')
+    $html .= admin_content_block('Материалы',
+        admin_content_field('Заголовок', 'content[materials][title]', $data['materials']['title'] ?? '')
         . admin_materials_editor($data['materials']['items'] ?? []));
-    $html .= $block('Дополнительные опции и возможности',
-        $field('Заголовок', 'content[colors][title]', $data['colors']['title'] ?? '')
-        . $field('Описание рядом с заголовком', 'content[colors][description]', $data['colors']['description'] ?? '', true)
+    $html .= admin_content_block('Дополнительные опции и возможности',
+        admin_content_field('Заголовок', 'content[colors][title]', $data['colors']['title'] ?? '')
+        . admin_content_field('Описание рядом с заголовком', 'content[colors][description]', $data['colors']['description'] ?? '', true)
         . '<div class="admin-field admin-field--full"><span>Карточки</span>' . admin_cards_editor('colors', $data['colors']['items'] ?? []) . '</div>');
-    $html .= $block('Преимущества',
-        $field('Заголовок', 'content[benefits][title]', $data['benefits']['title'] ?? '')
-        . $field('Описание рядом с заголовком', 'content[benefits][description]', $data['benefits']['description'] ?? '', true)
+    $html .= admin_content_block('Преимущества',
+        admin_content_field('Заголовок', 'content[benefits][title]', $data['benefits']['title'] ?? '')
+        . admin_content_field('Описание рядом с заголовком', 'content[benefits][description]', $data['benefits']['description'] ?? '', true)
         . '<div class="admin-field admin-field--full"><span>Карточки</span>' . admin_cards_editor('benefits', $data['benefits']['items'] ?? []) . '</div>');
-    $html .= $block('Тарифы',
-        $field('Заголовок секции', 'content[plans][title]', $data['plans']['title'] ?? '')
+    $html .= admin_content_block('Тарифы',
+        admin_content_field('Заголовок секции', 'content[plans][title]', $data['plans']['title'] ?? '')
         . '<div class="admin-field admin-field--full"><span>Тарифы и списки преимуществ</span>' . admin_plans_editor($data['plans']['items'] ?? []) . '</div>');
-    $html .= $block('FAQ / Частые вопросы', admin_faq_editor($data['faq']['items'] ?? []));
+    $html .= admin_content_block('FAQ / Частые вопросы', admin_faq_editor($data['faq']['items'] ?? []));
     return $html;
+}
+
+function admin_interior_content_editor(array $data): string
+{
+    $html = '<input type="hidden" name="structured_content" value="1">';
+    $html .= admin_content_block('Первый экран',
+        admin_content_field('Надзаголовок', 'content[hero][subtitle]', $data['hero']['subtitle'] ?? '')
+        . admin_content_field('Заголовок', 'content[hero][title]', $data['hero']['title'] ?? '')
+        . admin_content_field('Акцентная строка', 'content[hero][accent]', $data['hero']['accent'] ?? ''));
+    $html .= admin_content_block('Что входит в услугу',
+        admin_content_field('Заголовок', 'content[includes][title]', $data['includes']['title'] ?? '')
+        . '<div class="admin-field admin-field--full"><span>Карточки</span>' . admin_cards_editor('includes', $data['includes']['items'] ?? []) . '</div>');
+    $html .= admin_content_block('Специальные решения',
+        admin_content_field('Заголовок', 'content[roomSolutions][title]', $data['roomSolutions']['title'] ?? '')
+        . '<div class="admin-field admin-field--full"><span>Карточки со списками</span>' . admin_room_solutions_editor($data['roomSolutions']['items'] ?? []) . '</div>');
+    $html .= admin_content_block('Материалы',
+        admin_content_field('Заголовок', 'content[materials][title]', $data['materials']['title'] ?? '')
+        . admin_materials_editor($data['materials']['items'] ?? []));
+    $html .= admin_content_block('Преимущества',
+        admin_content_field('Заголовок', 'content[advantages][title]', $data['advantages']['title'] ?? '')
+        . admin_content_field('Описание рядом с заголовком', 'content[advantages][description]', $data['advantages']['description'] ?? '', true)
+        . '<div class="admin-field admin-field--full"><span>Карточки</span>' . admin_cards_editor('advantages', $data['advantages']['items'] ?? []) . '</div>');
+    $html .= admin_content_block('Тарифы',
+        admin_content_field('Заголовок секции', 'content[plans][title]', $data['plans']['title'] ?? '')
+        . '<div class="admin-field admin-field--full"><span>Тарифы и списки преимуществ</span>' . admin_plans_editor($data['plans']['items'] ?? []) . '</div>');
+    $html .= admin_content_block('FAQ / Частые вопросы', admin_faq_editor($data['faq']['items'] ?? []));
+    return $html;
+}
+
+function admin_content_with_material_uploads(array $contentInput): array
+{
+    $materialFiles = is_array($_FILES['material_images'] ?? null) ? $_FILES['material_images'] : [];
+    foreach (is_array($materialFiles['name'] ?? null) ? $materialFiles['name'] : [] as $materialIndex => $name) {
+        if (!is_array($contentInput['materials']['items'][$materialIndex] ?? null)
+            || trim((string) ($contentInput['materials']['items'][$materialIndex]['title'] ?? '')) === '') {
+            continue;
+        }
+        $file = [
+            'name' => $name,
+            'type' => $materialFiles['type'][$materialIndex] ?? '',
+            'tmp_name' => $materialFiles['tmp_name'][$materialIndex] ?? '',
+            'error' => $materialFiles['error'][$materialIndex] ?? UPLOAD_ERR_NO_FILE,
+            'size' => $materialFiles['size'][$materialIndex] ?? 0,
+        ];
+        if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+            $contentInput['materials']['items'][$materialIndex]['image'] = upload_material_image($file);
+        }
+    }
+    return $contentInput;
 }
 
 function render_admin_layout(string $title, string $content): void
@@ -238,26 +310,11 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             }
 
             $page = $site['pages'][$index];
-            if (($page['type'] ?? '') === 'product' && !empty($_POST['structured_content'])) {
-                $contentInput = is_array($_POST['content'] ?? null) ? $_POST['content'] : [];
-                $materialFiles = is_array($_FILES['material_images'] ?? null) ? $_FILES['material_images'] : [];
-                foreach (is_array($materialFiles['name'] ?? null) ? $materialFiles['name'] : [] as $materialIndex => $name) {
-                    if (!is_array($contentInput['materials']['items'][$materialIndex] ?? null)
-                        || trim((string) ($contentInput['materials']['items'][$materialIndex]['title'] ?? '')) === '') {
-                        continue;
-                    }
-                    $file = [
-                        'name' => $name,
-                        'type' => $materialFiles['type'][$materialIndex] ?? '',
-                        'tmp_name' => $materialFiles['tmp_name'][$materialIndex] ?? '',
-                        'error' => $materialFiles['error'][$materialIndex] ?? UPLOAD_ERR_NO_FILE,
-                        'size' => $materialFiles['size'][$materialIndex] ?? 0,
-                    ];
-                    if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
-                        $contentInput['materials']['items'][$materialIndex]['image'] = upload_material_image($file);
-                    }
-                }
-                $content = product_content_from_input($contentInput);
+            if (in_array($page['type'] ?? '', ['product', 'interior'], true) && !empty($_POST['structured_content'])) {
+                $contentInput = admin_content_with_material_uploads(is_array($_POST['content'] ?? null) ? $_POST['content'] : []);
+                $content = ($page['type'] ?? '') === 'interior'
+                    ? interior_content_from_input($contentInput)
+                    : product_content_from_input($contentInput);
             } else {
                 $contentJson = (string) ($_POST['content'] ?? '{}');
 
@@ -468,9 +525,13 @@ if ($currentSection === 'pages') {
     $content .= '<section id="pages" class="panel admin-section"><h2 class="admin-section__title">Страницы</h2><div class="admin-pages">';
     foreach ($site['pages'] ?? [] as $page) {
         $pageContent = is_array($page['content'] ?? null) ? $page['content'] : [];
-        $contentEditor = ($page['type'] ?? '') === 'product'
-            ? admin_product_content_editor($pageContent)
-            : '<label class="wide">Контент JSON<textarea name="content" rows="16" class="code">' . h(json_encode($pageContent, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)) . '</textarea></label>';
+        if (($page['type'] ?? '') === 'product') {
+            $contentEditor = admin_product_content_editor($pageContent);
+        } elseif (($page['type'] ?? '') === 'interior') {
+            $contentEditor = admin_interior_content_editor($pageContent);
+        } else {
+            $contentEditor = '<label class="wide">Контент JSON<textarea name="content" rows="16" class="code">' . h(json_encode($pageContent, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)) . '</textarea></label>';
+        }
         $content .= '<details class="admin-edit-page"><summary><strong>' . h($page['title'] ?? '') . '</strong> <span>' . h($page['type'] ?? '') . ' / ' . h($page['slug'] ?? '') . ' / ' . h($page['status'] ?? '') . '</span></summary>';
         $content .= '<form method="post" enctype="multipart/form-data" class="admin-grid">'
             . csrf_input()

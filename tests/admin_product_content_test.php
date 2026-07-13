@@ -22,6 +22,16 @@ assert($content['includes']['items'][0]['icon'] === 'roulette');
 assert($content['plans']['items'][0]['items'] === ['Замер', 'Монтаж']);
 assert(!isset($content['plans']['items'][0]['icon']));
 
+$interior = interior_content_from_input([
+    'hero' => ['title' => 'Кабинеты'],
+    'includes' => ['title' => 'Что входит', 'items' => [['title' => 'Замер', 'icon' => 'roulette']]],
+    'roomSolutions' => ['title' => 'Решения', 'items' => [['title' => 'Для офисов', 'items' => "Акустика\nСкрытая проводка"]]],
+    'advantages' => ['title' => 'Преимущества', 'items' => [['title' => 'Тишина', 'description' => 'Шумоизоляция', 'icon' => 'shield']]],
+]);
+assert($interior['hero']['title'] === 'Кабинеты');
+assert($interior['roomSolutions']['items'][0]['items'] === ['Акустика', 'Скрытая проводка']);
+assert($interior['advantages']['items'][0]['icon'] === 'shield');
+
 if (class_exists('DOMDocument')) {
     assert(str_contains(sanitize_uploaded_svg('<svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0h10v10z"/></svg>'), '<svg'));
     $unsafeSvgRejected = false;

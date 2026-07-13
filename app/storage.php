@@ -265,6 +265,48 @@ function product_content_from_input(array $input): array
     ];
 }
 
+function interior_content_from_input(array $input): array
+{
+    $mappedInput = $input;
+    $mappedInput['benefits'] = is_array($input['advantages'] ?? null) ? $input['advantages'] : [];
+    $common = product_content_from_input($mappedInput);
+    $text = function ($value, int $length = 500): string {
+        return is_scalar($value) ? limit_text((string) $value, $length) : '';
+    };
+    $roomSolutions = [];
+    foreach (array_slice(is_array($input['roomSolutions']['items'] ?? null) ? $input['roomSolutions']['items'] : [], 0, 30) as $item) {
+        if (!is_array($item)) {
+            continue;
+        }
+        $lines = is_scalar($item['items'] ?? null) ? preg_split('/\R/u', (string) $item['items']) : [];
+        $solution = [
+            'title' => $text($item['title'] ?? '', 200),
+            'items' => array_values(array_filter(array_map(function ($line) use ($text) {
+                return $text($line, 500);
+            }, $lines ?: []), 'strlen')),
+        ];
+        if ($solution['title'] !== '' || $solution['items']) {
+            $roomSolutions[] = $solution;
+        }
+    }
+
+    return [
+        'hero' => $common['hero'],
+        'includes' => [
+            'title' => $common['includes']['title'],
+            'items' => $common['includes']['items'],
+        ],
+        'roomSolutions' => [
+            'title' => $text($input['roomSolutions']['title'] ?? '', 300),
+            'items' => $roomSolutions,
+        ],
+        'materials' => $common['materials'],
+        'advantages' => $common['benefits'],
+        'plans' => $common['plans'],
+        'faq' => $common['faq'],
+    ];
+}
+
 function sanitize_uploaded_svg(string $svg): string
 {
     if (preg_match('/<\s*!(?:DOCTYPE|ENTITY)|<\?xml-stylesheet/i', $svg)) {

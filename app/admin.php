@@ -167,7 +167,7 @@ function render_admin_layout(string $title, string $content): void
     echo '<meta name="robots" content="noindex, nofollow">';
     echo '<title>' . h($title) . '</title>';
     echo '<link rel="stylesheet" href="/assets/css/admin.css">';
-    echo '<link rel="stylesheet" href="/assets/css/site.css">';
+    echo '<link rel="stylesheet" href="/assets/css/site.css?v=20260713-admin-editor-dark">';
     echo '<script src="/assets/js/admin.js" defer></script>';
     echo '</head><body>' . $content . '</body></html>';
 }

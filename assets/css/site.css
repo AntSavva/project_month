@@ -1067,6 +1067,25 @@ button.project-card:focus-visible {
   color: rgba(255, 255, 255, 0.68);
 }
 
+.admin-page .admin-product-block {
+  grid-column: 1 / -1;
+  color: var(--color-white);
+  background-color: rgba(9, 5, 4, 0.45);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+.admin-page .admin-content-card,
+.admin-page .admin-material-card,
+.admin-page .admin-faq-card {
+  color: var(--color-white);
+  background-color: var(--color-brown-900);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+.admin-page .admin-product-block .admin-field {
+  color: rgba(255, 255, 255, 0.86);
+}
+
 .section {
   padding: clamp(3.75rem, 3.4137931034rem + 1.3793103448vw, 5rem) var(--container-padding-x);
   background-color: var(--color-brown-900);

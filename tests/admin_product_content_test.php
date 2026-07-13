@@ -32,6 +32,10 @@ assert($interior['hero']['title'] === 'Кабинеты');
 assert($interior['roomSolutions']['items'][0]['items'] === ['Акустика', 'Скрытая проводка']);
 assert($interior['advantages']['items'][0]['icon'] === 'shield');
 
+$document = document_content_from_input(['h1' => 'Политика', 'text' => "Первый абзац\n\nВторой абзац"]);
+assert($document['h1'] === 'Политика');
+assert($document['text'] === "Первый абзац\n\nВторой абзац");
+
 if (class_exists('DOMDocument')) {
     assert(str_contains(sanitize_uploaded_svg('<svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0h10v10z"/></svg>'), '<svg'));
     $unsafeSvgRejected = false;

@@ -265,6 +265,14 @@ function product_content_from_input(array $input): array
     ];
 }
 
+function document_content_from_input(array $input): array
+{
+    return [
+        'h1' => is_scalar($input['h1'] ?? null) ? limit_text((string) $input['h1'], 300) : '',
+        'text' => is_scalar($input['text'] ?? null) ? limit_text((string) $input['text'], 50000) : '',
+    ];
+}
+
 function interior_content_from_input(array $input): array
 {
     $mappedInput = $input;

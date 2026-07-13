@@ -214,6 +214,14 @@ function admin_interior_content_editor(array $data): string
     return $html;
 }
 
+function admin_document_content_editor(array $data): string
+{
+    return '<input type="hidden" name="structured_content" value="1">'
+        . admin_content_block('Содержание документа',
+            admin_content_field('Заголовок H1', 'content[h1]', $data['h1'] ?? '')
+            . '<label class="admin-field admin-field--full"><span>Текст документа</span><textarea class="admin-input admin-input--textarea admin-input--large" name="content[text]">' . h($data['text'] ?? '') . '</textarea></label>');
+}
+
 function admin_content_with_material_uploads(array $contentInput): array
 {
     $materialFiles = is_array($_FILES['material_images'] ?? null) ? $_FILES['material_images'] : [];
@@ -310,11 +318,16 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             }
 
             $page = $site['pages'][$index];
-            if (in_array($page['type'] ?? '', ['product', 'interior'], true) && !empty($_POST['structured_content'])) {
-                $contentInput = admin_content_with_material_uploads(is_array($_POST['content'] ?? null) ? $_POST['content'] : []);
-                $content = ($page['type'] ?? '') === 'interior'
-                    ? interior_content_from_input($contentInput)
-                    : product_content_from_input($contentInput);
+            if (in_array($page['type'] ?? '', ['product', 'interior', 'document'], true) && !empty($_POST['structured_content'])) {
+                $contentInput = is_array($_POST['content'] ?? null) ? $_POST['content'] : [];
+                if (($page['type'] ?? '') === 'document') {
+                    $content = document_content_from_input($contentInput);
+                } else {
+                    $contentInput = admin_content_with_material_uploads($contentInput);
+                    $content = ($page['type'] ?? '') === 'interior'
+                        ? interior_content_from_input($contentInput)
+                        : product_content_from_input($contentInput);
+                }
             } else {
                 $contentJson = (string) ($_POST['content'] ?? '{}');
 
@@ -529,6 +542,8 @@ if ($currentSection === 'pages') {
             $contentEditor = admin_product_content_editor($pageContent);
         } elseif (($page['type'] ?? '') === 'interior') {
             $contentEditor = admin_interior_content_editor($pageContent);
+        } elseif (($page['type'] ?? '') === 'document') {
+            $contentEditor = admin_document_content_editor($pageContent);
         } else {
             $contentEditor = '<label class="wide">Контент JSON<textarea name="content" rows="16" class="code">' . h(json_encode($pageContent, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)) . '</textarea></label>';
         }

@@ -597,6 +597,33 @@ button.project-card:focus-visible {
   }
 }
 
+.info-popup__trigger {
+  padding: 0;
+  font: inherit;
+  text-align: left;
+  background: transparent;
+  border: 0;
+}
+
+.info-popup__content {
+  display: grid;
+  gap: 0.625rem;
+  color: var(--color-gray);
+  font-size: 1rem;
+  line-height: 1.35;
+}
+
+.info-popup .callback-popup__body {
+  max-width: 37.5rem;
+  margin: auto;
+}
+
+@media (max-width: 47.9375rem) {
+  .info-popup__content {
+    font-size: 0.9375rem;
+  }
+}
+
 .icon[data-fill] {
   background-color: currentColor;
 }

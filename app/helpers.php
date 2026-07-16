@@ -548,6 +548,29 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
+  document.addEventListener('click', function (event) {
+    var opener = event.target.closest('[data-info-popup-open]');
+    var dialog = opener && document.getElementById(opener.getAttribute('data-info-popup-open'));
+
+    if (!dialog) {
+      return;
+    }
+
+    document.documentElement.classList.add('is-lock');
+    typeof dialog.showModal === 'function' ? dialog.showModal() : dialog.setAttribute('open', '');
+  });
+
+  document.querySelectorAll('[data-info-popup]').forEach(function (dialog) {
+    dialog.addEventListener('click', function (event) {
+      if (event.target === dialog || event.target.closest('[data-info-popup-close]')) {
+        typeof dialog.close === 'function' ? dialog.close() : dialog.removeAttribute('open');
+      }
+    });
+    dialog.addEventListener('close', function () {
+      document.documentElement.classList.remove('is-lock');
+    });
+  });
+
   document.querySelectorAll('[data-js-overlay-menu]').forEach(function (root) {
     if (root.hasAttribute('data-js-overlay-menu-bound')) {
       return;
@@ -1537,6 +1560,26 @@ function render_service_materials(?array $data): string
     return $html . '</ul></section>';
 }
 
+function render_info_popup(array $item, string $id): string
+{
+    $lines = array_values(array_filter(array_map('trim', preg_split('/\R/u', (string) ($item['popup'] ?? '')) ?: []), 'strlen'));
+    if (!$lines) {
+        return '';
+    }
+
+    $title = trim((string) ($item['title'] ?? 'Подробнее'));
+    $shortFirstLine = function_exists('mb_strlen') ? mb_strlen($lines[0]) <= 100 : strlen($lines[0]) <= 200;
+    if (count($lines) > 1 && $shortFirstLine) {
+        $title = array_shift($lines);
+    }
+    $html = '<dialog class="callback-popup info-popup" id="' . h($id) . '" data-info-popup aria-labelledby="' . h($id) . '-title"><article class="callback-popup__body"><button class="callback-popup__close" type="button" data-info-popup-close aria-label="Закрыть"></button><h2 class="callback-popup__title" id="' . h($id) . '-title">' . h($title) . '</h2><div class="info-popup__content">';
+    foreach ($lines as $line) {
+        $html .= '<p>' . h($line) . '</p>';
+    }
+
+    return $html . '</div></article></dialog>';
+}
+
 function render_service_icon_cards(?array $data, string $section, array $fallbackIcons, string $fallbackTitle = ''): string
 {
     if (!$data) {
@@ -1553,15 +1596,22 @@ function render_service_icon_cards(?array $data, string $section, array $fallbac
         $html .= '<p class="' . h($section) . '__description">' . h($data['description']) . '</p>';
     }
     $html .= '</div><' . ($section === 'service-benefits' ? 'ul' : 'div') . ' class="' . h($section) . ($section === 'service-benefits' ? '__list' : '__grid') . '">';
+    $popups = '';
     foreach ($items as $index => $item) {
         $icon = semantic_card_icon_url($item, $fallbackIcons[$index % count($fallbackIcons)]);
         if ($section === 'service-benefits') {
+            $popupId = 'benefit-info-' . $index;
             $cardItems = !empty($item['items']) && is_array($item['items']) ? $item['items'] : array_values(array_filter([$item['description'] ?? '']));
             $html .= '<li class="service-benefits-card"><img class="service-benefits-card__decor" src="' . h($icon) . '" alt="" width="150" height="150" loading="lazy"><div class="service-benefits-card__content"><h3 class="service-benefits-card__title h3">' . h($item['title'] ?? '') . '</h3><ul class="service-benefits-card__items">';
             foreach ($cardItems as $line) {
                 $html .= '<li class="service-benefits-card__item">' . h($line) . '</li>';
             }
-            $html .= '</ul></div><a class="service-benefits-card__link" href="/"><span>Подробнее</span>' . icon_html('arrow-top-right', 'icon service-benefits-card__icon') . '</a></li>';
+            $html .= '</ul></div>';
+            if (!empty($item['popup'])) {
+                $html .= '<button class="service-benefits-card__link info-popup__trigger" type="button" data-info-popup-open="' . h($popupId) . '"><span>Подробнее</span>' . icon_html('arrow-top-right', 'icon service-benefits-card__icon') . '</button>';
+                $popups .= render_info_popup($item, $popupId);
+            }
+            $html .= '</li>';
         } else {
             $html .= '<article class="service-colors-card"><div class="service-colors-card__content"><h3 class="service-colors-card__title h3">' . h($item['title'] ?? '') . '</h3><p class="service-colors-card__description">' . h($item['description'] ?? '') . '</p></div><img class="service-colors-card__decor" src="' . h($icon) . '" alt="" width="189" height="189" loading="lazy"></article>';
         }
@@ -1571,7 +1621,7 @@ function render_service_icon_cards(?array $data, string $section, array $fallbac
         $html .= '</div>';
     }
 
-    return $html . '</section>';
+    return $html . $popups . '</section>';
 }
 
 function render_service_plans(?array $data): string
@@ -1658,18 +1708,26 @@ function render_service_request(array $settings, string $source, string $service
     return $html;
 }
 
-function render_service_options(): string
+function render_service_options(?array $data): string
 {
-    $items = [
-        ['title' => 'Интеграция с интерьером и экстерьером', 'description' => 'Подберем профиль под ваши двери и окна'],
-        ['title' => 'Уникальные технологии и материалы', 'description' => 'Лазерная резка и обработка от влаги'],
-    ];
-    $html = '<section class="service-options" aria-labelledby="service-options-title"><div class="service-options__inner container"><h2 class="service-options__title h2" id="service-options-title">Дополнительные опции и возможности</h2><ul class="service-options__list">';
-    foreach ($items as $item) {
-        $html .= '<li class="service-options-card" style="--card-bg: url(' . h(asset_url('images/ServiceOptions/card-bg.png')) . ')"><div class="service-options-card__content"><h3 class="service-options-card__title h3">' . h($item['title']) . '</h3><p class="service-options-card__description">' . h($item['description']) . '</p></div><a class="service-options-card__link" href="/"><span>Подробнее</span>' . icon_html('arrow-top-right', 'icon service-options-card__icon') . '</a></li>';
+    if (!$data) {
+        return '';
     }
 
-    return $html . '</ul></div></section>';
+    $items = content_items($data);
+    $popups = '';
+    $html = '<section class="service-options" aria-labelledby="service-options-title"><div class="service-options__inner container"><h2 class="service-options__title h2" id="service-options-title">' . h($data['title'] ?? 'Дополнительные опции и возможности') . '</h2><ul class="service-options__list">';
+    foreach ($items as $index => $item) {
+        $popupId = 'option-info-' . $index;
+        $html .= '<li class="service-options-card" style="--card-bg: url(' . h(asset_url('images/ServiceOptions/card-bg.png')) . ')"><div class="service-options-card__content"><h3 class="service-options-card__title h3">' . h($item['title'] ?? '') . '</h3><p class="service-options-card__description">' . h($item['description'] ?? '') . '</p></div>';
+        if (!empty($item['popup'])) {
+            $html .= '<button class="service-options-card__link info-popup__trigger" type="button" data-info-popup-open="' . h($popupId) . '"><span>Подробнее</span>' . icon_html('arrow-top-right', 'icon service-options-card__icon') . '</button>';
+            $popups .= render_info_popup($item, $popupId);
+        }
+        $html .= '</li>';
+    }
+
+    return $html . '</ul></div>' . $popups . '</section>';
 }
 
 function render_service_cases(): string
@@ -1882,7 +1940,6 @@ function render_page(array $site, array $page): void
         $body = render_service_hero($page, $contentData, $settings);
         $body .= render_service_includes($contentData['includes'] ?? null);
         $body .= render_service_materials($contentData['materials'] ?? null);
-        $body .= render_service_icon_cards($contentData['colors'] ?? null, 'service-colors', ['tree', 'target', 'lines', 'color', 'shield', 'woods'], 'Цветовые решения');
         $slug = $page['slug'] ?? 'service';
         $body .= render_service_request($settings, $slug, $page['title'] ?? 'изделие из дерева');
         $body .= render_service_icon_cards($contentData['benefits'] ?? null, 'service-benefits', ['shield_1', 'star', 'medal', 'person'], 'Преимущества');
@@ -1890,7 +1947,7 @@ function render_page(array $site, array $page): void
             $body .= render_service_plans($contentData['plans'] ?? null);
         }
         $body .= render_home_request($settings);
-        $body .= render_service_options();
+        $body .= render_service_options($contentData['colors'] ?? null);
         $body .= render_service_cases();
         $body .= render_service_process();
         $body .= render_reviews_section($site['reviews'] ?? []);

@@ -9,6 +9,10 @@ $content = product_content_from_input([
         ['title' => 'Замер', 'description' => 'На объекте', 'icon' => 'roulette'],
         ['title' => '', 'description' => ''],
     ]],
+    'benefits' => ['title' => 'Преимущества', 'items' => [[
+        'title' => 'Эстетика',
+        'popup' => "Эстетика и статус\nУют и натуральность.",
+    ]]],
     'plans' => ['title' => 'Тарифы', 'items' => [[
         'title' => 'Стандарт',
         'icon' => '../config',
@@ -19,6 +23,9 @@ $content = product_content_from_input([
 assert($content['hero']['title'] === 'Лестницы');
 assert(count($content['includes']['items']) === 1);
 assert($content['includes']['items'][0]['icon'] === 'roulette');
+assert($content['benefits']['items'][0]['popup'] === "Эстетика и статус\nУют и натуральность.");
+assert(str_contains(render_info_popup($content['benefits']['items'][0], 'test-popup'), 'Эстетика и статус'));
+assert(str_contains(render_info_popup(['title' => 'Долговечность', 'popup' => 'Подробное описание без отдельной строки заголовка.'], 'single-line-popup'), '>Долговечность<'));
 assert($content['plans']['items'][0]['items'] === ['Замер', 'Монтаж']);
 assert(!isset($content['plans']['items'][0]['icon']));
 

@@ -41,23 +41,24 @@ function admin_icon_select(string $name, string $selected = ''): string
     return '<label class="admin-field"><span>Иконка</span><select class="admin-input" name="' . h($name) . '">' . $options . '</select></label>';
 }
 
-function admin_card_fields(string $section, $index, array $item = []): string
+function admin_card_fields(string $section, $index, array $item = [], bool $withPopup = false): string
 {
     $base = 'content[' . $section . '][items][' . $index . ']';
     return '<article class="admin-content-card" data-editor-item>'
         . '<label class="admin-field"><span>Заголовок</span><input class="admin-input" name="' . h($base . '[title]') . '" value="' . h($item['title'] ?? '') . '"></label>'
         . '<label class="admin-field"><span>Подзаголовок</span><textarea class="admin-input admin-input--textarea" name="' . h($base . '[description]') . '">' . h($item['description'] ?? '') . '</textarea></label>'
         . admin_icon_select($base . '[icon]', (string) ($item['icon'] ?? ''))
+        . ($withPopup ? '<label class="admin-field"><span>Информационный поп-ап (первая строка — заголовок)</span><textarea class="admin-input admin-input--textarea admin-input--large" name="' . h($base . '[popup]') . '">' . h($item['popup'] ?? '') . '</textarea></label>' : '')
         . '<button class="admin-button admin-button--danger admin-button--wide" type="button" data-remove-item>Удалить карточку</button></article>';
 }
 
-function admin_cards_editor(string $section, array $items = []): string
+function admin_cards_editor(string $section, array $items = [], bool $withPopup = false): string
 {
     $html = '<div class="admin-cards-editor" data-editor data-next-index="' . count($items) . '">';
     foreach ($items as $index => $item) {
-        $html .= admin_card_fields($section, $index, is_array($item) ? $item : []);
+        $html .= admin_card_fields($section, $index, is_array($item) ? $item : [], $withPopup);
     }
-    $html .= '<template data-editor-template>' . admin_card_fields($section, '__INDEX__') . '</template>'
+    $html .= '<template data-editor-template>' . admin_card_fields($section, '__INDEX__', [], $withPopup) . '</template>'
         . '<button class="admin-button admin-button--wide" type="button" data-add-item>Добавить карточку</button></div>';
     return $html;
 }
@@ -175,11 +176,11 @@ function admin_product_content_editor(array $data): string
     $html .= admin_content_block('Дополнительные опции и возможности',
         admin_content_field('Заголовок', 'content[colors][title]', $data['colors']['title'] ?? '')
         . admin_content_field('Описание рядом с заголовком', 'content[colors][description]', $data['colors']['description'] ?? '', true)
-        . '<div class="admin-field admin-field--full"><span>Карточки</span>' . admin_cards_editor('colors', $data['colors']['items'] ?? []) . '</div>');
+        . '<div class="admin-field admin-field--full"><span>Карточки</span>' . admin_cards_editor('colors', $data['colors']['items'] ?? [], true) . '</div>');
     $html .= admin_content_block('Преимущества',
         admin_content_field('Заголовок', 'content[benefits][title]', $data['benefits']['title'] ?? '')
         . admin_content_field('Описание рядом с заголовком', 'content[benefits][description]', $data['benefits']['description'] ?? '', true)
-        . '<div class="admin-field admin-field--full"><span>Карточки</span>' . admin_cards_editor('benefits', $data['benefits']['items'] ?? []) . '</div>');
+        . '<div class="admin-field admin-field--full"><span>Карточки</span>' . admin_cards_editor('benefits', $data['benefits']['items'] ?? [], true) . '</div>');
     $html .= admin_content_block('Тарифы',
         admin_content_field('Заголовок секции', 'content[plans][title]', $data['plans']['title'] ?? '')
         . '<div class="admin-field admin-field--full"><span>Тарифы и списки преимуществ</span>' . admin_plans_editor($data['plans']['items'] ?? []) . '</div>');

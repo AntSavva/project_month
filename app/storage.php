@@ -171,6 +171,10 @@ function product_content_from_input(array $input): array
                 'title' => $text($item['title'] ?? '', 200),
                 'description' => $text($item['description'] ?? '', 1000),
             ];
+            $popup = $text($item['popup'] ?? '', 10000);
+            if ($popup !== '') {
+                $card['popup'] = $popup;
+            }
             $icon = $text($item['icon'] ?? '', 40);
             if ($icon !== '' && in_array($icon, $allowedIcons, true)) {
                 $card['icon'] = $icon;

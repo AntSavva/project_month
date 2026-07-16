@@ -265,6 +265,15 @@ button.project-card:focus-visible {
   list-style: none;
 }
 
+button.service-benefits-card__link,
+button.service-options-card__link {
+  padding: 0;
+  background: transparent;
+  border: 0;
+  text-align: left;
+  appearance: none;
+}
+
 .project-gallery__arrow:focus-visible,
 .project-gallery__close:focus-visible,
 .project-gallery__dot:focus-visible {

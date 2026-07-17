@@ -911,12 +911,20 @@ function render_interior_cards(array $pages): string
     return $html . '</div></section>';
 }
 
-function render_home_request(array $settings, string $class = 'home-request'): string
+function render_home_request(
+    array $settings,
+    string $class = 'home-request',
+    string $title = 'Скидка 10% при оформлении комплексного заказа',
+    string $description = 'Действует только при полной оплате за проект'
+): string
 {
     $socialClass = $class . '__social';
     $html = '<section class="' . h($class) . ' container" id="request" aria-labelledby="' . h($class) . '-title"><div class="' . h($class) . '__inner"><div class="' . h($class) . '__content"><div class="' . h($class) . '__offer">';
-    $html .= '<h2 class="' . h($class) . '__title h2" id="' . h($class) . '-title">Скидка 10% при оформлении комплексного заказа</h2>';
-    $html .= '<p class="' . h($class) . '__description">Действует только при полной оплате за проект</p></div>';
+    $html .= '<h2 class="' . h($class) . '__title h2" id="' . h($class) . '-title">' . h($title) . '</h2>';
+    if ($description !== '') {
+        $html .= '<p class="' . h($class) . '__description">' . h($description) . '</p>';
+    }
+    $html .= '</div>';
     $html .= '<ul class="' . h($class) . '__socials" aria-label="Способы связи">';
     foreach (social_links($settings, true) as $social) {
         $html .= '<li class="' . h($socialClass) . '-item"><a class="' . h($socialClass) . '-link" href="' . h($social['href']) . '" aria-label="' . h($social['label']) . '">' . icon_html($social['name'], 'icon ' . $socialClass . '-icon', true) . '</a></li>';
@@ -1963,7 +1971,12 @@ function render_page(array $site, array $page): void
         if ($slug === 'nalichniki') {
             $body .= render_service_plans($contentData['plans'] ?? null);
         }
-        $body .= render_home_request($settings);
+        $body .= render_home_request(
+            $settings,
+            'home-request',
+            'Скидка 10% при оформлении комплексного заказа или при полной оплате',
+            ''
+        );
         $body .= render_service_options($contentData['colors'] ?? null);
         $body .= render_service_cases();
         $body .= render_service_process();

@@ -1051,7 +1051,7 @@ function render_advantages(): string
 
 function project_groups(): array
 {
-    return [
+    $projects = [
         [
             'title' => 'Барные стойки и столешницы из дерева',
             'description' => 'Комплекс работ по изготовлению деревянных барных стоек, столешниц и интерьерных элементов для кухни и зоны отдыха.',
@@ -1102,6 +1102,8 @@ function project_groups(): array
             ],
         ],
     ];
+
+    return [$projects[1], $projects[4], $projects[3], $projects[2], $projects[0]];
 }
 
 function render_project_cases(string $class = 'cases', ?array $projects = null, string $heading = 'Уже реализованные проекты'): string
@@ -1801,10 +1803,11 @@ function render_service_options(?array $data): string
 
 function render_service_cases(array $content = []): string
 {
-    $projects = $content['projects']['items'] ?? null;
+    $pageProjects = $content['projects']['items'] ?? [];
     $heading = (string) ($content['projects']['title'] ?? 'Уже реализованные проекты');
+    $projects = is_array($pageProjects) ? array_merge($pageProjects, project_groups()) : project_groups();
 
-    return render_project_cases('service-cases', is_array($projects) ? $projects : null, $heading);
+    return render_project_cases('service-cases', $projects, $heading);
 }
 
 function render_service_process(): string

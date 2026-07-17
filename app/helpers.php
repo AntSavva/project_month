@@ -1104,16 +1104,16 @@ function project_groups(): array
     ];
 }
 
-function render_project_cases(string $class = 'cases'): string
+function render_project_cases(string $class = 'cases', ?array $projects = null, string $heading = 'Уже реализованные проекты'): string
 {
     static $instance = 0;
     $instance++;
     $titleId = $class . '-projects-title-' . $instance;
     $dialogId = $class . '-projects-gallery-' . $instance;
-    $projects = project_groups();
+    $projects = $projects ?? project_groups();
 
     $html = '<section class="' . h($class) . ' project-cases container" aria-labelledby="' . h($titleId) . '" data-js-projects>';
-    $html .= '<div class="project-cases__header"><h2 class="project-cases__title h2" id="' . h($titleId) . '">Уже реализованные проекты</h2></div><div class="project-cases__list">';
+    $html .= '<div class="project-cases__header"><h2 class="project-cases__title h2" id="' . h($titleId) . '">' . h($heading) . '</h2></div><div class="project-cases__list">';
 
     foreach ($projects as $index => $project) {
         $images = $project['images'];
@@ -1121,10 +1121,12 @@ function render_project_cases(string $class = 'cases'): string
         $galleryId = $dialogId . '-item-' . $index;
         $html .= '<button class="project-card" type="button" data-project-card aria-haspopup="dialog" aria-controls="' . h($dialogId) . '">';
         $html .= '<span class="project-card__content"><span class="project-card__title h3">' . h($project['title']) . '</span><span class="project-card__description">' . h($project['description']) . '</span><span class="project-card__meta">Подробнее ↗</span></span>';
-        $html .= '<span class="project-card__media"><img class="project-card__image" src="' . h(asset_url('images/Projects/' . $cover['file'])) . '" alt="' . h($cover['alt']) . '" width="910" height="520" loading="lazy"></span>';
+        $coverUrl = (string) ($cover['url'] ?? asset_url('images/Projects/' . ($cover['file'] ?? '')));
+        $html .= '<span class="project-card__media"><img class="project-card__image" src="' . h($coverUrl) . '" alt="' . h($cover['alt']) . '" width="910" height="520" loading="lazy"></span>';
         $html .= '<span class="project-card__gallery-data" hidden data-project-title="' . h($project['title']) . '" data-project-description="' . h($project['description']) . '" data-project-gallery="' . h($galleryId) . '">';
         foreach ($images as $imageIndex => $image) {
-            $html .= '<span data-gallery-src="' . h(asset_url('images/Projects/' . $image['file'])) . '" data-gallery-alt="' . h($image['alt']) . '" data-gallery-index="' . h((string) $imageIndex) . '"></span>';
+            $imageUrl = (string) ($image['url'] ?? asset_url('images/Projects/' . ($image['file'] ?? '')));
+            $html .= '<span data-gallery-src="' . h($imageUrl) . '" data-gallery-alt="' . h($image['alt']) . '" data-gallery-index="' . h((string) $imageIndex) . '"></span>';
         }
         $html .= '</span></button>';
     }
@@ -1797,9 +1799,12 @@ function render_service_options(?array $data): string
     return $html . '</ul></div>' . $popups . '</section>';
 }
 
-function render_service_cases(): string
+function render_service_cases(array $content = []): string
 {
-    return render_project_cases('service-cases');
+    $projects = $content['projects']['items'] ?? null;
+    $heading = (string) ($content['projects']['title'] ?? 'Уже реализованные проекты');
+
+    return render_project_cases('service-cases', is_array($projects) ? $projects : null, $heading);
 }
 
 function render_service_process(): string
@@ -2020,7 +2025,7 @@ function render_page(array $site, array $page): void
             ''
         );
         $body .= render_service_options($contentData['colors'] ?? null);
-        $body .= render_service_cases();
+        $body .= render_service_cases($contentData);
         $body .= render_service_process();
         $body .= render_reviews_section($site['reviews'] ?? []);
         $body .= render_service_faq($contentData['faq']['items'] ?? []);

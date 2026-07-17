@@ -1804,10 +1804,9 @@ function render_service_options(?array $data): string
 function render_service_cases(array $content = []): string
 {
     $pageProjects = $content['projects']['items'] ?? [];
-    $heading = (string) ($content['projects']['title'] ?? 'Уже реализованные проекты');
     $projects = is_array($pageProjects) ? array_merge($pageProjects, project_groups()) : project_groups();
 
-    return render_project_cases('service-cases', $projects, $heading);
+    return render_project_cases('service-cases', $projects, 'Реализованные проекты');
 }
 
 function render_service_process(): string

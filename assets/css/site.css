@@ -265,17 +265,16 @@ button.project-card:focus-visible {
   list-style: none;
 }
 
-button.service-benefits-card__link,
-button.service-options-card__link {
-  padding: 0;
-  color: rgba(255, 255, 255, 0.6);
-  background: none;
-  border: 0;
-  border-radius: 0;
-  box-shadow: none;
-  text-align: left;
-  -webkit-appearance: none;
-  appearance: none;
+.service-benefits-card[data-info-popup-open],
+.service-options-card[data-info-popup-open] {
+  cursor: pointer;
+}
+
+@media (any-hover: hover) {
+  .service-benefits-card[data-info-popup-open]:hover .service-benefits-card__link,
+  .service-options-card[data-info-popup-open]:hover .service-options-card__link {
+    color: var(--color-white);
+  }
 }
 
 .project-gallery__arrow:focus-visible,

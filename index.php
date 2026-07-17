@@ -22,8 +22,14 @@ if ($path === 'lead' && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
 
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 if ($method === 'GET' || $method === 'HEAD') {
-    $siteDataPath = root_path('data/site.json');
-    $etag = '"' . sha1_file($siteDataPath) . '"';
+    $etagFiles = [
+        root_path('data/site.json'),
+        __FILE__,
+        __DIR__ . '/app/helpers.php',
+        __DIR__ . '/assets/css/base.css',
+        __DIR__ . '/assets/css/site.css',
+    ];
+    $etag = '"' . sha1(implode(':', array_map('sha1_file', $etagFiles))) . '"';
     header('Cache-Control: public, max-age=300, s-maxage=300, stale-while-revalidate=60');
     header('ETag: ' . $etag);
 

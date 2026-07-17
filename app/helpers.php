@@ -313,7 +313,7 @@ function render_layout(array $site, string $title, string $content, array $seo =
     echo '<meta name="twitter:image" content="' . h($image) . '">';
     echo '<script type="application/ld+json" nonce="' . h($scriptNonce) . '">' . json_encode($schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . '</script>';
     echo '<link rel="stylesheet" href="/assets/css/base.css?v=20260710-factory-background">';
-    echo '<link rel="stylesheet" href="/assets/css/site.css?v=20260717-card-link-reset">';
+    echo '<link rel="stylesheet" href="/assets/css/site.css?v=20260717-card-click">';
     $bodyClass = trim((string) ($seo['bodyClass'] ?? ''));
     echo '</head><body' . ($bodyClass !== '' ? ' class="' . h($bodyClass) . '"' : '') . '>';
     render_header($products, $interiors, $phone, $email);
@@ -558,6 +558,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.documentElement.classList.add('is-lock');
     typeof dialog.showModal === 'function' ? dialog.showModal() : dialog.setAttribute('open', '');
+  });
+
+  document.addEventListener('keydown', function (event) {
+    var opener = event.target.closest('[data-info-popup-open][role="button"]');
+
+    if (!opener || (event.key !== 'Enter' && event.key !== ' ')) {
+      return;
+    }
+
+    event.preventDefault();
+    opener.click();
   });
 
   document.querySelectorAll('[data-info-popup]').forEach(function (dialog) {
@@ -1601,14 +1612,17 @@ function render_service_icon_cards(?array $data, string $section, array $fallbac
         $icon = semantic_card_icon_url($item, $fallbackIcons[$index % count($fallbackIcons)]);
         if ($section === 'service-benefits') {
             $popupId = 'benefit-info-' . $index;
+            $popupAttributes = !empty($item['popup'])
+                ? ' role="button" tabindex="0" aria-haspopup="dialog" aria-controls="' . h($popupId) . '" data-info-popup-open="' . h($popupId) . '"'
+                : '';
             $cardItems = !empty($item['items']) && is_array($item['items']) ? $item['items'] : array_values(array_filter([$item['description'] ?? '']));
-            $html .= '<li class="service-benefits-card"><img class="service-benefits-card__decor" src="' . h($icon) . '" alt="" width="150" height="150" loading="lazy"><div class="service-benefits-card__content"><h3 class="service-benefits-card__title h3">' . h($item['title'] ?? '') . '</h3><ul class="service-benefits-card__items">';
+            $html .= '<li class="service-benefits-card"' . $popupAttributes . '><img class="service-benefits-card__decor" src="' . h($icon) . '" alt="" width="150" height="150" loading="lazy"><div class="service-benefits-card__content"><h3 class="service-benefits-card__title h3">' . h($item['title'] ?? '') . '</h3><ul class="service-benefits-card__items">';
             foreach ($cardItems as $line) {
                 $html .= '<li class="service-benefits-card__item">' . h($line) . '</li>';
             }
             $html .= '</ul></div>';
             if (!empty($item['popup'])) {
-                $html .= '<button class="service-benefits-card__link info-popup__trigger" type="button" data-info-popup-open="' . h($popupId) . '"><span>Подробнее</span>' . icon_html('arrow-top-right', 'icon service-benefits-card__icon') . '</button>';
+                $html .= '<span class="service-benefits-card__link"><span>Подробнее</span>' . icon_html('arrow-top-right', 'icon service-benefits-card__icon') . '</span>';
                 $popups .= render_info_popup($item, $popupId);
             }
             $html .= '</li>';
@@ -1719,9 +1733,12 @@ function render_service_options(?array $data): string
     $html = '<section class="service-options" aria-labelledby="service-options-title"><div class="service-options__inner container"><h2 class="service-options__title h2" id="service-options-title">' . h($data['title'] ?? 'Дополнительные опции и возможности') . '</h2><ul class="service-options__list">';
     foreach ($items as $index => $item) {
         $popupId = 'option-info-' . $index;
-        $html .= '<li class="service-options-card" style="--card-bg: url(' . h(asset_url('images/ServiceOptions/card-bg.png')) . ')"><div class="service-options-card__content"><h3 class="service-options-card__title h3">' . h($item['title'] ?? '') . '</h3><p class="service-options-card__description">' . h($item['description'] ?? '') . '</p></div>';
+        $popupAttributes = !empty($item['popup'])
+            ? ' role="button" tabindex="0" aria-haspopup="dialog" aria-controls="' . h($popupId) . '" data-info-popup-open="' . h($popupId) . '"'
+            : '';
+        $html .= '<li class="service-options-card"' . $popupAttributes . ' style="--card-bg: url(' . h(asset_url('images/ServiceOptions/card-bg.png')) . ')"><div class="service-options-card__content"><h3 class="service-options-card__title h3">' . h($item['title'] ?? '') . '</h3><p class="service-options-card__description">' . h($item['description'] ?? '') . '</p></div>';
         if (!empty($item['popup'])) {
-            $html .= '<button class="service-options-card__link info-popup__trigger" type="button" data-info-popup-open="' . h($popupId) . '"><span>Подробнее</span>' . icon_html('arrow-top-right', 'icon service-options-card__icon') . '</button>';
+            $html .= '<span class="service-options-card__link"><span>Подробнее</span>' . icon_html('arrow-top-right', 'icon service-options-card__icon') . '</span>';
             $popups .= render_info_popup($item, $popupId);
         }
         $html .= '</li>';

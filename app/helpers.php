@@ -1758,7 +1758,26 @@ function render_service_icon_cards(?array $data, string $section, array $fallbac
     return $html . $popups . '</section>';
 }
 
-function render_service_plans(?array $data): string
+function product_plan_price(string $slug): string
+{
+    $prices = [
+        'ladder' => 'от 800 000 ₽',
+        'nalichniki' => 'от 7 000 ₽',
+        'portaly-i-arki' => 'от 500 000 ₽',
+        'obsady' => 'от 200 000 ₽',
+        'dekor' => '1 000–8 000 ₽',
+        'malye-arhitekturnye-formy-mafy' => 'от 20 000 ₽',
+        'barnye-stojki-stoleshnicy' => 'от 300 000 ₽',
+        'dekor-fasadov-ograzhdenij-balkonov' => 'от 300 000 ₽',
+        'dizajn-proekt-interera' => 'от 300 000 ₽',
+        'pergoly-drugie-konstrukcii' => 'от 500 000 ₽',
+        'stellazhi-dlya-knig' => 'от 300 000 ₽',
+    ];
+
+    return $prices[$slug] ?? '';
+}
+
+function render_service_plans(?array $data, string $price = ''): string
 {
     if (!$data) {
         return '';
@@ -1770,7 +1789,14 @@ function render_service_plans(?array $data): string
     foreach ($items as $index => $item) {
         $icon = semantic_card_icon_url($item, $fallbackIcons[$index % count($fallbackIcons)]);
         $html .= '<li class="service-plans-card"><div class="service-plans-card__body"><div class="service-plans-card__content"><img class="service-plans-card__icon" src="' . h($icon) . '" alt="" width="100" height="100" loading="lazy"><h3 class="service-plans-card__title h3">' . h($item['title'] ?? '') . '</h3><ul class="service-plans-card__items">';
-        foreach (($item['items'] ?? []) as $line) {
+        $lines = array_values(array_filter(
+            $item['items'] ?? [],
+            static fn($line): bool => $price === '' || !preg_match('/₽|Р\/пог/ui', (string) $line)
+        ));
+        if ($price !== '') {
+            $lines[] = $price;
+        }
+        foreach ($lines as $line) {
             $html .= '<li class="service-plans-card__item">' . h($line) . '</li>';
         }
         $html .= '</ul></div><a class="button service-plans-card__button" href="#callback-popup" data-js-callback-open>Записаться на замер</a></div></li>';
@@ -2088,9 +2114,7 @@ function render_page(array $site, array $page): void
         $slug = $page['slug'] ?? 'service';
         $body .= render_service_request($settings, $slug, $page['title'] ?? 'изделие из дерева');
         $body .= render_service_icon_cards($contentData['benefits'] ?? null, 'service-benefits', ['shield_1', 'star', 'medal', 'person'], 'Преимущества');
-        if ($slug === 'nalichniki') {
-            $body .= render_service_plans($contentData['plans'] ?? null);
-        }
+        $body .= render_service_plans($contentData['plans'] ?? null, product_plan_price($slug));
         $body .= render_home_request(
             $settings,
             'home-request',

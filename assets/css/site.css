@@ -779,34 +779,6 @@ button.project-card:focus-visible {
   opacity: 1;
 }
 
-.about-values__pagination {
-  position: absolute;
-  top: 1.5rem;
-  left: 50%;
-  z-index: 2;
-  display: flex;
-  gap: 0.5rem;
-  padding: 0.5rem 0.625rem;
-  background: rgba(23, 15, 11, 0.55);
-  border-radius: 999px;
-  transform: translateX(-50%);
-  backdrop-filter: blur(0.375rem);
-}
-
-.about-values__dot {
-  width: 0.625rem;
-  height: 0.625rem;
-  background: rgba(255, 255, 255, 0.45);
-  border-radius: 50%;
-  transition: width 0.3s ease, background-color 0.3s ease;
-}
-
-.about-values__dot.is-active {
-  width: 1.75rem;
-  background: var(--color-accent);
-  border-radius: 999px;
-}
-
 @media (min-width: 63.9385rem) {
   .about-values {
     --about-values-height: clamp(32rem, calc(100svh - 4rem), 46rem);
@@ -822,8 +794,7 @@ button.project-card:focus-visible {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .about-values__slide,
-  .about-values__dot {
+  .about-values__slide {
     transition: none;
   }
 }

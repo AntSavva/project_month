@@ -749,7 +749,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
   document.querySelectorAll('[data-about-slider]').forEach(function (slider) {
     var slides = Array.prototype.slice.call(slider.querySelectorAll('.about-values__slide'));
-    var dots = Array.prototype.slice.call(slider.querySelectorAll('.about-values__dot'));
     var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     if (slides.length < 2 || reduceMotion) {
@@ -759,14 +758,8 @@ document.addEventListener('DOMContentLoaded', function () {
     var currentSlide = 0;
     window.setInterval(function () {
       slides[currentSlide].classList.remove('is-active');
-      if (dots[currentSlide]) {
-        dots[currentSlide].classList.remove('is-active');
-      }
       currentSlide = (currentSlide + 1) % slides.length;
       slides[currentSlide].classList.add('is-active');
-      if (dots[currentSlide]) {
-        dots[currentSlide].classList.add('is-active');
-      }
     }, 5000);
   });
 
@@ -1218,10 +1211,6 @@ function render_about_values(): string
     $html = '<section class="about-values" aria-label="Ценности компании" data-about-slider><div class="about-values__slides" aria-hidden="true">';
     foreach ($slides as $index => $slide) {
         $html .= '<img class="about-values__slide' . ($index === 0 ? ' is-active' : '') . '" src="' . h(asset_url('images/About/company-slider/' . $slide)) . '" alt="" width="1280" height="853" loading="' . ($index === 0 ? 'eager' : 'lazy') . '">';
-    }
-    $html .= '</div><div class="about-values__pagination" aria-hidden="true">';
-    foreach ($slides as $index => $_slide) {
-        $html .= '<span class="about-values__dot' . ($index === 0 ? ' is-active' : '') . '"></span>';
     }
     $html .= '</div><div class="about-values__inner container"><div class="about-values__grid">';
     foreach ($items as $item) {

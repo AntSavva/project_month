@@ -1522,11 +1522,76 @@ function card_icon_url(?string $icon, string $fallback): string
     ];
     $name = $icon ? ($map[$icon] ?? $icon) : $fallback;
 
-    return asset_url('images/CardIcons/' . $name . '.png');
+    $webpIcons = [
+        'broom', 'cloud_and_sum', 'hands', 'machine', 'mark', 'nuts', 'oil',
+        'pen_and_paper', 'puzzles', 'shelf_book', 'thermometer',
+        'time', 'tools', 'triangle', 'weight',
+    ];
+    $extension = in_array($name, $webpIcons, true) ? 'webp' : 'png';
+
+    return asset_url('images/CardIcons/' . $name . '.' . $extension);
 }
 
 function semantic_card_icon_url(array $item, string $fallback): string
 {
+    $title = trim((string) ($item['title'] ?? ''));
+    $titleIcons = [
+        'Надёжность' => 'weight',
+        'Долговечность' => 'time',
+        'Безопасность' => 'mark',
+        'Уникальность' => 'triangle',
+        'Эстетика' => 'star',
+        'Универсальность' => 'puzzles',
+        'Интеграция с интерьером' => 'puzzles',
+        'Интеграция с интерьером и экстерьером' => 'puzzles',
+        'Интеграция с архитектурой дома' => 'puzzles',
+        'Интеграция с ландшафтным дизайном' => 'puzzles',
+        'Декоративная подсветка' => 'mark',
+        'Компенсация усадки' => 'hands',
+        'Тепло и герметичность' => 'thermometer',
+        'Идеальная геометрия' => 'triangle',
+        'Готовность под отделку' => 'mark',
+        'Защитная обработка' => 'oil',
+        'Ручная доработка' => 'tools',
+        'Любая сложность' => 'puzzles',
+        'Абсолютная точность' => 'triangle',
+        'Антивандальное исполнение' => 'nuts',
+        'Стойкость к погоде' => 'cloud_and_sum',
+        'Точное креплени' => 'nuts',
+        'Точное крепление' => 'nuts',
+        'Ремонтопригодность' => 'tools',
+        'Техзадание' => 'pen_and_paper',
+        'Техническое задание' => 'pen_and_paper',
+        '3D-визуализация' => 'puzzles',
+        'Рабочие чертежи' => 'triangle',
+        'Спецификации' => 'pen_and_paper',
+        '3D-тур по квартире' => 'puzzles',
+        'Светотехнический расчёт' => 'mark',
+        'Фотореалистичная 3D' => 'puzzles',
+        'Полный пакет чертежей' => 'triangle',
+        'Ведомость материалов' => 'pen_and_paper',
+        'Подсветка LED' => 'mark',
+        'Эскиз конструкции' => 'pen_and_paper',
+        'Встроенные скамейки/стол' => 'shelf_book',
+        'Расчёт нагрузки' => 'weight',
+        'Расчёт нагрузок' => 'weight',
+        'Усиленные вертикальные стойки' => 'shelf_book',
+        'Цельные полки' => 'shelf_book',
+        'Замер' => 'triangle',
+        'Дизайн и 3D' => 'puzzles',
+        'Основание' => 'hands',
+        'Черновая отделка' => 'tools',
+        'Чистовая отделка' => 'mark',
+        'Монтаж готовых элементов' => 'tools',
+        'Монтаж мебели' => 'tools',
+        'Монтаж печи и вентиляции' => 'tools',
+        'Контроль и уборка' => 'broom',
+        'Сопровождение' => 'puzzles',
+    ];
+    if (isset($titleIcons[$title])) {
+        return card_icon_url($titleIcons[$title], $fallback);
+    }
+
     if (!empty($item['icon'])) {
         return card_icon_url((string) $item['icon'], $fallback);
     }

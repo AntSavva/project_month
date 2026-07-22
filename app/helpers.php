@@ -355,7 +355,7 @@ function render_layout(array $site, string $title, string $content, array $seo =
     echo '<meta name="twitter:image" content="' . h($image) . '">';
     echo '<script type="application/ld+json" nonce="' . h($scriptNonce) . '">' . json_encode($schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . '</script>';
     echo '<link rel="stylesheet" href="/assets/css/base.css?v=20260710-factory-background">';
-    echo '<link rel="stylesheet" href="/assets/css/site.css?v=20260717-card-click">';
+    echo '<link rel="stylesheet" href="/assets/css/site.css?v=20260722-about-slider">';
     $bodyClass = trim((string) ($seo['bodyClass'] ?? ''));
     echo '</head><body' . ($bodyClass !== '' ? ' class="' . h($bodyClass) . '"' : '') . '>';
     render_header($products, $interiors, $phone, $email);
@@ -749,6 +749,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   document.querySelectorAll('[data-about-slider]').forEach(function (slider) {
     var slides = Array.prototype.slice.call(slider.querySelectorAll('.about-values__slide'));
+    var dots = Array.prototype.slice.call(slider.querySelectorAll('.about-values__dot'));
     var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     if (slides.length < 2 || reduceMotion) {
@@ -758,8 +759,14 @@ document.addEventListener('DOMContentLoaded', function () {
     var currentSlide = 0;
     window.setInterval(function () {
       slides[currentSlide].classList.remove('is-active');
+      if (dots[currentSlide]) {
+        dots[currentSlide].classList.remove('is-active');
+      }
       currentSlide = (currentSlide + 1) % slides.length;
       slides[currentSlide].classList.add('is-active');
+      if (dots[currentSlide]) {
+        dots[currentSlide].classList.add('is-active');
+      }
     }, 5000);
   });
 
@@ -1211,6 +1218,10 @@ function render_about_values(): string
     $html = '<section class="about-values" aria-label="Ценности компании" data-about-slider><div class="about-values__slides" aria-hidden="true">';
     foreach ($slides as $index => $slide) {
         $html .= '<img class="about-values__slide' . ($index === 0 ? ' is-active' : '') . '" src="' . h(asset_url('images/About/company-slider/' . $slide)) . '" alt="" width="1280" height="853" loading="' . ($index === 0 ? 'eager' : 'lazy') . '">';
+    }
+    $html .= '</div><div class="about-values__pagination" aria-hidden="true">';
+    foreach ($slides as $index => $_slide) {
+        $html .= '<span class="about-values__dot' . ($index === 0 ? ' is-active' : '') . '"></span>';
     }
     $html .= '</div><div class="about-values__inner container"><div class="about-values__grid">';
     foreach ($items as $item) {

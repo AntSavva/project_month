@@ -738,23 +738,57 @@ button.project-card:focus-visible {
 }
 
 .about-values {
-  background-image:
-    linear-gradient(180deg, rgba(23, 15, 11, 0.18), rgba(23, 15, 11, 0.18)),
-    url("/assets/static/factory_background.webp?v=20260710-high");
-  background-position: center 82%;
-  background-size: cover;
-  background-repeat: no-repeat;
+  background-image: none;
 }
 
 .about-values::before {
-  background-image: url("/assets/static/factory_background.webp?v=20260710-high");
-  background-position: center 82%;
+  display: none;
+}
+
+.about-values::after {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  height: var(--about-values-image-height);
+  background: rgba(23, 15, 11, 0.18);
+  pointer-events: none;
+  content: "";
+}
+
+.about-values__slides {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 0;
+  width: 100%;
+  height: var(--about-values-image-height);
+  overflow: hidden;
+}
+
+.about-values__slide {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+
+.about-values__slide.is-active {
+  opacity: 1;
 }
 
 @media (max-width: 47.9375rem) {
   .about-values {
     background-color: var(--color-brown-900);
     background-image: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about-values__slide {
+    transition: none;
   }
 }
 

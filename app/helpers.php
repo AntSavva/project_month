@@ -747,6 +747,22 @@ document.addEventListener('DOMContentLoaded', function () {
     window.addEventListener('resize', updateButtons);
   });
 
+  document.querySelectorAll('[data-about-slider]').forEach(function (slider) {
+    var slides = Array.prototype.slice.call(slider.querySelectorAll('.about-values__slide'));
+    var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (slides.length < 2 || reduceMotion) {
+      return;
+    }
+
+    var currentSlide = 0;
+    window.setInterval(function () {
+      slides[currentSlide].classList.remove('is-active');
+      currentSlide = (currentSlide + 1) % slides.length;
+      slides[currentSlide].classList.add('is-active');
+    }, 5000);
+  });
+
   document.querySelectorAll('[data-js-projects]').forEach(function (root) {
     if (root.hasAttribute('data-js-projects-bound')) {
       return;
@@ -1176,6 +1192,15 @@ function render_about_hero(): string
 
 function render_about_values(): string
 {
+    $slides = [
+        'poroshkino_20260702-151154.webp',
+        'poroshkino_20260702-152907.webp',
+        'poroshkino_20260702-153047.webp',
+        'poroshkino_20260702-153103.webp',
+        'poroshkino_20260702-153530.webp',
+        'poroshkino_20260702-154638.webp',
+        'poroshkino_20260702-155747.webp',
+    ];
     $items = [
         ['title' => 'Долговечность', 'description' => 'Изделия служат не один десяток лет', 'icon' => 'shield'],
         ['title' => 'Эстетика', 'description' => 'Создание красивых, стильных изделий, которые радуют глаз', 'icon' => 'star'],
@@ -1183,7 +1208,11 @@ function render_about_values(): string
         ['title' => 'Клиентоориентированность', 'description' => 'Создание ценности для клиента, которая дорого стоит', 'icon' => 'person'],
     ];
 
-    $html = '<section class="about-values" aria-label="Ценности компании"><div class="about-values__inner container"><div class="about-values__grid">';
+    $html = '<section class="about-values" aria-label="Ценности компании" data-about-slider><div class="about-values__slides" aria-hidden="true">';
+    foreach ($slides as $index => $slide) {
+        $html .= '<img class="about-values__slide' . ($index === 0 ? ' is-active' : '') . '" src="' . h(asset_url('images/About/company-slider/' . $slide)) . '" alt="" width="1280" height="853" loading="' . ($index === 0 ? 'eager' : 'lazy') . '">';
+    }
+    $html .= '</div><div class="about-values__inner container"><div class="about-values__grid">';
     foreach ($items as $item) {
         $html .= '<article class="about-values-card"><img class="about-values-card__icon" src="' . h(asset_url('images/CardIcons/' . $item['icon'] . '.png')) . '" alt="" width="64" height="64" loading="lazy"><div class="about-values-card__content">';
         $html .= '<h3 class="about-values-card__title">' . h($item['title']) . '</h3><p class="about-values-card__description">' . h($item['description']) . '</p></div></article>';

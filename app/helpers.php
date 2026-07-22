@@ -1765,7 +1765,7 @@ function product_plan_price(string $slug): string
         'nalichniki' => 'от 7 000 ₽',
         'portaly-i-arki' => 'от 500 000 ₽',
         'obsady' => 'от 200 000 ₽',
-        'dekor' => '1 000–8 000 ₽',
+        'dekor' => 'от 1 000–8 000 ₽',
         'malye-arhitekturnye-formy-mafy' => 'от 20 000 ₽',
         'barnye-stojki-stoleshnicy' => 'от 300 000 ₽',
         'dekor-fasadov-ograzhdenij-balkonov' => 'от 300 000 ₽',

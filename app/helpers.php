@@ -1937,9 +1937,11 @@ function render_interior_includes(?array $data): string
 
     $items = content_items($data);
     $html = '<section class="interior-includes container" aria-labelledby="interior-includes-title"><h2 class="interior-includes__title h2" id="interior-includes-title">' . h($data['title'] ?? 'Что входит в услугу') . '</h2><div class="interior-includes__grid">';
-    foreach ($items as $item) {
+    $fallbackIcons = ['triangle', 'puzzles', 'hands', 'tools', 'mark', 'machine', 'broom', 'person'];
+    foreach ($items as $index => $item) {
+        $icon = semantic_card_icon_url($item, $fallbackIcons[$index % count($fallbackIcons)]);
         $html .= '<article class="interior-includes-card"><div class="interior-includes-card__content"><h3 class="interior-includes-card__title h3">' . h($item['title'] ?? '') . '</h3><p class="interior-includes-card__description">' . h($item['description'] ?? '') . '</p></div>';
-        $html .= '<img class="interior-includes-card__decor" src="' . h(asset_url('images/Advantages/advantage-decor.png')) . '" alt="" width="454" height="454" loading="lazy"></article>';
+        $html .= '<img class="interior-includes-card__decor" src="' . h($icon) . '" alt="" width="120" height="120" loading="lazy"></article>';
     }
 
     return $html . '</div></section>';
@@ -1967,7 +1969,7 @@ function render_interior_room_solutions(?array $data): string
 function render_interior_proposal_request(array $settings, string $source): string
 {
     $html = '<section class="interior-proposal-request container" id="request" aria-labelledby="interior-proposal-request-title"><div class="interior-proposal-request__inner"><div class="interior-proposal-request__content"><div class="interior-proposal-request__offer">';
-    $html .= '<h2 class="interior-proposal-request__title h2" id="interior-proposal-request-title">Подготовим детальное коммерческое предложение</h2><p class="interior-proposal-request__description">Оперативный выезд на замер и скидка 10%</p></div>';
+    $html .= '<h2 class="interior-proposal-request__title h2" id="interior-proposal-request-title">Подготовим детальное коммерческое предложение</h2><p class="interior-proposal-request__description">Оперативный выезд специалиста на замер</p></div>';
     $html .= '<div class="interior-proposal-request__contacts"><p class="interior-proposal-request__contacts-text">Оставьте заявку или свяжитесь с нами удобным способом</p><ul class="interior-proposal-request__socials" aria-label="Способы связи">';
     foreach (social_links($settings, true) as $social) {
         $html .= '<li class="interior-proposal-request__social-item"><a class="interior-proposal-request__social-link" href="' . h($social['href']) . '" aria-label="' . h($social['label']) . '">' . icon_html($social['name'], 'icon interior-proposal-request__social-icon', true) . '</a></li>';
@@ -1994,8 +1996,11 @@ function render_interior_advantages(?array $data): string
         $html .= '<p class="interior-advantages__description">' . h($data['description']) . '</p>';
     }
     $html .= '</header><div class="interior-advantages__grid">';
-    foreach ($items as $item) {
+    $fallbackIcons = ['tree', 'detail', 'shield_1', 'time', 'mark'];
+    foreach ($items as $index => $item) {
+        $icon = semantic_card_icon_url($item, $fallbackIcons[$index % count($fallbackIcons)]);
         $html .= '<article class="interior-advantages-card" style="--card-bg: url(' . h(asset_url('images/ServiceOptions/card-bg.png')) . ')"><div class="interior-advantages-card__content"><h3 class="interior-advantages-card__title h3">' . h($item['title'] ?? '') . '</h3><p class="interior-advantages-card__description">' . h($item['description'] ?? '') . '</p></div>';
+        $html .= '<img class="interior-advantages-card__decor" src="' . h($icon) . '" alt="" width="110" height="110" loading="lazy">';
         $html .= '<a class="interior-advantages-card__link" href="/"><span>Подробнее</span>' . icon_html('arrow-top-right', 'icon interior-advantages-card__icon') . '</a></article>';
     }
 
@@ -2112,8 +2117,12 @@ function render_page(array $site, array $page): void
         $body .= render_service_materials($contentData['materials'] ?? null);
         $body .= render_interior_proposal_request($settings, $page['slug'] ?? 'interior');
         $body .= render_interior_advantages($contentData['advantages'] ?? null);
-        $body .= render_interior_plans($contentData['plans'] ?? null);
-        $body .= render_home_request($settings);
+        $body .= render_home_request(
+            $settings,
+            'home-request',
+            'Обсудим ваш проект',
+            'Оставьте заявку — уточним задачу и предложим подходящее решение'
+        );
         $body .= render_cases();
         $body .= render_reviews_section($site['reviews'] ?? []);
         $body .= render_service_faq($contentData['faq']['items'] ?? []);

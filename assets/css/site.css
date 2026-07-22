@@ -644,9 +644,29 @@ button.project-card:focus-visible {
    needs a little more scale than the other card icons. */
 .service-includes-card__image[src$="/triangle.webp"],
 .service-benefits-card__decor[src$="/triangle.webp"],
-.service-colors-card__decor[src$="/triangle.webp"] {
+.service-colors-card__decor[src$="/triangle.webp"],
+.interior-includes-card__decor[src$="/triangle.webp"],
+.interior-advantages-card__decor[src$="/triangle.webp"] {
   transform: scale(1.45);
   transform-origin: right bottom;
+}
+
+.interior-includes-card__decor {
+  object-fit: contain;
+}
+
+.interior-advantages-card__content {
+  max-width: calc(100% - 7rem);
+}
+
+.interior-advantages-card__decor {
+  position: absolute;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  width: clamp(5.5rem, 7vw, 7rem);
+  height: clamp(5.5rem, 7vw, 7rem);
+  object-fit: contain;
+  pointer-events: none;
 }
 
 .modular-house-promo {

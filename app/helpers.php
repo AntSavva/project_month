@@ -1550,6 +1550,7 @@ function semantic_card_icon_url(array $item, string $fallback): string
         'Компенсация усадки' => 'hands',
         'Тепло и герметичность' => 'thermometer',
         'Идеальная геометрия' => 'triangle',
+        'Геометрия' => 'triangle',
         'Готовность под отделку' => 'mark',
         'Защитная обработка' => 'oil',
         'Ручная доработка' => 'tools',

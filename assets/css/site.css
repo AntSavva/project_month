@@ -640,6 +640,15 @@ button.project-card:focus-visible {
   background-color: currentColor;
 }
 
+/* The ruler artwork has generous transparent margins, so its visible shape
+   needs a little more scale than the other card icons. */
+.service-includes-card__image[src$="/triangle.webp"],
+.service-benefits-card__decor[src$="/triangle.webp"],
+.service-colors-card__decor[src$="/triangle.webp"] {
+  transform: scale(1.45);
+  transform-origin: right bottom;
+}
+
 .modular-house-promo {
   padding-block: clamp(2rem, 4vw, 3.25rem);
   background-color: var(--color-brown-900);

@@ -1973,7 +1973,7 @@ function service_gallery_images(array $page): array
         'ladder' => ['ladd1.webp', 'ladd2.webp', 'ladd3.webp', 'ladd4.webp'],
         'nalichniki' => ['nalich5.webp', 'nalich1.jpg', 'nalich2.jpg', 'nalich3.jpg', 'nalich4.jpg'],
         'portaly-i-arki' => ['portals/portal-1.webp', 'portals/portal-2.webp', 'portals/portal-3.webp', 'portals/portal-4.webp', 'portals/portal-5.webp'],
-        'dekor' => ['decor/decor-1.webp', 'decor/decor-2.webp', 'decor/decor-3.webp', 'decor/decor-4.webp', 'decor/decor-5.webp'],
+        'dekor' => ['decor/decor-1.webp', 'decor/decor-2.webp', 'decor/decor-3.webp', 'decor/decor-4.webp', 'decor/decor-5.webp', 'decor/designer-decor-1.jpg', 'decor/designer-decor-2.jpg', 'decor/designer-decor-3.jpg', 'decor/designer-decor-4.jpg', 'decor/designer-decor-5.jpg'],
         'malye-arhitekturnye-formy-mafy' => ['/uploads/projects/maf/maf1.webp', '/uploads/projects/maf/maf2.webp', '/uploads/projects/maf/maf3.webp', '/uploads/projects/maf/maf4.webp', '/uploads/projects/maf/maf5.webp'],
         'obsady' => ['obsady/obsada-1.jpg', 'obsady/obsada-2.jpg', 'obsady/obsada-3.jpg'],
         'barnye-stojki-stoleshnicy' => ['bar1.webp', 'bar2.webp', 'bar3.webp'],

@@ -1975,6 +1975,7 @@ function service_gallery_images(array $page): array
         'portaly-i-arki' => ['portals/portal-1.webp', 'portals/portal-2.webp', 'portals/portal-3.webp', 'portals/portal-4.webp', 'portals/portal-5.webp'],
         'dekor' => ['decor/decor-1.webp', 'decor/decor-2.webp', 'decor/decor-3.webp', 'decor/decor-4.webp', 'decor/decor-5.webp'],
         'malye-arhitekturnye-formy-mafy' => ['/uploads/projects/maf/maf1.webp', '/uploads/projects/maf/maf2.webp', '/uploads/projects/maf/maf3.webp', '/uploads/projects/maf/maf4.webp', '/uploads/projects/maf/maf5.webp'],
+        'obsady' => ['obsady/obsada-1.jpg', 'obsady/obsada-2.jpg', 'obsady/obsada-3.jpg'],
         'barnye-stojki-stoleshnicy' => ['bar1.webp', 'bar2.webp', 'bar3.webp'],
         'stellazhi-dlya-knig' => ['inter1.webp', 'inter2.webp', 'inter3.webp'],
         'dizajn-proekt-interera' => ['inter1.webp', 'inter2.webp', 'inter3.webp'],

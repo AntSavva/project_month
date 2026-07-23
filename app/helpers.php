@@ -2237,11 +2237,11 @@ function render_page(array $site, array $page): void
         $settings = $site['settings'] ?? [];
         $body = render_service_hero($page, $contentData, $settings);
         $body .= render_service_includes($contentData['includes'] ?? null);
+        $body .= render_service_gallery($page);
         $body .= render_service_materials($contentData['materials'] ?? null);
         $slug = $page['slug'] ?? 'service';
         $body .= render_service_request($settings, $slug, $page['title'] ?? 'изделие из дерева');
         $body .= render_service_icon_cards($contentData['benefits'] ?? null, 'service-benefits', ['shield_1', 'star', 'medal', 'person'], 'Преимущества');
-        $body .= render_service_gallery($page);
         $body .= render_service_plans($contentData['plans'] ?? null, product_plan_price($slug));
         $body .= render_home_request(
             $settings,

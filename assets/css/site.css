@@ -364,6 +364,20 @@ button.project-card:focus-visible {
   outline-offset: 3px;
 }
 
+@media (min-width: 768px) {
+  .service-gallery {
+    width: min(1200px, calc(100% - 80px));
+    height: min(680px, calc(100vh - 180px));
+    margin-top: 48px;
+    margin-bottom: 48px;
+    border-radius: 12px;
+  }
+
+  .service-gallery__slide {
+    object-fit: contain;
+  }
+}
+
 @media (max-width: 767px) {
   .service-gallery__arrow { width: 40px; height: 40px; font-size: 34px; }
   .service-gallery__arrow--prev { left: 12px; }

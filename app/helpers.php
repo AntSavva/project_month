@@ -1973,6 +1973,7 @@ function service_gallery_images(array $page): array
         'ladder' => ['ladd1.webp', 'ladd2.webp', 'ladd3.webp', 'ladd4.webp'],
         'nalichniki' => ['nalich5.webp', 'nalich1.jpg', 'nalich2.jpg', 'nalich3.jpg', 'nalich4.jpg'],
         'portaly-i-arki' => ['portals/portal-1.webp', 'portals/portal-2.webp', 'portals/portal-3.webp', 'portals/portal-4.webp', 'portals/portal-5.webp'],
+        'dekor' => ['decor/decor-1.webp', 'decor/decor-2.webp', 'decor/decor-3.webp', 'decor/decor-4.webp', 'decor/decor-5.webp'],
         'barnye-stojki-stoleshnicy' => ['bar1.webp', 'bar2.webp', 'bar3.webp'],
         'stellazhi-dlya-knig' => ['inter1.webp', 'inter2.webp', 'inter3.webp'],
         'dizajn-proekt-interera' => ['inter1.webp', 'inter2.webp', 'inter3.webp'],

@@ -363,7 +363,7 @@ function render_layout(array $site, string $title, string $content, array $seo =
     echo '<meta name="twitter:image" content="' . h($image) . '">';
     echo '<script type="application/ld+json" nonce="' . h($scriptNonce) . '">' . json_encode($schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . '</script>';
     echo '<link rel="stylesheet" href="/assets/css/base.css?v=20260710-factory-background">';
-    echo '<link rel="stylesheet" href="/assets/css/site.css?v=20260723-reviews-avatars-fix">';
+    echo '<link rel="stylesheet" href="/assets/css/site.css?v=20260723-service-gallery">';
     $bodyClass = trim((string) ($seo['bodyClass'] ?? ''));
     echo '</head><body' . ($bodyClass !== '' ? ' class="' . h($bodyClass) . '"' : '') . '>';
     render_header($products, $interiors, $phone, $email);
@@ -769,6 +769,35 @@ document.addEventListener('DOMContentLoaded', function () {
       currentSlide = (currentSlide + 1) % slides.length;
       slides[currentSlide].classList.add('is-active');
     }, 5000);
+  });
+
+  document.querySelectorAll('[data-service-gallery]').forEach(function (slider) {
+    var slides = Array.prototype.slice.call(slider.querySelectorAll('[data-service-gallery-slide]'));
+    var dots = Array.prototype.slice.call(slider.querySelectorAll('[data-service-gallery-dot]'));
+    var previous = slider.querySelector('[data-service-gallery-prev]');
+    var next = slider.querySelector('[data-service-gallery-next]');
+    var current = 0;
+
+    if (slides.length < 2 || !previous || !next) {
+      return;
+    }
+
+    var show = function (index) {
+      current = (index + slides.length) % slides.length;
+      slides.forEach(function (slide, slideIndex) {
+        slide.classList.toggle('is-active', slideIndex === current);
+      });
+      dots.forEach(function (dot, dotIndex) {
+        dot.classList.toggle('is-active', dotIndex === current);
+        dot.setAttribute('aria-current', dotIndex === current ? 'true' : 'false');
+      });
+    };
+
+    previous.addEventListener('click', function () { show(current - 1); });
+    next.addEventListener('click', function () { show(current + 1); });
+    dots.forEach(function (dot, index) {
+      dot.addEventListener('click', function () { show(index); });
+    });
   });
 
   document.querySelectorAll('[data-js-projects]').forEach(function (root) {
@@ -1938,6 +1967,54 @@ function render_service_cases(array $content = []): string
     return render_project_cases('service-cases', $projects, 'Реализованные проекты');
 }
 
+function service_gallery_images(array $page): array
+{
+    $images = [
+        'ladder' => ['ladd1.webp', 'ladd2.webp', 'ladd3.webp', 'ladd4.webp'],
+        'nalichniki' => ['nalich5.webp', 'nalich1.jpg', 'nalich2.jpg', 'nalich3.jpg', 'nalich4.jpg'],
+        'barnye-stojki-stoleshnicy' => ['bar1.webp', 'bar2.webp', 'bar3.webp'],
+        'stellazhi-dlya-knig' => ['inter1.webp', 'inter2.webp', 'inter3.webp'],
+        'dizajn-proekt-interera' => ['inter1.webp', 'inter2.webp', 'inter3.webp'],
+    ];
+
+    $slug = (string) ($page['slug'] ?? '');
+    $gallery = [];
+    foreach ($images[$slug] ?? [] as $file) {
+        $gallery[] = ['url' => asset_url('images/Projects/' . $file), 'alt' => (string) ($page['title'] ?? '')];
+    }
+
+    if (!$gallery && !empty($page['cover'])) {
+        $gallery[] = ['url' => (string) $page['cover'], 'alt' => (string) ($page['title'] ?? '')];
+    }
+
+    return $gallery;
+}
+
+function render_service_gallery(array $page): string
+{
+    $images = service_gallery_images($page);
+    if (!$images) {
+        return '';
+    }
+
+    $title = 'Фотографии работ: ' . (string) ($page['title'] ?? '');
+    $html = '<section class="service-gallery" aria-label="' . h($title) . '" data-service-gallery><div class="service-gallery__slides">';
+    foreach ($images as $index => $image) {
+        $html .= '<img class="service-gallery__slide' . ($index === 0 ? ' is-active' : '') . '" src="' . h($image['url']) . '" alt="' . h($image['alt']) . '" width="1600" height="700" loading="' . ($index === 0 ? 'eager' : 'lazy') . '" data-service-gallery-slide>';
+    }
+    $html .= '</div>';
+
+    if (count($images) > 1) {
+        $html .= '<button class="service-gallery__arrow service-gallery__arrow--prev" type="button" aria-label="Предыдущее фото" data-service-gallery-prev>‹</button><button class="service-gallery__arrow service-gallery__arrow--next" type="button" aria-label="Следующее фото" data-service-gallery-next>›</button><div class="service-gallery__dots" aria-label="Выбор фотографии">';
+        foreach ($images as $index => $_image) {
+            $html .= '<button class="service-gallery__dot' . ($index === 0 ? ' is-active' : '') . '" type="button" aria-label="Фото ' . ($index + 1) . '" aria-current="' . ($index === 0 ? 'true' : 'false') . '" data-service-gallery-dot></button>';
+        }
+        $html .= '</div>';
+    }
+
+    return $html . '</section>';
+}
+
 function render_service_process(): string
 {
     $steps = [
@@ -2146,6 +2223,7 @@ function render_page(array $site, array $page): void
     if ($type === 'product') {
         $settings = $site['settings'] ?? [];
         $body = render_service_hero($page, $contentData, $settings);
+        $body .= render_service_gallery($page);
         $body .= render_service_includes($contentData['includes'] ?? null);
         $body .= render_service_materials($contentData['materials'] ?? null);
         $slug = $page['slug'] ?? 'service';

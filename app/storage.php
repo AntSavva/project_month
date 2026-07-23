@@ -90,9 +90,10 @@ function site_pages(array $site, ?string $type = null, bool $publishedOnly = fal
     }));
 
     if ($type === 'product') {
+        $trims = array_values(array_filter($pages, static fn($page): bool => ($page['slug'] ?? '') === 'nalichniki'));
         $designProject = array_values(array_filter($pages, static fn($page): bool => ($page['slug'] ?? '') === 'dizajn-proekt-interera'));
-        $pages = array_values(array_filter($pages, static fn($page): bool => ($page['slug'] ?? '') !== 'dizajn-proekt-interera'));
-        $pages = array_merge($pages, $designProject);
+        $pages = array_values(array_filter($pages, static fn($page): bool => !in_array(($page['slug'] ?? ''), ['nalichniki', 'dizajn-proekt-interera'], true)));
+        $pages = array_merge($trims, $pages, $designProject);
     }
 
     return $pages;

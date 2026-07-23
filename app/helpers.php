@@ -986,7 +986,7 @@ function render_home_request(
     $html .= '</div>';
     $html .= '<ul class="' . h($class) . '__socials" aria-label="Способы связи">';
     foreach (social_links($settings, true) as $social) {
-        $html .= '<li class="' . h($socialClass) . '-item"><a class="' . h($socialClass) . '-link" href="' . h($social['href']) . '" aria-label="' . h($social['label']) . '">' . icon_html($social['name'], 'icon ' . $socialClass . '-icon', true) . '</a></li>';
+        $html .= '<li class="' . h($socialClass) . '-item">' . social_link_html($social, $socialClass . '-link', $socialClass . '-icon') . '</li>';
     }
     $html .= '</ul></div>';
     $html .= render_lead_form($class, $settings['phone'] ?? '', 'home');

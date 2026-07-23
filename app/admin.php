@@ -285,6 +285,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
                 'workingHours' => post_text('workingHours', 120),
                 'legalInfo' => post_text('legalInfo', 1000),
                 'socials' => [
+                    'avito' => post_text('avito', 500),
                     'vk' => post_text('vk', 250),
                     'telegram' => post_text('telegram', 250),
                     'youtube' => post_text('youtube', 250),
@@ -512,6 +513,7 @@ if ($currentSection === 'settings') {
     . '<label>Email<input name="email" value="' . h($settings['email'] ?? '') . '"></label>'
     . '<label>Адрес<input name="address" value="' . h($settings['address'] ?? '') . '"></label>'
     . '<label>Время работы<input name="workingHours" value="' . h($settings['workingHours'] ?? '') . '"></label>'
+    . '<label>Avito<input name="avito" value="' . h($settings['socials']['avito'] ?? '') . '"></label>'
     . '<label>VK<input name="vk" value="' . h($settings['socials']['vk'] ?? '') . '"></label>'
     . '<label>Telegram<input name="telegram" value="' . h($settings['socials']['telegram'] ?? '') . '"></label>'
     . '<label>YouTube<input name="youtube" value="' . h($settings['socials']['youtube'] ?? '') . '"></label>'

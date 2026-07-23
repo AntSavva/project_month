@@ -280,24 +280,15 @@ function social_links(array $settings, bool $withYoutube = false): array
 {
     $socials = $settings['socials'] ?? [];
     $items = [
-        ['name' => 'vk', 'label' => 'VKontakte'],
-        ['name' => 'telegram', 'label' => 'Telegram'],
-        ['name' => 'max', 'label' => 'Max'],
+        ['name' => 'avito', 'label' => 'Авито', 'href' => $socials['avito'] ?? ''],
+        ['name' => 'vk', 'label' => 'VKontakte', 'href' => $socials['vk'] ?? ''],
+        ['name' => 'telegram', 'label' => 'Telegram', 'href' => $socials['telegram'] ?? ''],
+        ['name' => 'max', 'label' => 'MAX', 'href' => $socials['max'] ?? ''],
+        ['name' => 'email', 'label' => 'Электронная почта', 'href' => email_href($settings['email'] ?? '')],
+        ['name' => 'phone', 'label' => 'Телефон', 'href' => phone_href($settings['phone'] ?? '')],
     ];
 
-    if ($withYoutube) {
-        $items[] = ['name' => 'youtube', 'label' => 'YouTube'];
-    }
-
-    return array_values(array_filter(array_map(function ($item) use ($socials) {
-        $href = $socials[$item['name']] ?? '';
-        if (!$href) {
-            return null;
-        }
-
-        $item['href'] = $href;
-        return $item;
-    }, $items)));
+    return array_values(array_filter($items, static fn($item): bool => $item['href'] !== ''));
 }
 
 function content_items(array $block): array
@@ -341,6 +332,7 @@ function render_layout(array $site, string $title, string $content, array $seo =
     echo '<meta name="description" content="' . h($description) . '">';
     echo '<meta name="robots" content="' . h($robots) . '">';
     echo '<link rel="canonical" href="' . h($canonical) . '">';
+    echo '<link rel="icon" href="/favicon.svg" type="image/svg+xml">';
     echo '<meta property="og:type" content="website">';
     echo '<meta property="og:site_name" content="' . h(SITE_NAME) . '">';
     echo '<meta property="og:title" content="' . h($title) . '">';

@@ -77,7 +77,7 @@ function site_pages(array $site, ?string $type = null, bool $publishedOnly = fal
 {
     $pages = $site['pages'] ?? [];
 
-    return array_values(array_filter($pages, function ($page) use ($type, $publishedOnly) {
+    $pages = array_values(array_filter($pages, function ($page) use ($type, $publishedOnly) {
         if ($type && ($page['type'] ?? '') !== $type) {
             return false;
         }
@@ -88,6 +88,14 @@ function site_pages(array $site, ?string $type = null, bool $publishedOnly = fal
 
         return true;
     }));
+
+    if ($type === 'product') {
+        $designProject = array_values(array_filter($pages, static fn($page): bool => ($page['slug'] ?? '') === 'dizajn-proekt-interera'));
+        $pages = array_values(array_filter($pages, static fn($page): bool => ($page['slug'] ?? '') !== 'dizajn-proekt-interera'));
+        $pages = array_merge($pages, $designProject);
+    }
+
+    return $pages;
 }
 
 function site_find_page(array $site, string $slug): ?array

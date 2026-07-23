@@ -1572,6 +1572,10 @@ function card_icon_url(?string $icon, string $fallback): string
 function semantic_card_icon_url(array $item, string $fallback): string
 {
     $title = trim((string) ($item['title'] ?? ''));
+    if (!empty($item['icon'])) {
+        return card_icon_url((string) $item['icon'], $fallback);
+    }
+
     $titleIcons = [
         'Надёжность' => 'weight',
         'Долговечность' => 'time',
@@ -1628,10 +1632,6 @@ function semantic_card_icon_url(array $item, string $fallback): string
     ];
     if (isset($titleIcons[$title])) {
         return card_icon_url($titleIcons[$title], $fallback);
-    }
-
-    if (!empty($item['icon'])) {
-        return card_icon_url((string) $item['icon'], $fallback);
     }
 
     $text = implode(' ', array_filter([

@@ -1492,8 +1492,7 @@ button.project-card:focus-visible {
 
 .reviews-card__avatar:empty,
 .reviews-popup__avatar:empty {
-  display: inline-block;
-  background-color: #d9d9d9;
+  display: none;
 }
 
 @media (max-width: 63.9375rem) {

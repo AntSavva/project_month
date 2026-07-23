@@ -1978,6 +1978,7 @@ function service_gallery_images(array $page): array
         'barnye-stojki-stoleshnicy' => ['bar1.webp', 'bar2.webp', 'bar3.webp'],
         'stellazhi-dlya-knig' => ['inter1.webp', 'inter2.webp', 'inter3.webp'],
         'dizajn-proekt-interera' => ['inter1.webp', 'inter2.webp', 'inter3.webp'],
+        'pergoly-drugie-konstrukcii' => ['pergolas/pergola-1.webp', 'pergolas/pergola-2.webp', 'pergolas/pergola-3.webp', 'pergolas/pergola-4.webp', 'pergolas/pergola-5.webp'],
     ];
 
     $slug = (string) ($page['slug'] ?? '');

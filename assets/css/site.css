@@ -647,6 +647,11 @@ button.project-card:focus-visible {
   object-fit: contain;
 }
 
+.social-media-icon--avito,
+.social-media-icon--email {
+  transform: scale(1.18);
+}
+
 /* The ruler artwork has generous transparent margins, so its visible shape
    needs a little more scale than the other card icons. */
 .service-includes-card__image[src$="/triangle.webp"],

@@ -293,6 +293,10 @@ button.project-card:focus-visible {
   background: #170f0b;
 }
 
+.service-gallery__title {
+  display: none;
+}
+
 .service-gallery__slides,
 .service-gallery__slide {
   width: 100%;
@@ -371,6 +375,23 @@ button.project-card:focus-visible {
     margin-top: 48px;
     margin-bottom: 48px;
     border-radius: 12px;
+  }
+
+  .service-gallery__title {
+    display: block;
+    margin: 0 0 24px;
+    font-family: "Russo One", sans-serif;
+    line-height: 1.2;
+  }
+
+  .service-gallery {
+    height: auto;
+    padding: 36px;
+  }
+
+  .service-gallery__slides {
+    position: relative;
+    height: min(600px, calc(100vh - 300px));
   }
 
   .service-gallery__slide {

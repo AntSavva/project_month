@@ -363,7 +363,7 @@ function render_layout(array $site, string $title, string $content, array $seo =
     echo '<meta name="twitter:image" content="' . h($image) . '">';
     echo '<script type="application/ld+json" nonce="' . h($scriptNonce) . '">' . json_encode($schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . '</script>';
     echo '<link rel="stylesheet" href="/assets/css/base.css?v=20260710-factory-background">';
-    echo '<link rel="stylesheet" href="/assets/css/site.css?v=20260723-service-gallery-contain">';
+    echo '<link rel="stylesheet" href="/assets/css/site.css?v=20260723-service-gallery-title">';
     $bodyClass = trim((string) ($seo['bodyClass'] ?? ''));
     echo '</head><body' . ($bodyClass !== '' ? ' class="' . h($bodyClass) . '"' : '') . '>';
     render_header($products, $interiors, $phone, $email);
@@ -2002,7 +2002,7 @@ function render_service_gallery(array $page): string
     }
 
     $title = 'Фотографии работ: ' . (string) ($page['title'] ?? '');
-    $html = '<section class="service-gallery" aria-label="' . h($title) . '" data-service-gallery><div class="service-gallery__slides">';
+    $html = '<section class="service-gallery" aria-label="' . h($title) . '" data-service-gallery><h2 class="service-gallery__title h2">Галерея работ</h2><div class="service-gallery__slides">';
     foreach ($images as $index => $image) {
         $html .= '<img class="service-gallery__slide' . ($index === 0 ? ' is-active' : '') . '" src="' . h($image['url']) . '" alt="' . h($image['alt']) . '" width="1600" height="700" loading="' . ($index === 0 ? 'eager' : 'lazy') . '" data-service-gallery-slide>';
     }

@@ -649,7 +649,8 @@ button.project-card:focus-visible {
 
 .social-media-icon--avito,
 .social-media-icon--email {
-  transform: scale(1.18);
+  width: calc(var(--iconSize, 2.25rem) + 0.25rem);
+  height: calc(var(--iconSize, 2.25rem) + 0.25rem);
 }
 
 /* The ruler artwork has generous transparent margins, so its visible shape

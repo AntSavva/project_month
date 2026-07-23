@@ -259,6 +259,13 @@ function review_avatar_alt(array $review): string
     return image_alt('Фото клиента ' . (string) ($review['author'] ?? ''), 'Фото клиента ' . SITE_NAME);
 }
 
+function review_avatar_url(array $review): string
+{
+    $url = (string) ($review['avatar'] ?? '');
+
+    return $url . (strpos($url, '?') === false ? '?' : '&') . 'v=20260723-reviews-avatars';
+}
+
 function icon_html(string $name, string $class = 'icon', bool $hasFill = false): string
 {
     $attrs = $hasFill ? ' data-fill=""' : '';
@@ -1317,7 +1324,7 @@ function render_reviews_section(array $reviews): string
         $html .= '<a class="reviews-card__more" href="#' . h($popupId) . '"><span>Читать полностью</span>' . icon_html('arrow-top-right', 'icon reviews-card__more-icon') . '</a>';
         $html .= '<footer class="reviews-card__author">';
         if (!empty($review['avatar'])) {
-            $html .= '<img class="reviews-card__avatar" src="' . h($review['avatar']) . '" alt="' . h(review_avatar_alt($review)) . '" loading="lazy">';
+            $html .= '<img class="reviews-card__avatar" src="' . h(review_avatar_url($review)) . '" alt="' . h(review_avatar_alt($review)) . '">';
         } else {
             $html .= '<span class="reviews-card__avatar" aria-hidden="true"></span>';
         }
@@ -1338,7 +1345,7 @@ function render_reviews_section(array $reviews): string
         $html .= '<a class="reviews-popup__backdrop" href="#reviews-title" aria-label="Закрыть отзыв"></a><article class="reviews-popup__body">';
         $html .= '<a class="reviews-popup__close" href="#reviews-title" aria-label="Закрыть">x</a><div class="reviews-popup__author">';
         if (!empty($review['avatar'])) {
-            $html .= '<img class="reviews-popup__avatar" src="' . h($review['avatar']) . '" alt="' . h(review_avatar_alt($review)) . '" loading="lazy">';
+            $html .= '<img class="reviews-popup__avatar" src="' . h(review_avatar_url($review)) . '" alt="' . h(review_avatar_alt($review)) . '">';
         } else {
             $html .= '<span class="reviews-popup__avatar" aria-hidden="true"></span>';
         }
@@ -1401,7 +1408,7 @@ function render_reviews_page(array $site): void
         $body .= '<a class="reviews-card__more" href="#' . h($popupId) . '"><span>Читать полностью</span>' . icon_html('arrow-top-right', 'icon reviews-card__more-icon') . '</a>';
         $body .= '<footer class="reviews-card__author">';
         if (!empty($review['avatar'])) {
-            $body .= '<img class="reviews-card__avatar" src="' . h($review['avatar']) . '" alt="' . h(review_avatar_alt($review)) . '" loading="lazy">';
+            $body .= '<img class="reviews-card__avatar" src="' . h(review_avatar_url($review)) . '" alt="' . h(review_avatar_alt($review)) . '">';
         } else {
             $body .= '<span class="reviews-card__avatar" aria-hidden="true"></span>';
         }
@@ -1416,7 +1423,7 @@ function render_reviews_page(array $site): void
         $body .= '<a class="reviews-popup__backdrop" href="#reviews-hero-title" aria-label="Закрыть отзыв"></a><article class="reviews-popup__body">';
         $body .= '<a class="reviews-popup__close" href="#reviews-hero-title" aria-label="Закрыть">x</a><div class="reviews-popup__author">';
         if (!empty($review['avatar'])) {
-            $body .= '<img class="reviews-popup__avatar" src="' . h($review['avatar']) . '" alt="' . h(review_avatar_alt($review)) . '" loading="lazy">';
+            $body .= '<img class="reviews-popup__avatar" src="' . h(review_avatar_url($review)) . '" alt="' . h(review_avatar_alt($review)) . '">';
         } else {
             $body .= '<span class="reviews-popup__avatar" aria-hidden="true"></span>';
         }

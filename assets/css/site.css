@@ -266,13 +266,15 @@ button.project-card:focus-visible {
 }
 
 .service-benefits-card[data-info-popup-open],
-.service-options-card[data-info-popup-open] {
+.service-options-card[data-info-popup-open],
+.interior-advantages-card[data-info-popup-open] {
   cursor: pointer;
 }
 
 @media (any-hover: hover) {
   .service-benefits-card[data-info-popup-open]:hover .service-benefits-card__link,
-  .service-options-card[data-info-popup-open]:hover .service-options-card__link {
+  .service-options-card[data-info-popup-open]:hover .service-options-card__link,
+  .interior-advantages-card[data-info-popup-open]:hover .interior-advantages-card__link {
     color: var(--color-white);
   }
 }

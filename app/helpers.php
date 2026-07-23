@@ -363,7 +363,7 @@ function render_layout(array $site, string $title, string $content, array $seo =
     echo '<meta name="twitter:image" content="' . h($image) . '">';
     echo '<script type="application/ld+json" nonce="' . h($scriptNonce) . '">' . json_encode($schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . '</script>';
     echo '<link rel="stylesheet" href="/assets/css/base.css?v=20260710-factory-background">';
-    echo '<link rel="stylesheet" href="/assets/css/site.css?v=20260723-service-gallery-title">';
+    echo '<link rel="stylesheet" href="/assets/css/site.css?v=20260723-interior-benefit-popups">';
     $bodyClass = trim((string) ($seo['bodyClass'] ?? ''));
     echo '</head><body' . ($bodyClass !== '' ? ' class="' . h($bodyClass) . '"' : '') . '>';
     render_header($products, $interiors, $phone, $email);
@@ -2140,15 +2140,23 @@ function render_interior_advantages(?array $data): string
         $html .= '<p class="interior-advantages__description">' . h($data['description']) . '</p>';
     }
     $html .= '</header><div class="interior-advantages__grid">';
+    $popups = '';
     $fallbackIcons = ['tree', 'detail', 'shield_1', 'time', 'mark'];
     foreach ($items as $index => $item) {
         $icon = semantic_card_icon_url($item, $fallbackIcons[$index % count($fallbackIcons)]);
-        $html .= '<article class="interior-advantages-card" style="--card-bg: url(' . h(asset_url('images/ServiceOptions/card-bg.png')) . ')"><div class="interior-advantages-card__content"><h3 class="interior-advantages-card__title h3">' . h($item['title'] ?? '') . '</h3><p class="interior-advantages-card__description">' . h($item['description'] ?? '') . '</p></div>';
+        $popupId = 'interior-advantage-info-' . $index;
+        $popupAttributes = !empty($item['popup'])
+            ? ' role="button" tabindex="0" aria-haspopup="dialog" aria-controls="' . h($popupId) . '" data-info-popup-open="' . h($popupId) . '"'
+            : '';
+        $html .= '<article class="interior-advantages-card"' . $popupAttributes . ' style="--card-bg: url(' . h(asset_url('images/ServiceOptions/card-bg.png')) . ')"><div class="interior-advantages-card__content"><h3 class="interior-advantages-card__title h3">' . h($item['title'] ?? '') . '</h3><p class="interior-advantages-card__description">' . h($item['description'] ?? '') . '</p></div>';
         $html .= '<img class="interior-advantages-card__decor" src="' . h($icon) . '" alt="" width="110" height="110" loading="lazy">';
-        $html .= '<a class="interior-advantages-card__link" href="/"><span>Подробнее</span>' . icon_html('arrow-top-right', 'icon interior-advantages-card__icon') . '</a></article>';
+        $html .= '<span class="interior-advantages-card__link"><span>Подробнее</span>' . icon_html('arrow-top-right', 'icon interior-advantages-card__icon') . '</span></article>';
+        if (!empty($item['popup'])) {
+            $popups .= render_info_popup($item, $popupId);
+        }
     }
 
-    return $html . '</div></section>';
+    return $html . '</div>' . $popups . '</section>';
 }
 
 function render_interior_plans(?array $data): string

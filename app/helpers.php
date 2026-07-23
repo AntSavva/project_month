@@ -1561,7 +1561,7 @@ function card_icon_url(?string $icon, string $fallback): string
 
     $webpIcons = [
         'broom', 'cloud_and_sum', 'hands', 'machine', 'mark', 'nuts', 'oil',
-        'pen_and_paper', 'person_paper', 'puzzles', 'shelf_book', 'thermometer',
+        'pen_and_paper', 'person_paper', 'puzzles', 'rubanok', 'shelf_book', 'thermometer',
         'time', 'tools', 'triangle', 'weight',
     ];
     $extension = in_array($name, $webpIcons, true) ? 'webp' : 'png';

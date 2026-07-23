@@ -1504,8 +1504,8 @@ button.project-card:focus-visible {
   overflow-wrap: anywhere;
 }
 
-.reviews-card__avatar:empty,
-.reviews-popup__avatar:empty {
+span.reviews-card__avatar:empty,
+span.reviews-popup__avatar:empty {
   display: none;
 }
 

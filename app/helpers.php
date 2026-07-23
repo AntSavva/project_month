@@ -363,7 +363,7 @@ function render_layout(array $site, string $title, string $content, array $seo =
     echo '<meta name="twitter:image" content="' . h($image) . '">';
     echo '<script type="application/ld+json" nonce="' . h($scriptNonce) . '">' . json_encode($schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . '</script>';
     echo '<link rel="stylesheet" href="/assets/css/base.css?v=20260710-factory-background">';
-    echo '<link rel="stylesheet" href="/assets/css/site.css?v=20260723-reviews-avatars">';
+    echo '<link rel="stylesheet" href="/assets/css/site.css?v=20260723-reviews-avatars-fix">';
     $bodyClass = trim((string) ($seo['bodyClass'] ?? ''));
     echo '</head><body' . ($bodyClass !== '' ? ' class="' . h($bodyClass) . '"' : '') . '>';
     render_header($products, $interiors, $phone, $email);

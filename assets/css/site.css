@@ -640,6 +640,13 @@ button.project-card:focus-visible {
   background-color: currentColor;
 }
 
+.social-media-icon {
+  display: block;
+  width: var(--iconSize, 2.25rem);
+  height: var(--iconSize, 2.25rem);
+  object-fit: contain;
+}
+
 /* The ruler artwork has generous transparent margins, so its visible shape
    needs a little more scale than the other card icons. */
 .service-includes-card__image[src$="/triangle.webp"],

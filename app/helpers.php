@@ -291,6 +291,15 @@ function social_links(array $settings, bool $withYoutube = false): array
     return array_values(array_filter($items, static fn($item): bool => $item['href'] !== ''));
 }
 
+function social_link_html(array $social, string $linkClass, string $iconClass): string
+{
+    $external = preg_match('#^https?://#i', $social['href']) === 1;
+
+    return '<a class="' . h($linkClass) . '" href="' . h($social['href']) . '" aria-label="' . h($social['label']) . '"'
+        . ($external ? ' target="_blank" rel="noopener noreferrer"' : '')
+        . '><img class="social-media-icon ' . h($iconClass) . '" src="' . h(asset_url('icons/' . $social['name'] . '.svg')) . '" alt="" width="36" height="36"></a>';
+}
+
 function content_items(array $block): array
 {
     $items = $block['items'] ?? [];
@@ -347,7 +356,7 @@ function render_layout(array $site, string $title, string $content, array $seo =
     echo '<meta name="twitter:image" content="' . h($image) . '">';
     echo '<script type="application/ld+json" nonce="' . h($scriptNonce) . '">' . json_encode($schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . '</script>';
     echo '<link rel="stylesheet" href="/assets/css/base.css?v=20260710-factory-background">';
-    echo '<link rel="stylesheet" href="/assets/css/site.css?v=20260722-about-slider">';
+    echo '<link rel="stylesheet" href="/assets/css/site.css?v=20260723-social-icons">';
     $bodyClass = trim((string) ($seo['bodyClass'] ?? ''));
     echo '</head><body' . ($bodyClass !== '' ? ' class="' . h($bodyClass) . '"' : '') . '>';
     render_header($products, $interiors, $phone, $email);
@@ -898,7 +907,7 @@ function render_footer(array $settings, array $products, array $interiors, array
     echo '<h2 class="footer__title footer__title--spaced">Почта</h2><a class="footer__link" href="' . h(email_href($email)) . '">' . h($email) . '</a>';
     echo '<h2 class="footer__title footer__title--spaced">Соц сети</h2><ul class="footer__socials" aria-label="Социальные сети">';
     foreach (social_links($settings, true) as $social) {
-        echo '<li class="footer__social-item"><a class="footer__social-link" href="' . h($social['href']) . '" aria-label="' . h($social['label']) . '">' . icon_html($social['name'], 'icon footer__social-icon', true) . '</a></li>';
+        echo '<li class="footer__social-item">' . social_link_html($social, 'footer__social-link', 'footer__social-icon') . '</li>';
     }
     echo '</ul></section><nav class="footer__section footer__section--products" aria-label="Продукция"><h2 class="footer__title">Продукция</h2><ul class="footer__list footer__list--products">';
     foreach ($products as $page) {
@@ -1522,7 +1531,7 @@ function render_questions(array $settings): string
 {
     $html = '<section class="questions container" aria-labelledby="questions-title"><div class="questions__inner"><div class="questions__content"><div class="questions__header"><h2 class="questions__title h2" id="questions-title">Остались вопросы?</h2><p class="questions__description">Оставьте заявку или свяжитесь с нами удобным способом</p></div><ul class="questions__socials" aria-label="Способы связи">';
     foreach (social_links($settings) as $social) {
-        $html .= '<li class="questions__social-item"><a class="questions__social-link" href="' . h($social['href']) . '" aria-label="' . h($social['label']) . '">' . icon_html($social['name'], 'icon questions__social-icon', true) . '</a></li>';
+        $html .= '<li class="questions__social-item">' . social_link_html($social, 'questions__social-link', 'questions__social-icon') . '</li>';
     }
     $html .= '</ul><div class="questions__manager"><img class="questions__manager-photo" src="' . h(asset_url('images/Questions/manager-photo.png')) . '" alt="Григорий Карпинский, менеджер продаж Кубэра" width="96" height="96" loading="lazy"><div class="questions__manager-info"><p class="questions__manager-name">Григорий Карпинский</p><p class="questions__manager-position">Менеджер продаж</p></div></div></div>';
     $html .= render_lead_form('questions', $settings['phone'] ?? '', 'questions');
@@ -1882,7 +1891,7 @@ function render_service_request(array $settings, string $source, string $service
     $html .= '<h2 class="service-request__title h2" id="service-request-title">Обсудим ваш проект: ' . h($serviceTitle) . '</h2><ul class="service-request__benefits"><li>Оперативный выезд на замер</li><li>Скидка 10%</li></ul></div>';
     $html .= '<div class="service-request__contacts"><p class="service-request__description">Оставьте заявку или свяжитесь с нами удобным способом</p><ul class="service-request__socials" aria-label="Способы связи">';
     foreach (social_links($settings) as $social) {
-        $html .= '<li class="service-request__social-item"><a class="service-request__social-link" href="' . h($social['href']) . '" aria-label="' . h($social['label']) . '">' . icon_html($social['name'], 'icon service-request__social-icon', true) . '</a></li>';
+        $html .= '<li class="service-request__social-item">' . social_link_html($social, 'service-request__social-link', 'service-request__social-icon') . '</li>';
     }
     $html .= '</ul></div></div>' . render_lead_form('service-request', $settings['phone'] ?? '', $source) . '</div></section>';
 
@@ -2019,7 +2028,7 @@ function render_interior_proposal_request(array $settings, string $source): stri
     $html .= '<h2 class="interior-proposal-request__title h2" id="interior-proposal-request-title">Подготовим детальное коммерческое предложение</h2><p class="interior-proposal-request__description">Оперативный выезд специалиста на замер</p></div>';
     $html .= '<div class="interior-proposal-request__contacts"><p class="interior-proposal-request__contacts-text">Оставьте заявку или свяжитесь с нами удобным способом</p><ul class="interior-proposal-request__socials" aria-label="Способы связи">';
     foreach (social_links($settings, true) as $social) {
-        $html .= '<li class="interior-proposal-request__social-item"><a class="interior-proposal-request__social-link" href="' . h($social['href']) . '" aria-label="' . h($social['label']) . '">' . icon_html($social['name'], 'icon interior-proposal-request__social-icon', true) . '</a></li>';
+        $html .= '<li class="interior-proposal-request__social-item">' . social_link_html($social, 'interior-proposal-request__social-link', 'interior-proposal-request__social-icon') . '</li>';
     }
     $html .= '</ul></div></div>';
     $html .= '<form class="interior-proposal-request__form" action="/lead" method="post">' . csrf_input() . '<input type="hidden" name="source" value="' . h($source) . '">';
@@ -2081,7 +2090,7 @@ function render_interior_questions(array $settings): string
 {
     $html = '<section class="interior-questions container" aria-labelledby="interior-questions-title"><div class="interior-questions__inner"><div class="interior-questions__content"><div class="interior-questions__header"><h2 class="interior-questions__title h2" id="interior-questions-title">Остались вопросы?</h2><p class="interior-questions__description">Оставьте заявку или свяжитесь с нами удобным способом</p></div><ul class="interior-questions__socials" aria-label="Способы связи">';
     foreach (social_links($settings, true) as $social) {
-        $html .= '<li class="interior-questions__social-item"><a class="interior-questions__social-link" href="' . h($social['href']) . '" aria-label="' . h($social['label']) . '">' . icon_html($social['name'], 'icon interior-questions__social-icon', true) . '</a></li>';
+        $html .= '<li class="interior-questions__social-item">' . social_link_html($social, 'interior-questions__social-link', 'interior-questions__social-icon') . '</li>';
     }
     $html .= '</ul><div class="interior-questions__manager"><img class="interior-questions__manager-photo" src="' . h(asset_url('images/Questions/manager-photo.png')) . '" alt="Григорий Карпинский, менеджер продаж Кубэра" width="96" height="96" loading="lazy"><div class="interior-questions__manager-info"><p class="interior-questions__manager-name">Григорий Карпинский</p><p class="interior-questions__manager-position">Менеджер продаж</p></div></div></div>';
     $html .= render_lead_form('interior-questions', $settings['phone'] ?? '', 'interior-questions');

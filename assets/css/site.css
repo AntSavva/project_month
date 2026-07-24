@@ -262,8 +262,20 @@ button.project-card:focus-visible {
 .service-includes,
 .service-materials,
 .service-request {
-  box-shadow: 0 0 0 100vmax var(--color-brown);
-  clip-path: inset(0 -100vmax);
+  position: relative;
+  isolation: isolate;
+}
+
+.service-includes::before,
+.service-materials::before,
+.service-request::before {
+  position: absolute;
+  inset: 0 50%;
+  z-index: -1;
+  width: 100vw;
+  background: var(--color-brown);
+  transform: translateX(-50%);
+  content: "";
 }
 
 .service-benefits-card__item,

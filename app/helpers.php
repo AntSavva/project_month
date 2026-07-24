@@ -544,7 +544,7 @@ function render_header_dropdown(string $label, array $pages, string $cover, bool
     echo '<button class="header__nav-link" type="button"><span>' . h($label) . '</span><svg class="header__nav-arrow" width="8" height="6" viewBox="0 0 8 6" aria-hidden="true"><path d="M4 6L0.535898 0H7.4641L4 6Z" /></svg></button>';
     echo '<div class="header__mega-menu"><div class="header__mega-menu-inner header__mega-menu-inner--compact"><ul class="header__mega-list">';
     foreach ($pages as $page) {
-        $pageCover = $usePageCovers ? interior_cover_url($page) : '';
+        $pageCover = interior_cover_url($page);
         $coverAttribute = $pageCover !== '' ? ' data-header-preview-cover="' . h($pageCover) . '"' : '';
         echo '<li class="header__mega-item"><a class="header__mega-link" href="' . h(page_href($page)) . '"' . $coverAttribute . '>' . h($page['title'] ?? '') . '</a></li>';
     }

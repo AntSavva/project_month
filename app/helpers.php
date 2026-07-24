@@ -2245,7 +2245,9 @@ function render_page(array $site, array $page): void
         $slug = $page['slug'] ?? 'service';
         $body .= render_service_request($settings, $slug, $page['title'] ?? 'изделие из дерева');
         $body .= render_service_icon_cards($contentData['benefits'] ?? null, 'service-benefits', ['shield_1', 'star', 'medal', 'person'], 'Преимущества');
-        $body .= render_service_plans($contentData['plans'] ?? null, product_plan_price($slug));
+        if ($slug !== 'dekor') {
+            $body .= render_service_plans($contentData['plans'] ?? null, product_plan_price($slug));
+        }
         $body .= render_home_request(
             $settings,
             'home-request',

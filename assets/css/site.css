@@ -259,6 +259,13 @@ button.project-card:focus-visible {
   list-style: none;
 }
 
+.service-includes,
+.service-materials,
+.service-request {
+  box-shadow: 0 0 0 100vmax var(--color-brown);
+  clip-path: inset(0 -100vmax);
+}
+
 .service-benefits-card__item,
 .service-request__benefits li {
   padding-left: 0;

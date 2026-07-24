@@ -938,8 +938,7 @@ function render_footer(array $settings, array $products, array $interiors, array
     $email = $settings['email'] ?? '';
 
     echo '<footer class="footer"><div class="footer__inner container"><div class="footer__main"><section class="footer__section">';
-    echo '<h2 class="footer__title">Юридическая информация</h2><p class="footer__text">' . nl2br(h($settings['legalInfo'] ?? '')) . '</p>';
-    echo '<h2 class="footer__title footer__title--spaced">Телефон</h2><a class="footer__link" href="' . h(phone_href($phone)) . '">' . h($phone) . '</a>';
+    echo '<h2 class="footer__title">Телефон</h2><a class="footer__link" href="' . h(phone_href($phone)) . '">' . h($phone) . '</a>';
     echo '<h2 class="footer__title footer__title--spaced">Почта</h2><a class="footer__link" href="' . h(email_href($email)) . '">' . h($email) . '</a>';
     echo '<h2 class="footer__title footer__title--spaced">Соц сети</h2><ul class="footer__socials" aria-label="Социальные сети">';
     foreach (social_links($settings, true) as $social) {

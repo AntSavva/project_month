@@ -786,6 +786,8 @@ document.addEventListener('DOMContentLoaded', function () {
       current = (index + slides.length) % slides.length;
       slides.forEach(function (slide, slideIndex) {
         slide.classList.toggle('is-active', slideIndex === current);
+        slide.classList.toggle('is-prev', slideIndex === (current - 1 + slides.length) % slides.length);
+        slide.classList.toggle('is-next', slideIndex === (current + 1) % slides.length);
       });
       dots.forEach(function (dot, dotIndex) {
         dot.classList.toggle('is-active', dotIndex === current);
@@ -798,6 +800,7 @@ document.addEventListener('DOMContentLoaded', function () {
     dots.forEach(function (dot, index) {
       dot.addEventListener('click', function () { show(index); });
     });
+    show(0);
   });
 
   document.querySelectorAll('[data-js-projects]').forEach(function (root) {
